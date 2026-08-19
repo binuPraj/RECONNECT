@@ -1,0 +1,11 @@
+{
+    "entity_id": "unknown_4b57460f",
+    "status": "existing_unknown",
+    "observation_count": 1,
+    "best_face_image": "data/unknown/unknown_4b57460f/best_face.jpg",
+    "label_request": false,
+    "modality": {
+        "face": true,
+        "voice": false
+    }
+}
