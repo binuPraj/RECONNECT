@@ -114,69 +114,75 @@ class WhoIsThisPipeline:
                 "Could not open camera."
             )
 
-        observations = []
-
-        frame_interval = (
-            1 / TARGET_FPS
-        )
-
+        frames = []
         start_time = time.time()
-
+        frame_interval = 1 / TARGET_FPS
         last_capture_time = 0
-
-        frame_number = 0
-
-        last_frame_width = None
 
         print(
             "Capturing faces..."
         )
-
-        # ==================================================
-        # CAPTURE WINDOW
-        # ==================================================
 
         while (
             time.time() - start_time
             < CAPTURE_SECONDS
         ):
 
-            success, frame = (
-                cap.read()
-            )
+            success, frame = cap.read()
 
-            if not success:
+            current_time = time.time()
 
-                continue
+            if (
+                success
+                and current_time - last_capture_time
+                >= frame_interval
+            ):
+
+                frames.append(
+                    (current_time - start_time, frame)
+                )
+
+                last_capture_time = current_time
+
+        cap.release()
+
+        return self.process_frames(
+            frames,
+            capture_seconds=CAPTURE_SECONDS
+        )
+
+    def process_frames(
+        self,
+        frames,
+        capture_seconds=CAPTURE_SECONDS
+    ):
+
+        observations = []
+
+        frame_number = 0
+
+        last_frame_width = None
+
+        # ==================================================
+        # PROCESS FRAMES
+        # ==================================================
+
+        for frame_item in frames:
+
+            if isinstance(frame_item, tuple):
+
+                timestamp = frame_item[0]
+                frame = frame_item[-1]
+
+            else:
+
+                timestamp = time.time()
+                frame = frame_item
 
             frame_number += 1
 
-            current_time = (
-                time.time()
-            )
-
-            # ------------------------------------------
-            # FPS CONTROL
-            # ------------------------------------------
-
-            if (
-                current_time
-                - last_capture_time
-                < frame_interval
-            ):
-
-                continue
-
-            last_capture_time = (
-                current_time
-            )
-
             last_frame_width = (
                 frame.shape[1]
-            )
-
-            timestamp = (
-                time.time()
             )
 
             # ==================================================
@@ -422,12 +428,6 @@ class WhoIsThisPipeline:
                     observation
                 )
 
-        # ==================================================
-        # CAMERA FINISHED
-        # ==================================================
-
-        cap.release()
-
         print(
             f"Captured "
             f"{len(observations)} "
@@ -544,7 +544,7 @@ class WhoIsThisPipeline:
                 people,
 
             "capture_seconds":
-                CAPTURE_SECONDS,
+                capture_seconds,
 
             "observation_count":
                 len(observations),

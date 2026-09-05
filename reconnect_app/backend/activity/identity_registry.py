@@ -92,7 +92,7 @@ class PersonRegistry:
     SpeakerFaceMatcher (via resolve_turn) so all three agree on person_ids.
     """
 
-    def __init__(self, enrolled_faces: dict = None, enrolled_voices: dict = None):
+    def __init__(self, enrolled_voices: dict = None):
         self.people: dict[str, PersonRecord] = {}
         self._aliases: dict[str, str] = {}   # merged-away id -> surviving id
         self._diarization_label_map: dict[str, str] = {}
@@ -102,11 +102,6 @@ class PersonRegistry:
 
         self.min_speaking_turns_for_confirmed = MIN_SPEAKING_TURNS_FOR_CONFIRMED
         self._next_id = 1
-
-        for name, emb in (enrolled_faces or {}).items():
-            rec = self._get_or_create_by_name(name)
-            rec.face_embedding, rec.face_samples = emb, 1
-            rec.is_enrolled_face = True
 
         for name, emb in (enrolled_voices or {}).items():
             rec = self._get_or_create_by_name(name)
@@ -126,6 +121,12 @@ class PersonRegistry:
                 return rec
         rec = PersonRecord(person_id=name, name=name)
         self.people[name] = rec
+        return rec
+
+    def ensure_face_identity(self, identity: str) -> PersonRecord:
+        """Create the session record for a Who Is This face match."""
+        rec = self._get_or_create_by_name(identity)
+        rec.is_enrolled_face = True
         return rec
 
     def _new_id(self) -> str:
@@ -543,6 +544,10 @@ class PersonRegistry:
 
             best_face_id = self.resolve(identity_label)
             best_asd = float(asd_score)
+
+            if best_face_id not in self.people:
+                self.ensure_face_identity(best_face_id)
+
         if voice_speaker_label:
             self._turn_results_by_speaker.setdefault(voice_speaker_label, []).append({
             "top_face_id": best_face_id,
@@ -731,14 +736,7 @@ class PersonRegistry:
                     voice_speaker_label
                 ),
         }
-    # ── explicit enrollment (called by FaceDetector.enroll_face /
-    #    SpeakerRecogniser.enroll_voice once they've extracted an
-    #    embedding — this class never touches images/audio directly) ──
-    def enroll_face(self, name: str, embedding: np.ndarray):
-        rec = self._get_or_create_by_name(name)
-        rec.face_embedding, rec.face_samples = embedding, 1
-        rec.is_enrolled_face = True
-
+    # ── explicit voice enrollment (the face reference belongs to Who Is This) ──
     def enroll_voice(self, name: str, embedding: torch.Tensor):
         rec = self._get_or_create_by_name(name)
         rec.voice_embedding, rec.voice_samples = embedding, 1

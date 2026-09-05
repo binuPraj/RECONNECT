@@ -1,15 +1,22 @@
 import os
 import json
 import hashlib
+import sys
+from pathlib import Path
 
 import cv2
 import numpy as np
+
+# Allow this file to be run directly as well as from the backend package.
+BACKEND_ROOT = Path(__file__).resolve().parents[1]
+if str(BACKEND_ROOT) not in sys.path:
+    sys.path.insert(0, str(BACKEND_ROOT))
 
 from vision.face_engine import FaceEngine
 from config import GALLERY_PATH
 
 
-ENROLLMENT_IMAGE_PATH = "data/enrollment_images"
+ENROLLMENT_IMAGE_PATH = str(BACKEND_ROOT / "data" / "enrollment_images")
 
 
 IMAGE_EXTENSIONS = (
@@ -333,6 +340,16 @@ def process_person_folder(
         embedding = face[
             "embedding"
         ]
+
+        if embedding is None:
+
+            print(
+                "[FAILED - face quality too low for embedding]"
+            )
+
+            failed_count += 1
+
+            continue
 
         # ==================================
         # SAVE EMBEDDING

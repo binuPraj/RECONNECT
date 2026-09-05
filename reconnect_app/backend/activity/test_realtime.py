@@ -53,7 +53,15 @@ from collections import Counter
 from scipy.io import wavfile
 from python_speech_features import mfcc
 
-from identity_registry import PersonRegistry
+BACKEND_ROOT = Path(__file__).resolve().parents[1]
+if str(BACKEND_ROOT) not in sys.path:
+    sys.path.insert(0, str(BACKEND_ROOT))
+
+from .identity_registry import (
+    FACE_MATCH_THRESHOLD,
+    PersonRegistry
+)
+from vision.pipeline import WhoIsThisPipeline
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -234,15 +242,16 @@ class FaceDetector:
     saves significant compute on every native-fps frame.
     """
 
-    def __init__(self, registry: PersonRegistry):
+    def __init__(
+        self,
+        registry: PersonRegistry,
+        who_is_this_pipeline: WhoIsThisPipeline
+    ):
         from insightface.app import FaceAnalysis
 
-        print("[Step 2] Loading InsightFace models...")
-        self.app = FaceAnalysis(
-            name="buffalo_l",
-            providers=["CUDAExecutionProvider", "CPUExecutionProvider"]
-        )
-        self.app.prepare(ctx_id=0, det_size=(640, 640))
+        print("[Step 2] Reusing Who Is This face model...")
+        self.app = who_is_this_pipeline.face_engine.app
+        self.face_references = who_is_this_pipeline.matcher.gallery
 
         print("[Step 2] Loading lightweight detection-only InsightFace instance...")
         self.dense_app = FaceAnalysis(
@@ -257,19 +266,25 @@ class FaceDetector:
         self._frame_idx = 0
         print(f"  InsightFace loaded. Known identities so far: {list(self.registry.people.keys())}")
 
-    def enroll_face(self, name: str, image_path: str):
-        """
-        Enroll a new person by extracting their face embedding from an image.
-        Call this during the enrollment phase before detection.
-        """
-        img = cv2.imread(image_path)
-        faces = self.app.get(img)
-        if not faces:
-            print(f"  WARNING: No face found in {image_path}")
-            return
-        face = max(faces, key=lambda f: f.bbox[2] * f.bbox[3])
-        self.registry.enroll_face(name, face.embedding)
-        print(f"  Enrolled face: {name}")
+    def _match_who_is_this_identity(self, embedding: np.ndarray):
+        best_identity = None
+        best_similarity = -1.0
+
+        for identity, references in self.face_references.items():
+            for reference in references:
+                similarity = float(np.dot(embedding, reference))
+
+                if similarity > best_similarity:
+                    best_identity = identity
+                    best_similarity = similarity
+
+        if (
+            best_identity is not None
+            and best_similarity >= FACE_MATCH_THRESHOLD
+        ):
+            return best_identity, best_similarity
+
+        return None, best_similarity
 
     def detect_and_recognize(self, frame: np.ndarray) -> list:
         """
@@ -323,12 +338,16 @@ class FaceDetector:
 
             if best_track_id is not None:
                 identity = best_track_id
-                self.registry.reinforce_face(identity, embedding)
                 face_confidence = 1.0   # trusted via tracking, not re-matched
             else:
-                # ── 2. no nearby track — fall back to embedding matching ──
-                identity, best_sim, is_new = self.registry.identify_face(embedding)
-                face_confidence = 0.0 if is_new else float(best_sim)
+                # ── 2. compare against the Who Is This gallery ──
+                identity, best_sim = self._match_who_is_this_identity(embedding)
+
+                if identity is None:
+                    identity, _, _ = self.registry.identify_face(embedding)
+                    face_confidence = 0.0
+                else:
+                    face_confidence = float(best_sim)
 
             self.active_tracks[identity] = {"center": center, "last_frame_idx": self._frame_idx}
             used_identities_this_frame.add(identity)
@@ -1086,16 +1105,15 @@ def render_debug_video(video_path: str, frame_faces: dict, matched_results: list
 
 def run_pipeline(
     video_path: str,
-    enrolled_faces: dict = None,
     enrolled_voices: dict = None,
-    output_path: str = "asd_output.json"
+    output_path: str = "asd_output.json",
+    **_legacy_options
 ):
     """
     Run the complete Active Speaker Detection pipeline.
 
     Args:
         video_path:      Path to input video file (.mp4, .avi, etc.)
-        enrolled_faces:  dict {name: embedding_array} — pre-enrolled faces
         enrolled_voices: dict {name: embedding_tensor} — pre-enrolled voices
         output_path:     Path to save JSON output
 
@@ -1108,11 +1126,15 @@ def run_pipeline(
 
     # ── Step 1: Extract video frames and audio ───────────────
     frames = extract_frames(video_path, fps=2)
-    registry = PersonRegistry(enrolled_faces, enrolled_voices)
+    who_is_this_pipeline = WhoIsThisPipeline()
+    registry = PersonRegistry(enrolled_voices)
     audio_path = extract_audio_from_video(video_path)
 
     # ── Step 2: Face detection + recognition ────────────────
-    face_detector = FaceDetector(registry)
+    face_detector = FaceDetector(
+        registry,
+        who_is_this_pipeline
+    )
     frame_faces = face_detector.process_all_frames(frames)
 
     # ── Step 3: Speaker diarisation ──────────────────────────
@@ -1224,8 +1246,7 @@ def quick_test():
 
     For enrollment testing — add face images:
     5. Take 3-5 photos of a person (clear face, different angles)
-    6. Call face_detector.enroll_face("YourName", "photo.jpg")
-    7. Record 30s voice sample and call
+    6. Record 30s voice sample and call
        speaker_recogniser.enroll_voice("YourName", "voice.wav")
     """
 
@@ -1249,7 +1270,6 @@ def quick_test():
 
     results = run_pipeline(
         video_path      = video_file,
-        enrolled_faces  = {},    # add {name: embedding} here after enrollment
         enrolled_voices = {},    # add {name: embedding} here after enrollment
         output_path     = "asd_output.json"
     )

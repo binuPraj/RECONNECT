@@ -49,9 +49,29 @@ class FaceMatcher:
                         filename
                     )
 
-                    embedding = np.load(
-                        embedding_path
-                    )
+                    try:
+
+                        embedding = np.load(
+                            embedding_path,
+                            allow_pickle=False
+                        )
+
+                    except (
+                        OSError,
+                        ValueError
+                    ):
+
+                        continue
+
+                    if (
+                        embedding.ndim != 1
+                        or not np.issubdtype(
+                            embedding.dtype,
+                            np.number
+                        )
+                    ):
+
+                        continue
 
                     embeddings.append(
                         embedding

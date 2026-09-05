@@ -1,4 +1,5 @@
 import speech_recognition as sr
+import os
 
 
 class WhoIsThisListener:
@@ -6,12 +7,12 @@ class WhoIsThisListener:
     def __init__(self):
 
         self.recognizer = sr.Recognizer()
+        self.recognizer.dynamic_energy_threshold = True
+        self.recognizer.pause_threshold = 0.8
+        self.recognizer.non_speaking_duration = 0.3
+        self.recognizer.phrase_threshold = 0.3
 
-        # MacBook Air Microphone
-        # Device 0 was confirmed on your system.
-        self.microphone = sr.Microphone(
-            device_index=0
-        )
+        self.microphone = self._build_microphone()
 
         self.trigger_phrases = [
             "who is this",
@@ -47,6 +48,43 @@ class WhoIsThisListener:
             f"{self.recognizer.energy_threshold:.0f}"
         )
 
+    def _build_microphone(self):
+        """
+        Select microphone in a robust order:
+        1) MIC_DEVICE_INDEX env var (explicit index)
+        2) MIC_DEVICE_NAME env var (substring match)
+        3) System default microphone
+        """
+        names = sr.Microphone.list_microphone_names()
+
+        if names:
+            print("Detected microphone devices:")
+            for idx, name in enumerate(names):
+                print(f"  [{idx}] {name}")
+        else:
+            print("No microphone devices reported by PyAudio.")
+
+        mic_index = os.getenv("MIC_DEVICE_INDEX")
+        mic_name_hint = (os.getenv("MIC_DEVICE_NAME") or "").strip().lower()
+
+        if mic_index is not None:
+            try:
+                idx = int(mic_index)
+                print(f"Using MIC_DEVICE_INDEX={idx}")
+                return sr.Microphone(device_index=idx)
+            except Exception as error:
+                print(f"Invalid MIC_DEVICE_INDEX '{mic_index}': {error}")
+
+        if mic_name_hint:
+            for idx, name in enumerate(names):
+                if mic_name_hint in name.lower():
+                    print(f"Using MIC_DEVICE_NAME match: [{idx}] {name}")
+                    return sr.Microphone(device_index=idx)
+            print(f"No microphone matched MIC_DEVICE_NAME='{mic_name_hint}'.")
+
+        print("Using system default microphone.")
+        return sr.Microphone()
+
     # ------------------------------------------
     # Continuous trigger listener
     # ------------------------------------------
@@ -66,6 +104,12 @@ class WhoIsThisListener:
                 # --------------------------------
 
                 with self.microphone as source:
+
+                    # Short re-calibration helps when room noise changes.
+                    self.recognizer.adjust_for_ambient_noise(
+                        source,
+                        duration=0.2
+                    )
 
                     audio = self.recognizer.listen(
                         source,

@@ -1,3 +1,8 @@
+from pathlib import Path
+
+
+BACKEND_ROOT = Path(__file__).resolve().parent
+
 CAMERA_INDEX = 0
 
 # Vision capture duration
@@ -19,10 +24,10 @@ UNKNOWN_CLUSTER_THRESHOLD = 0.55
 MIN_KNOWN_OBSERVATIONS = 2
 MIN_UNKNOWN_OBSERVATIONS = 2
 
-GALLERY_PATH = "data/gallery"
-UNKNOWN_PATH = "data/unknown"
+GALLERY_PATH = str(BACKEND_ROOT / "data" / "gallery")
+UNKNOWN_PATH = str(BACKEND_ROOT / "data" / "unknown")
 MIN_FACE_SIZE = 60
 
-BLUR_THRESHOLD = 80.0
+BLUR_THRESHOLD = 30.0
 
-OUTPUT_FILE = "output/results.jsonl"
+OUTPUT_FILE = str(BACKEND_ROOT / "output" / "results.jsonl")
