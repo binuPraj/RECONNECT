@@ -13,7 +13,7 @@ from database.db import (
     create_identity,
     find_matching_face,
     init_database,
-    update_voice_embedding,
+    append_voice_embedding,
 )
 from enrollment.enroll import ENROLLMENT_IMAGE_PATH, FaceEngine
 from enroll_audio import record_voice_embedding
@@ -110,9 +110,14 @@ def enroll_user():
 
     wants_voice = input("Enroll voice now? (y/n): ").strip().lower()
     if wants_voice in ("y", "yes"):
-        voice_embedding = record_voice_embedding()
-        update_voice_embedding(identity_id, voice_embedding)
-        print("Voice embedding saved in SQLite.")
+        for sample_number in range(1, 4):
+            print(f"Voice sample {sample_number} of 3")
+            voice_embedding = record_voice_embedding(
+                identity=name,
+                sample_number=sample_number,
+            )
+            append_voice_embedding(identity_id, voice_embedding)
+        print("Three voice embeddings saved in SQLite.")
     else:
         print("Voice enrollment skipped; voice_embedding remains NULL.")
 

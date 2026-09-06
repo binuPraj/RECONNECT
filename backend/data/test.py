@@ -1,0 +1,90 @@
+
+
+Server restarted while streaming. Start Uvicorn without --reload.
+(venv) PS C:\Users\ASUS\OneDrive\Desktop\binu\reconnect> python backend/live_microphone_client.py
+Microphone: Microphone Array (Realtek(R) Au | 44100 Hz | 1 channel(s) | 882 samples/chunk
+Connected to ws://127.0.0.1:8000/ws/audio | session=session_011
+Recording live microphone audio. Press Ctrl+C to stop.
+WARNING microphone queue full; dropped_chunks=1
+WARNING microphone queue full; dropped_chunks=2
+WARNING microphone queue full; dropped_chunks=3
+WARNING microphone queue full; dropped_chunks=4
+WARNING microphone queue full; dropped_chunks=5
+WARNING microphone queue full; dropped_chunks=6
+WARNING microphone queue full; dropped_chunks=7
+WARNING microphone queue full; dropped_chunks=8
+WARNING microphone queue full; dropped_chunks=9
+WARNING microphone queue full; dropped_chunks=10
+WARNING microphone queue full; dropped_chunks=11
+WARNING microphone queue full; dropped_chunks=12
+WARNING microphone queue full; dropped_chunks=13
+WARNING microphone queue full; dropped_chunks=14
+WARNING microphone queue full; dropped_chunks=15
+WARNING microphone queue full; dropped_chunks=16
+WARNING microphone queue full; dropped_chunks=17
+WARNING microphone queue full; dropped_chunks=18
+WARNING microphone queue full; dropped_chunks=19
+WARNING microphone queue full; dropped_chunks=20
+WARNING microphone queue full; dropped_chunks=21
+WARNING microphone queue full; dropped_chunks=22
+WARNING microphone queue full; dropped_chunks=23
+WARNING microphone queue full; dropped_chunks=24
+WARNING microphone queue full; dropped_chunks=25
+WARNING microphone queue full; dropped_chunks=26
+WARNING microphone queue full; dropped_chunks=27
+WARNING microphone queue full; dropped_chunks=28
+WARNING microphone queue full; dropped_chunks=29
+WARNING microphone queue full; dropped_chunks=30
+WARNING microphone queue full; dropped_chunks=31
+WARNING microphone queue full; dropped_chunks=32
+WARNING microphone queue full; dropped_chunks=33
+WARNING microphone queue full; dropped_chunks=34
+WARNING microphone queue full; dropped_chunks=35
+WARNING microphone queue full; dropped_chunks=36
+WARNING microphone queue full; dropped_chunks=37
+WARNING microphone queue full; dropped_chunks=38
+WARNING microphone queue full; dropped_chunks=39
+Sent chunks=1 bytes=1764 queued=100 dropped=39
+WARNING microphone queue full; dropped_chunks=40
+WARNING microphone queue full; dropped_chunks=41
+WARNING microphone queue full; dropped_chunks=42
+WARNING microphone queue full; dropped_chunks=43
+WARNING microphone queue full; dropped_chunks=44
+WARNING microphone queue full; dropped_chunks=45
+WARNING microphone queue full; dropped_chunks=46
+WARNING microphone queue full; dropped_chunks=47
+WARNING microphone queue full; dropped_chunks=48
+WARNING microphone queue full; dropped_chunks=49
+WARNING microphone queue full; dropped_chunks=50
+WARNING microphone queue full; dropped_chunks=51
+WARNING microphone queue full; dropped_chunks=52
+WARNING microphone queue full; dropped_chunks=53
+WARNING microphone queue full; dropped_chunks=54
+WARNING microphone queue full; dropped_chunks=55
+WARNING microphone queue full; dropped_chunks=56
+WARNING microphone queue full; dropped_chunks=57
+WARNING microphone queue full; dropped_chunks=58
+WARNING microphone queue full; dropped_chunks=59
+WARNING microphone queue full; dropped_chunks=60
+WARNING microphone queue full; dropped_chunks=61
+WARNING microphone queue full; dropped_chunks=62
+Sent chunks=127 bytes=224028 queued=1 dropped=62
+Sent chunks=177 bytes=312228 queued=1 dropped=62
+Sent chunks=227 bytes=400428 queued=1 dropped=62
+Sent chunks=277 bytes=488628 queued=1 dropped=62
+Sent chunks=327 bytes=576828 queued=1 dropped=62
+Sent chunks=377 bytes=665028 queued=1 dropped=62
+Sent chunks=427 bytes=753228 queued=1 dropped=62
+Sent chunks=477 bytes=841428 queued=1 dropped=62
+Sent chunks=527 bytes=929628 queued=1 dropped=62
+Sent chunks=577 bytes=1017828 queued=1 dropped=62
+Sent chunks=627 bytes=1106028 queued=1 dropped=62
+Sent chunks=677 bytes=1194228 queued=1 dropped=62
+Sent chunks=727 bytes=1282428 queued=1 dropped=62
+Sent chunks=777 bytes=1370628 queued=1 dropped=62
+Sent chunks=827 bytes=1458828 queued=1 dropped=62
+Sent chunks=877 bytes=1547028 queued=1 dropped=62
+Sent chunks=927 bytes=1635228 queued=1 dropped=62
+
+Server restarted while streaming. Start Uvicorn without --reload.
+(venv) PS C:\Users\ASUS\OneDrive\Desktop\binu\reconnect> 

@@ -1,8 +1,0 @@
-{
-  "error": "'str' object has no attribute 'keys'",
-  "finalized_reason": "stream_end",
-  "recording_id": 1,
-  "session_id": "session_008",
-  "status": "failed",
-  "total_processing_time_sec": 2.587
-}

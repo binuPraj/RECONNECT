@@ -221,7 +221,9 @@ class StreamingSpeechRecorder:
                 event.state.value,
             )
             if event.event_type != VADEventType.NONE:
-                LOGGER.info(
+                level = logging.DEBUG if event.event_type.value == "speech_continuing" else logging.INFO
+                LOGGER.log(
+                    level,
                     "[VAD] transition=%s probability=%.3f state=%s",
                     event.event_type.value,
                     event.speech_probability or 0.0,

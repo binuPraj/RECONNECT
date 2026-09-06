@@ -1,0 +1,7 @@
+[2026-09-06 20:58:29] [MATCH]: 'binu' (Score: 0.692 | Speaker: SPEAKER_00 | Duration: 19.61s | Via: gallery)
+[2026-09-06 20:58:29] [NO MATCH]: unknown_1 (Highest Score: 0.281 | Speaker: SPEAKER_UNKNOWN | Duration: 0.62s)
+[2026-09-06 20:58:29] [NO MATCH]: unknown_2 (Highest Score: 0.312 | Speaker: SPEAKER_01 | Duration: 0.54s)
+[2026-09-06 20:58:59] [MATCH]: 'binu' (Score: 0.710 | Speaker: SPEAKER_00 | Duration: 13.61s | Via: gallery)
+[2026-09-06 20:59:23] [NO MATCH]: unknown_3 (Highest Score: 0.632 | Speaker: SPEAKER_UNKNOWN | Duration: 4.06s)
+[2026-09-06 21:00:39] [NO MATCH]: unknown_4 (Highest Score: 0.275 | Speaker: SPEAKER_UNKNOWN | Duration: 0.62s)
+[2026-09-06 21:00:55] [MATCH]: 'binu' (Score: 0.654 | Speaker: SPEAKER_00 | Duration: 10.66s | Via: gallery)

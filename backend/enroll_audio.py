@@ -11,9 +11,11 @@ import numpy as np
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from app.audio_process.recognition import AudioEmbedder
+from app.audio_process.preprocessing import preprocess_audio
 
-VOICE_DURATION_SECONDS = 5
+VOICE_DURATION_SECONDS = 10
 VOICE_SAMPLE_RATE = 16000
+ENROLLMENT_AUDIO_PATH = Path(__file__).resolve().parent / "enrollment" / "enrollment_audio"
 
 
 def create_voice_embedding(audio_path: str | os.PathLike) -> np.ndarray:
@@ -27,6 +29,8 @@ def create_voice_embedding(audio_path: str | os.PathLike) -> np.ndarray:
 
 def record_voice_embedding(
     duration_seconds: int = VOICE_DURATION_SECONDS,
+    identity: str | None = None,
+    sample_number: int = 1,
 ) -> np.ndarray:
     """Record microphone audio and create its speaker embedding."""
     device = sd.query_devices(None, "input")
@@ -46,18 +50,34 @@ def record_voice_embedding(
     sd.wait()
     print("Voice recording complete.")
 
-    with tempfile.NamedTemporaryFile(
-        suffix=".wav",
-        dir=Path(__file__).resolve().parent / "data",
-        delete=False,
-    ) as temporary_file:
+    if identity:
+        audio_directory = ENROLLMENT_AUDIO_PATH / identity
+        audio_directory.mkdir(parents=True, exist_ok=True)
+        audio_path = audio_directory / f"enrollment_voice_{sample_number:02d}.wav"
+    else:
+        temporary_file = tempfile.NamedTemporaryFile(
+            suffix=".wav",
+            dir=Path(__file__).resolve().parent / "data",
+            delete=False,
+        )
         audio_path = Path(temporary_file.name)
+        temporary_file.close()
 
     try:
         sf.write(audio_path, recording[:, 0], sample_rate)
-        return create_voice_embedding(audio_path)
+        if identity:
+            cleaned_path = audio_path.with_name(
+                f"enrollment_voice_{sample_number:02d}_cleaned.wav"
+            )
+            preprocess_audio(audio_path, cleaned_path)
+            embedding = create_voice_embedding(cleaned_path)
+        else:
+            embedding = create_voice_embedding(audio_path)
+        print(f"Enrollment audio saved to {audio_path}")
+        return embedding
     finally:
-        audio_path.unlink(missing_ok=True)
+        if not identity:
+            audio_path.unlink(missing_ok=True)
 
 def batch_enroll():
     source_dir = os.path.join("data", "enrollment")

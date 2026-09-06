@@ -1,0 +1,98 @@
+{
+  "cleaned_audio_path": "C:\\Users\\ASUS\\OneDrive\\Desktop\\binu\\reconnect\\backend\\uploads\\streams\\session_001\\recording_0002\\cleaned.wav",
+  "pipeline_result": {
+    "audio": {
+      "cleaned_path": "C:\\Users\\ASUS\\OneDrive\\Desktop\\binu\\reconnect\\backend\\uploads\\streams\\session_001\\recording_0002\\cleaned.wav",
+      "original_path": "C:\\Users\\ASUS\\OneDrive\\Desktop\\binu\\reconnect\\backend\\uploads\\streams\\session_001\\recording_0002\\raw.wav",
+      "sample_rate": 16000
+    },
+    "duration_sec": 17.16,
+    "original_filename": "raw.wav",
+    "pipeline": {
+      "diarization_model": "pyannote/speaker-diarization-community-1",
+      "processing_time_sec": 30.644,
+      "vad_model": "Silero VAD"
+    },
+    "preprocessing": {
+      "cleaned_rms": 0.06449183076620102,
+      "noise_profile_sec": 10.0,
+      "noise_profile_source": "session",
+      "noise_reduction_applied": true,
+      "noise_reduction_mode": "vad_regions",
+      "original_sample_rate": 16000,
+      "peak_normalized": 0.95,
+      "preprocessing_completed": true,
+      "raw_rms": 0.0036713932640850544
+    },
+    "recording_started_at": "2026-09-06T20:58:59.925103+05:45",
+    "saved": true,
+    "segment_count": 4,
+    "segments": [
+      {
+        "audio_path": "C:\\Users\\ASUS\\OneDrive\\Desktop\\binu\\reconnect\\backend\\uploads\\streams\\session_001\\recording_0002\\segments\\speaker_01_001.wav",
+        "end_sec": 3.355,
+        "match_status": "known",
+        "segment_id": "seg_001",
+        "speaker_identity": "binu",
+        "speaker_label": "SPEAKER_00",
+        "speaker_source": "diarization",
+        "start_sec": 0.492,
+        "vad_confidence": null
+      },
+      {
+        "audio_path": "C:\\Users\\ASUS\\OneDrive\\Desktop\\binu\\reconnect\\backend\\uploads\\streams\\session_001\\recording_0002\\segments\\speaker_01_002.wav",
+        "end_sec": 7.321,
+        "match_status": "known",
+        "segment_id": "seg_002",
+        "speaker_identity": "binu",
+        "speaker_label": "SPEAKER_00",
+        "speaker_source": "diarization",
+        "start_sec": 4.486,
+        "vad_confidence": null
+      },
+      {
+        "audio_path": "C:\\Users\\ASUS\\OneDrive\\Desktop\\binu\\reconnect\\backend\\uploads\\streams\\session_001\\recording_0002\\segments\\speaker_01_003.wav",
+        "end_sec": 13.801,
+        "match_status": "known",
+        "segment_id": "seg_003",
+        "speaker_identity": "binu",
+        "speaker_label": "SPEAKER_00",
+        "speaker_source": "diarization",
+        "start_sec": 8.131,
+        "vad_confidence": null
+      },
+      {
+        "audio_path": "C:\\Users\\ASUS\\OneDrive\\Desktop\\binu\\reconnect\\backend\\uploads\\streams\\session_001\\recording_0002\\segments\\speaker_01_004.wav",
+        "end_sec": 16.737,
+        "match_status": "known",
+        "segment_id": "seg_004",
+        "speaker_identity": "binu",
+        "speaker_label": "SPEAKER_00",
+        "speaker_source": "diarization",
+        "start_sec": 14.493,
+        "vad_confidence": null
+      }
+    ],
+    "session_id": "session_001",
+    "speaker_count": 1,
+    "stream_segment": {
+      "finalized_reason": "stream_end",
+      "main_segment_id": 2,
+      "stream_end_sec": 79.74,
+      "stream_start_sec": 62.58
+    }
+  },
+  "raw_audio_path": "C:\\Users\\ASUS\\OneDrive\\Desktop\\binu\\reconnect\\backend\\uploads\\streams\\session_001\\recording_0002\\raw.wav",
+  "recording_id": 2,
+  "segments_directory": "C:\\Users\\ASUS\\OneDrive\\Desktop\\binu\\reconnect\\backend\\uploads\\streams\\session_001\\recording_0002\\segments",
+  "segments_manifest_path": "C:\\Users\\ASUS\\OneDrive\\Desktop\\binu\\reconnect\\backend\\uploads\\streams\\session_001\\recording_0002\\segments\\segments.json",
+  "session_id": "session_001",
+  "status": "completed",
+  "stream": {
+    "finalized_reason": "stream_end",
+    "main_segment_id": 2,
+    "stream_end_sec": 79.74,
+    "stream_start_sec": 62.58
+  },
+  "total_processing_time_sec": 42.848
+}

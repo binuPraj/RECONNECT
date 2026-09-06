@@ -53,6 +53,15 @@ from collections import Counter
 from scipy.io import wavfile
 from python_speech_features import mfcc
 
+# Keep PyAnnote compatible with newer torchaudio releases.
+if not hasattr(torchaudio, "list_audio_backends"):
+    torchaudio.list_audio_backends = lambda: ["soundfile"]
+if not hasattr(torchaudio, "io"):
+    class _DummyIO:
+        class StreamReader:
+            pass
+    torchaudio.io = _DummyIO()
+
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
 if str(BACKEND_ROOT) not in sys.path:
     sys.path.insert(0, str(BACKEND_ROOT))

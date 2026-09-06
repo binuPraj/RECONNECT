@@ -8,6 +8,7 @@ import time
 
 import sounddevice as sd
 import websockets
+from websockets.exceptions import ConnectionClosed
 
 
 LOGGER = logging.getLogger(__name__)
@@ -102,6 +103,15 @@ async def stream_microphone(args: argparse.Namespace) -> None:
                 if not acknowledgement.get("received"):
                     raise RuntimeError(acknowledgement.get("error", "Server rejected audio"))
 
+                identity_result = acknowledgement.get("identity_result")
+                if identity_result is not None:
+                    if identity_result.get("known"):
+                        print(
+                            f"Known identity: {identity_result['name']} "
+                            f"({identity_result.get('relation') or 'relation unavailable'})"
+                        )
+                    return
+
                 sent_chunks += 1
                 sent_bytes += len(data)
                 now = time.monotonic()
@@ -139,6 +149,13 @@ def main() -> None:
         asyncio.run(stream_microphone(args))
     except KeyboardInterrupt:
         print("\nMicrophone stream stopped; server will finalize active audio.")
+    except ConnectionClosed as error:
+        if error.code == 1012:
+            print("\nServer restarted while streaming. Start Uvicorn without --reload.")
+        else:
+            print(f"\nMicrophone connection closed: {error}")
+    except ConnectionRefusedError:
+        print("\nCould not connect to the audio server. Start Uvicorn first.")
 
 
 if __name__ == "__main__":

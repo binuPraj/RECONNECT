@@ -1,5 +1,6 @@
 """RECONNECT live audio WebSocket API."""
 
+import asyncio
 import json
 import logging
 import os
@@ -49,7 +50,20 @@ async def audio_stream(websocket: WebSocket):
 
     await websocket.accept()
     session_id = allocate_stream_session_id()
-    processor = StreamingSegmentProcessor(session_id)
+    loop = asyncio.get_running_loop()
+    identity_events: asyncio.Queue[dict[str, object]] = asyncio.Queue(maxsize=1)
+
+    def on_identity_result(result: dict[str, object]) -> None:
+        def enqueue_result() -> None:
+            if identity_events.empty():
+                identity_events.put_nowait(result)
+
+        loop.call_soon_threadsafe(enqueue_result)
+
+    processor = StreamingSegmentProcessor(
+        session_id,
+        identity_callback=on_identity_result,
+    )
     recorder = StreamingSpeechRecorder(
         on_finalized=processor.submit,
         on_confirmed_idle_audio=processor.add_confirmed_idle_audio,
@@ -114,7 +128,7 @@ async def audio_stream(websocket: WebSocket):
                 len(canonical_data),
             )
             now = time.monotonic()
-            if now - last_progress_at >= 1.0:
+            if now - last_progress_at >= 5.0:
                 status = recorder.status_snapshot()
                 LOGGER.info(
                     "[STREAM] progress session=%s chunks=%s source_bytes=%s "
@@ -133,9 +147,24 @@ async def audio_stream(websocket: WebSocket):
                     status["main_duration_sec"],
                 )
                 last_progress_at = now
-            await websocket.send_json(
-                {"received": True, "chunk_number": chunk_count, "chunk_size": len(data)}
-            )
+            try:
+                identity_result = identity_events.get_nowait()
+            except asyncio.QueueEmpty:
+                identity_result = None
+
+            acknowledgement = {
+                "received": True,
+                "chunk_number": chunk_count,
+                "chunk_size": len(data),
+            }
+            if identity_result is not None:
+                acknowledgement["identity_result"] = identity_result
+
+            await websocket.send_json(acknowledgement)
+
+            if identity_result is not None:
+                await websocket.close(code=1000)
+                return
 
     except WebSocketDisconnect:
         LOGGER.info("[STREAM] disconnected session=%s", session_id)

@@ -17,6 +17,16 @@ def blob_to_embedding(blob):
     return np.frombuffer(blob, dtype=np.float32).copy()
 
 
+def voice_blob_to_embeddings(blob, dimension=192):
+    values = blob_to_embedding(blob)
+    if values.size % dimension != 0:
+        return []
+    return [
+        values[index:index + dimension].copy()
+        for index in range(0, values.size, dimension)
+    ]
+
+
 def _connect():
     connection = sqlite3.connect(DATABASE_PATH)
     connection.row_factory = sqlite3.Row
@@ -60,6 +70,16 @@ def get_all_identities():
         return connection.execute(
             "SELECT * FROM enrolled_identities ORDER BY id"
         ).fetchall()
+
+
+def get_identity_by_name(name):
+    init_database()
+    with _connect() as connection:
+        return connection.execute(
+            "SELECT * FROM enrolled_identities WHERE name = ? "
+            "ORDER BY id LIMIT 1",
+            (name,),
+        ).fetchone()
 
 
 def find_matching_face(embedding, threshold=FACE_MATCH_THRESHOLD):
@@ -106,4 +126,20 @@ def update_voice_embedding(identity_id, voice_embedding):
         connection.execute(
             "UPDATE enrolled_identities SET voice_embedding = ? WHERE id = ?",
             (embedding_to_blob(voice_embedding), identity_id),
+        )
+
+
+def append_voice_embedding(identity_id, voice_embedding):
+    init_database()
+    with _connect() as connection:
+        row = connection.execute(
+            "SELECT voice_embedding FROM enrolled_identities WHERE id = ?",
+            (identity_id,),
+        ).fetchone()
+        existing = row["voice_embedding"] if row else None
+        current = blob_to_embedding(existing) if existing else np.array([], dtype=np.float32)
+        combined = np.concatenate((current, np.asarray(voice_embedding, dtype=np.float32)))
+        connection.execute(
+            "UPDATE enrolled_identities SET voice_embedding = ? WHERE id = ?",
+            (embedding_to_blob(combined), identity_id),
         )

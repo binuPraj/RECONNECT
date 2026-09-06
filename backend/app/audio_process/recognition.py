@@ -10,7 +10,7 @@ from scipy.spatial.distance import cosine
 from scipy.io import wavfile
 import torchaudio
 
-from database.db import blob_to_embedding, get_all_identities
+from database.db import get_all_identities, voice_blob_to_embeddings
 
 # Patch torchaudio for speechbrain compatibility with newer torchaudio versions
 if not hasattr(torchaudio, 'list_audio_backends'):
@@ -155,7 +155,7 @@ class AudioEmbedder:
 
 
 class AudioMatcher:
-    """Matches against the known gallery."""
+    """Matches live embeddings against enrolled SQLite voice embeddings."""
     
     def __init__(self, gallery_path="data/embeddings/", threshold=0.65):
         self.gallery_path = gallery_path
@@ -163,52 +163,53 @@ class AudioMatcher:
         self.known_embeddings = self._load_gallery()
 
     def _load_gallery(self):
-        """Loads known embeddings from the gallery."""
+        """Load all enrolled voice templates from SQLite."""
         known = {}
 
         for row in get_all_identities():
             if row["voice_embedding"] is not None:
-                known.setdefault(row["name"], []).append(
-                    blob_to_embedding(row["voice_embedding"])
-                )
+                for embedding in voice_blob_to_embeddings(row["voice_embedding"]):
+                    if embedding.ndim == 1 and np.isfinite(embedding).all():
+                        known.setdefault(row["name"], []).append(embedding)
 
-        if known:
-            return known
-
-        if not os.path.exists(self.gallery_path):
-            os.makedirs(self.gallery_path)
-            return known
-            
-        for person_name in os.listdir(self.gallery_path):
-            person_dir = os.path.join(self.gallery_path, person_name)
-            if os.path.isdir(person_dir):
-                person_embs = []
-                for filename in os.listdir(person_dir):
-                    if filename.endswith(".npy"):
-                        emb_path = os.path.join(person_dir, filename)
-                        person_embs.append(np.load(emb_path))
-                if person_embs:
-                    known[person_name] = person_embs
         return known
 
+    def refresh(self):
+        """Refresh SQLite templates so enrollment changes need no restart."""
+        self.known_embeddings = self._load_gallery()
+
     def match(self, embedding):
-        """Compares an embedding against the known gallery."""
+        """Compare against every enrolled SQLite voice template."""
+        self.refresh()
         best_match, best_score = self.best_match(embedding)
         if best_match is not None and best_score >= self.threshold:
             return best_match, best_score
         return None, best_score
 
     def best_match(self, embedding):
-        """Return the closest gallery identity and score without applying the threshold."""
+        """Return the highest cosine similarity without applying the threshold."""
 
         best_match = None
         best_score = -1.0
+        candidate = np.asarray(embedding, dtype=np.float32).reshape(-1)
+        candidate_norm = np.linalg.norm(candidate)
+
+        if candidate_norm == 0 or not np.isfinite(candidate).all():
+            return None, best_score
+
+        candidate = candidate / candidate_norm
 
         for person_name, known_embs in self.known_embeddings.items():
             for known_emb in known_embs:
-                sim = 1 - cosine(embedding.flatten(), known_emb.flatten())
+                reference = np.asarray(known_emb, dtype=np.float32).reshape(-1)
+                if reference.shape != candidate.shape:
+                    continue
+                reference_norm = np.linalg.norm(reference)
+                if reference_norm == 0 or not np.isfinite(reference).all():
+                    continue
+                sim = float(np.dot(candidate, reference / reference_norm))
                 if sim > best_score:
-                    best_score = float(sim)
+                    best_score = sim
                     best_match = person_name
 
         return best_match, best_score

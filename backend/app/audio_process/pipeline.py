@@ -3,6 +3,8 @@
 from datetime import datetime
 import os
 from pathlib import Path
+import subprocess
+import sys
 import time
 from collections.abc import Callable
 import torch
@@ -37,9 +39,21 @@ from app.schemas.audio import (
     PreprocessingInfo,
     StreamSegmentInfo,
 )
+from database.db import get_identity_by_name
 
 
 PipelineProgressCallback = Callable[[str, str, dict[str, object]], None]
+IdentityCallback = Callable[[dict[str, object]], None]
+
+
+def _trigger_video_pipeline() -> None:
+    backend_root = Path(__file__).resolve().parents[2]
+    subprocess.Popen(
+        [sys.executable, str(backend_root / "main.py"), "--take-a-video"],
+        cwd=str(backend_root.parent),
+        stdout=None,
+        stderr=None,
+    )
 
 
 def _report(
@@ -63,6 +77,7 @@ def run_audio_pipeline(
     stream_segment: StreamSegmentInfo | None = None,
     session_noise_profile = None,
     progress_callback: PipelineProgressCallback | None = None,
+    identity_callback: IdentityCallback | None = None,
 ) -> AudioPerceptionResult:
     """
     Run the complete RECONNECT audio perception pipeline.
@@ -252,17 +267,30 @@ def run_audio_pipeline(
             if matched_id:
                 identity = matched_id
                 status = "known"
+                print(f"Known identity: {identity}")
+                if identity_callback is not None:
+                    identity_row = get_identity_by_name(identity)
+                    identity_callback({
+                        "known": True,
+                        "name": identity,
+                        "relation": identity_row["relation"] if identity_row else None,
+                    })
                 _session_memory.remember(
                     session_id, identity, embedding, confirmed=True
                 )
                 log_msg = (
                     f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
-                    f"✅ MATCH: '{identity}' (Score: {score:.3f} | "
+                    f"[MATCH]: '{identity}' (Score: {score:.3f} | "
                     f"Speaker: {speaker_label} | Duration: {duration:.2f}s | "
                     f"Via: {match_reason})"
                 )
                 print(f"\n{log_msg}")
             else:
+                if identity_callback is not None:
+                    identity_callback({
+                        "known": False,
+                    })
+
                 gallery_best_id, gallery_best_score = _matcher.best_match(embedding)
                 continuity_id, continuity_score, continuity_reason = (
                     _session_memory.resolve(
@@ -282,7 +310,7 @@ def run_audio_pipeline(
                     )
                     log_msg = (
                         f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
-                        f"✅ MATCH: '{identity}' (Score: {score:.3f} | "
+                        f"[MATCH]: '{identity}' (Score: {score:.3f} | "
                         f"Speaker: {speaker_label} | Duration: {duration:.2f}s | "
                         f"Via: {match_reason})"
                     )
@@ -295,11 +323,10 @@ def run_audio_pipeline(
                     score = gallery_best_score
                     log_msg = (
                         f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
-                        f"❌ NO MATCH: {identity} (Highest Score: {score:.3f} | "
+                        f"[NO MATCH]: {identity} (Highest Score: {score:.3f} | "
                         f"Speaker: {speaker_label} | Duration: {duration:.2f}s)"
                     )
                     print(f"\n{log_msg}")
-                    print("camera trigger")
                     
                     # Aggregation & Vision Trigger
                     is_confirmed = _aggregator.add_observation(identity)
@@ -310,7 +337,7 @@ def run_audio_pipeline(
                         )
                         _aggregator.reset()
                     
-            with open(log_file_path, "a") as f:
+            with open(log_file_path, "a", encoding="utf-8") as f:
                 f.write(log_msg + "\n")
                 
             speaker_identities[speaker_label] = {"identity": identity, "status": status}

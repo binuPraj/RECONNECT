@@ -299,7 +299,35 @@ def extract_first_second_frames(video_path):
 # MAIN
 # ==================================================
 
-def main():
+def main(take_video_only=False, who_is_this_only=False):
+
+    if who_is_this_only:
+        print()
+        print("=" * 50)
+        print("RUNNING WHO IS THIS PIPELINE")
+        print("=" * 50)
+        
+        vision_pipeline = WhoIsThisPipeline()
+        
+        print("Starting vision...")
+        try:
+            results = vision_pipeline.run()
+        except Exception as e:
+            print(f"Vision pipeline error: {e}")
+            return
+            
+        try:
+            save_results(results)
+        except Exception as error:
+            print("Warning: could not save vision results:")
+            print(error)
+            
+        show_result(results)
+        handle_new_unknowns(results)
+        
+        print("Vision complete.")
+        return
+
 
     def _audio_input_candidates():
         """Build candidate DirectShow audio inputs for ffmpeg."""
@@ -350,27 +378,27 @@ def main():
 
         return None, None
 
-    print()
-    print("=" * 50)
-    print("MEMORYLENS")
-    print("=" * 50)
+    if not take_video_only:
+        print()
+        print("=" * 50)
+        print("MEMORYLENS")
+        print("=" * 50)
 
-    print(
-        "Starting MemoryLens..."
-    )
+        print(
+            "Starting MemoryLens..."
+        )
 
     # ==============================================
     # AUDIO
     # ==============================================
 
-    print()
-    print(
-        "Initializing audio listener..."
-    )
+    if not take_video_only:
+        print()
+        print(
+            "Initializing audio listener..."
+        )
 
-    listener = (
-        WhoIsThisListener()
-    )
+    listener = None if take_video_only else WhoIsThisListener()
 
     # ==============================================
     # VISION
@@ -389,18 +417,19 @@ def main():
     # READY
     # ==============================================
 
-    print()
-    print("=" * 50)
-    print("MEMORYLENS READY")
-    print("=" * 50)
+    if not take_video_only:
+        print()
+        print("=" * 50)
+        print("MEMORYLENS READY")
+        print("=" * 50)
 
-    print(
-        "Waiting for:"
-    )
+        print(
+            "Waiting for:"
+        )
 
-    print(
-        "  'Who is this?'"
-    )
+        print(
+            "  'Who is this?'"
+        )
 
     # ==============================================
     # MAIN LOOP
@@ -415,7 +444,9 @@ def main():
             # --------------------------------------
 
             triggered = (
-                listener.listen_for_trigger()
+                "take_a_video"
+                if take_video_only
+                else listener.listen_for_trigger()
             )
 
             # Normally this function only returns
@@ -652,6 +683,9 @@ def main():
                 print("Activity detection complete.")
                 print("Returning to listening...")
 
+                if take_video_only:
+                    return
+
         # ==========================================
         # CTRL+C
         # ==========================================
@@ -698,5 +732,18 @@ def main():
 # ==================================================
 
 if __name__ == "__main__":
+    import argparse
 
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--take-a-video",
+        action="store_true",
+        help="Run the existing video pipeline once without starting the listener.",
+    )
+    parser.add_argument(
+        "--who-is-this",
+        action="store_true",
+        help="Run the existing who is this pipeline once without starting the listener.",
+    )
+    args = parser.parse_args()
+    main(take_video_only=args.take_a_video, who_is_this_only=args.who_is_this)

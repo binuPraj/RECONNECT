@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 import json
 import logging
 from pathlib import Path
+import subprocess
+import sys
 from threading import Lock
 import time
 
@@ -26,6 +28,7 @@ LOGGER = logging.getLogger(__name__)
 
 PipelineRunner = Callable[..., AudioPerceptionResult]
 Transcriber = Callable[[str | Path], str]
+IdentityCallback = Callable[[dict[str, object]], None]
 
 
 class StreamingSegmentProcessor:
@@ -36,11 +39,13 @@ class StreamingSegmentProcessor:
         session_id: str,
         pipeline_runner: PipelineRunner = run_audio_pipeline,
         transcriber: Transcriber | None = None,
+        identity_callback: IdentityCallback | None = None,
     ):
         self.session_id = session_id
         self.session_dir = get_stream_session_folder(session_id)
         self._pipeline_runner = pipeline_runner
         self._transcriber = transcriber if transcriber is not None else transcribe_wav
+        self._identity_callback = identity_callback
         self._tasks: set[asyncio.Task] = set()
         self.noise_profile = SessionNoiseProfile()
         self._session_transcript_lock = Lock()
@@ -110,6 +115,7 @@ class StreamingSegmentProcessor:
                 stream_segment=stream_info,
                 session_noise_profile=session_noise_profile,
                 progress_callback=self._pipeline_progress(segment, started_at),
+                identity_callback=self._identity_callback,
             )
             # Recognition labels speakers first; transcription runs on those clips.
             transcript_rows = await asyncio.to_thread(
@@ -275,7 +281,17 @@ class StreamingSegmentProcessor:
             transcripts = []
 
         rows: list[dict[str, object]] = []
+        who_is_this_triggered = False
+        trigger_phrases = ["who is this", "who's this", "who is that", "who's that"]
+
         for segment, transcript in zip(final_segments, transcripts):
+            text = (transcript or "").lower()
+            if not who_is_this_triggered:
+                for trigger in trigger_phrases:
+                    if trigger in text:
+                        who_is_this_triggered = True
+                        break
+
             rows.append(
                 {
                     "recording_id": stream_info.main_segment_id,
@@ -297,6 +313,17 @@ class StreamingSegmentProcessor:
                     ),
                 }
             )
+
+        if who_is_this_triggered:
+            backend_root = Path(__file__).resolve().parents[2]
+            LOGGER.info("[PIPELINE] trigger=who_is_this action=start_subprocess session=%s", stream_info.main_segment_id)
+            subprocess.Popen(
+                [sys.executable, str(backend_root / "main.py"), "--who-is-this"],
+                cwd=str(backend_root),
+                stdout=None,
+                stderr=None,
+            )
+
         return rows
 
     @staticmethod
