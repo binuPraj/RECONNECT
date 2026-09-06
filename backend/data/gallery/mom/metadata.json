@@ -1,0 +1,15 @@
+{
+    "images": {
+        "d501ac14799a01366a27818a3b104491bfc07b82adb24ff0cb1c444ab79f9174": {
+            "source_image": "mom1.jpg",
+            "source_path": "/Users/ishworshrestha/Desktop/Dementia/data/enrollment_images/mom/mom1.jpg",
+            "embedding_file": "embedding_001.npy"
+        },
+        "a494414697870b32cb57fc8c441a189da09d3760b49f35fefb13cd03ec3d96b3": {
+            "source_image": "mom2.jpg",
+            "source_path": "/Users/ishworshrestha/Desktop/Dementia/data/enrollment_images/mom/mom2.jpg",
+            "embedding_file": "embedding_002.npy"
+        }
+    },
+    "identity": "mom"
+}

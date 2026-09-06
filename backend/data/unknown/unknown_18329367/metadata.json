@@ -1,0 +1,11 @@
+{
+    "entity_id": "unknown_18329367",
+    "status": "new_unknown",
+    "observation_count": 3,
+    "best_face_image": "C:\\Users\\ASUS\\OneDrive\\Desktop\\binu\\reconnect\\reconnect_app\\backend\\data\\unknown\\unknown_18329367\\best_face.jpg",
+    "label_request": true,
+    "modality": {
+        "face": true,
+        "voice": false
+    }
+}

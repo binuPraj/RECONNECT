@@ -1,0 +1,69 @@
+{
+  "segments": [
+    {
+      "audio_path": "C:\\Users\\ASUS\\OneDrive\\Desktop\\binu\\reconnect\\backend\\uploads\\streams\\session_003\\recording_0001\\segments\\speaker_unknown_001.wav",
+      "duration_sec": 1.0,
+      "end_sec": 1.268,
+      "match_status": null,
+      "recorded_at": "2026-09-06T12:42:21.761212+05:45",
+      "recording_id": 1,
+      "segment_id": "seg_001",
+      "speaker": "speaker_unknown",
+      "speaker_identity": null,
+      "speaker_label": "SPEAKER_UNKNOWN",
+      "speaker_source": "vad_uncovered",
+      "start_sec": 0.268,
+      "transcript": "So...",
+      "vad_confidence": null
+    },
+    {
+      "audio_path": "C:\\Users\\ASUS\\OneDrive\\Desktop\\binu\\reconnect\\backend\\uploads\\streams\\session_003\\recording_0001\\segments\\speaker_unknown_002.wav",
+      "duration_sec": 0.936,
+      "end_sec": 2.58,
+      "match_status": null,
+      "recorded_at": "2026-09-06T12:42:23.137212+05:45",
+      "recording_id": 1,
+      "segment_id": "seg_002",
+      "speaker": "speaker_unknown",
+      "speaker_identity": null,
+      "speaker_label": "SPEAKER_UNKNOWN",
+      "speaker_source": "vad_uncovered",
+      "start_sec": 1.644,
+      "transcript": "Like...",
+      "vad_confidence": null
+    },
+    {
+      "audio_path": "C:\\Users\\ASUS\\OneDrive\\Desktop\\binu\\reconnect\\backend\\uploads\\streams\\session_003\\recording_0001\\segments\\speaker_unknown_003.wav",
+      "duration_sec": 1.832,
+      "end_sec": 4.532,
+      "match_status": null,
+      "recorded_at": "2026-09-06T12:42:24.193212+05:45",
+      "recording_id": 1,
+      "segment_id": "seg_003",
+      "speaker": "speaker_unknown",
+      "speaker_identity": null,
+      "speaker_label": "SPEAKER_UNKNOWN",
+      "speaker_source": "vad_uncovered",
+      "start_sec": 2.7,
+      "transcript": "I am not in this state.",
+      "vad_confidence": null
+    },
+    {
+      "audio_path": "C:\\Users\\ASUS\\OneDrive\\Desktop\\binu\\reconnect\\backend\\uploads\\streams\\session_003\\recording_0001\\segments\\speaker_unknown_004.wav",
+      "duration_sec": 1.832,
+      "end_sec": 6.42,
+      "match_status": null,
+      "recorded_at": "2026-09-06T12:42:26.081212+05:45",
+      "recording_id": 1,
+      "segment_id": "seg_004",
+      "speaker": "speaker_unknown",
+      "speaker_identity": null,
+      "speaker_label": "SPEAKER_UNKNOWN",
+      "speaker_source": "vad_uncovered",
+      "start_sec": 4.588,
+      "transcript": "I'm just trying you to out.",
+      "vad_confidence": null
+    }
+  ],
+  "session_id": "session_003"
+}
