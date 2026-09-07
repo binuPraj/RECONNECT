@@ -18,11 +18,11 @@ DETECTION_THRESHOLD = 0.50
 KNOWN_MATCH_THRESHOLD = 0.50
 
 # Similarity threshold for matching unknown faces
-UNKNOWN_CLUSTER_THRESHOLD = 0.55
+UNKNOWN_CLUSTER_THRESHOLD = 0.65
 
 # Minimum number of observations before trusting an identity
 MIN_KNOWN_OBSERVATIONS = 2
-MIN_UNKNOWN_OBSERVATIONS = 2
+MIN_UNKNOWN_OBSERVATIONS = 1
 
 GALLERY_PATH = str(BACKEND_ROOT / "data" / "gallery")
 UNKNOWN_PATH = str(BACKEND_ROOT / "data" / "unknown")

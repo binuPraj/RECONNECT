@@ -45,7 +45,12 @@ def list_input_devices() -> None:
 
 
 async def stream_microphone(args: argparse.Namespace) -> None:
-    """Capture PCM16 microphone chunks and deliver them over WebSocket."""
+    """Capture PCM16 microphone chunks and deliver them over WebSocket.
+
+    This function now automatically reconnects if the server closes the
+    connection (e.g., after reporting a known identity). It continues streaming
+    indefinitely until the user stops the process with Ctrl+C.
+    """
 
     device = sd.query_devices(args.device, "input")
     sample_rate = args.sample_rate or int(round(device["default_samplerate"]))
@@ -55,7 +60,7 @@ async def stream_microphone(args: argparse.Namespace) -> None:
         )
 
     frames = chunk_frames(sample_rate)
-    queue: asyncio.Queue[bytes] = asyncio.Queue(maxsize=100)
+    queue: asyncio.Queue[bytes] = asyncio.Queue(maxsize=500)  # increased to reduce dropped chunks
     loop = asyncio.get_running_loop()
     dropped_chunks = 0
 
@@ -77,50 +82,66 @@ async def stream_microphone(args: argparse.Namespace) -> None:
         f"{args.channels} channel(s) | {frames} samples/chunk"
     )
 
-    async with websockets.connect(args.url) as websocket:
-        await websocket.send(json.dumps(format_metadata(sample_rate, args.channels)))
-        connected = json.loads(await websocket.recv())
-        if not connected.get("received"):
-            raise RuntimeError(connected.get("error", "Server rejected stream format"))
+    while True:  # Reconnect loop
+        try:
+            async with websockets.connect(args.url) as websocket:
+                await websocket.send(json.dumps(format_metadata(sample_rate, args.channels)))
+                connected = json.loads(await websocket.recv())
+                if not connected.get("received"):
+                    raise RuntimeError(connected.get("error", "Server rejected stream format"))
 
-        print(f"Connected to {args.url} | session={connected.get('session_id')}")
-        sent_chunks = sent_bytes = 0
-        last_report_at = time.monotonic()
+                print(f"Connected to {args.url} | session={connected.get('session_id')}")
+                sent_chunks = sent_bytes = 0
+                last_report_at = time.monotonic()
 
-        with sd.RawInputStream(
-            samplerate=sample_rate,
-            blocksize=frames,
-            device=args.device,
-            channels=args.channels,
-            dtype="int16",
-            callback=callback,
-        ):
-            print("Recording live microphone audio. Press Ctrl+C to stop.")
-            while True:
-                data = await queue.get()
-                await websocket.send(data)
-                acknowledgement = json.loads(await websocket.recv())
-                if not acknowledgement.get("received"):
-                    raise RuntimeError(acknowledgement.get("error", "Server rejected audio"))
+                with sd.RawInputStream(
+                    samplerate=sample_rate,
+                    blocksize=frames,
+                    device=args.device,
+                    channels=args.channels,
+                    dtype="int16",
+                    callback=callback,
+                ):
+                    print("Recording live microphone audio. Press Ctrl+C to stop.")
+                    while True:
+                        data = await queue.get()
+                        await websocket.send(data)
+                        acknowledgement = json.loads(await websocket.recv())
+                        if not acknowledgement.get("received"):
+                            raise RuntimeError(
+                                acknowledgement.get("error", "Server rejected audio")
+                            )
 
-                identity_result = acknowledgement.get("identity_result")
-                if identity_result is not None:
-                    if identity_result.get("known"):
-                        print(
-                            f"Known identity: {identity_result['name']} "
-                            f"({identity_result.get('relation') or 'relation unavailable'})"
-                        )
-                    return
+                        identity_result = acknowledgement.get("identity_result")
+                        if identity_result is not None:
+                            if identity_result.get("known"):
+                                print(
+                                    f"Known identity: {identity_result['name']} "
+                                    f"({identity_result.get('relation') or 'relation unavailable'})"
+                                )
+                            else:
+                                print(
+                                    f"Unknown speaker detected: {identity_result.get('speaker', 'unenrolled')}"
+                                )
 
-                sent_chunks += 1
-                sent_bytes += len(data)
-                now = time.monotonic()
-                if now - last_report_at >= 1.0:
-                    print(
-                        f"Sent chunks={sent_chunks} bytes={sent_bytes} "
-                        f"queued={queue.qsize()} dropped={dropped_chunks}"
-                    )
-                    last_report_at = now
+                        sent_chunks += 1
+                        sent_bytes += len(data)
+                        now = time.monotonic()
+                        if now - last_report_at >= 15.0:
+                            print(
+                                f"Sent chunks={sent_chunks} bytes={sent_bytes} "
+                                f"queued={queue.qsize()} dropped={dropped_chunks}"
+                            )
+                            last_report_at = now
+        except ConnectionClosed as err:
+            # Server closed the connection (normally after a known identity).
+            # Reconnect after a short pause.
+            print(f"\nMicrophone connection closed ({err.code}); reconnecting...")
+            await asyncio.sleep(1)
+            continue
+        except Exception as exc:
+            # Any other error should abort the stream.
+            raise
 
 
 def parse_args() -> argparse.Namespace:

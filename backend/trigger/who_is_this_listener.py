@@ -1,11 +1,11 @@
 import speech_recognition as sr
 import os
+import time
 
 
 class WhoIsThisListener:
 
     def __init__(self):
-
         self.recognizer = sr.Recognizer()
         self.recognizer.dynamic_energy_threshold = True
         self.recognizer.pause_threshold = 0.8
@@ -18,35 +18,25 @@ class WhoIsThisListener:
             "who is this",
             "who's this",
             "who is that",
-            "who's that"
+            "who's that",
         ]
 
-        self.video_trigger_phrases = [
-            "take a video",
-            "record a video"
-        ]
+        # Circuit breaker configuration (default: 3 failures within 60s)
+        self._failure_count = 0
+        self._first_failure_ts = None
+        self._circuit_breaker_tripped = False
+        self._circuit_failure_limit = int(os.getenv("CB_FAILURE_LIMIT", "3"))
+        self._circuit_window_secs = int(os.getenv("CB_WINDOW_SECS", "60"))
 
-        # --------------------------------------
-        # Calibrate microphone ONCE
-        # --------------------------------------
+        # Simple post‑trigger cooldown to give audio buffer time (seconds)
+        self._post_trigger_cooldown = float(os.getenv("POST_TRIGGER_COOLDOWN", "2"))
+        self._last_success_ts = 0.0
 
         print("Calibrating microphone...")
-
         with self.microphone as source:
-
-            self.recognizer.adjust_for_ambient_noise(
-                source,
-                duration=1
-            )
-
-        print(
-            "Microphone ready."
-        )
-
-        print(
-            f"Energy threshold: "
-            f"{self.recognizer.energy_threshold:.0f}"
-        )
+            self.recognizer.adjust_for_ambient_noise(source, duration=1)
+        print("Microphone ready.")
+        print(f"Energy threshold: {self.recognizer.energy_threshold:.0f}")
 
     def _build_microphone(self):
         """
@@ -96,51 +86,29 @@ class WhoIsThisListener:
         print("Say: 'Who is this?' or 'Take a video'")
 
         while True:
+            # If circuit breaker is active, skip listening and wait for reset.
+            if self._circuit_breaker_tripped:
+                print("[CIRCUIT_BREAKER] Trigger suppression active. Waiting for reset.")
+                time.sleep(1)
+                continue
 
             try:
-
                 # --------------------------------
                 # Wait for a speech segment
                 # --------------------------------
-
                 with self.microphone as source:
-
-                    # Short re-calibration helps when room noise changes.
-                    self.recognizer.adjust_for_ambient_noise(
-                        source,
-                        duration=0.2
-                    )
-
+                    # Short re‑calibration helps when room noise changes.
+                    self.recognizer.adjust_for_ambient_noise(source, duration=0.2)
                     audio = self.recognizer.listen(
                         source,
-
-                        # Wait indefinitely for
-                        # someone to start speaking.
                         timeout=None,
-
-                        # Maximum length of one
-                        # speech segment.
-                        phrase_time_limit=3
+                        phrase_time_limit=3,
                     )
 
-                print(
-                    "Speech captured. "
-                    "Recognizing..."
-                )
-
-                # --------------------------------
-                # Speech -> text
-                # --------------------------------
-
-                text = self.recognizer.recognize_google(
-                    audio
-                )
-
+                print("Speech captured. Recognizing...")
+                text = self.recognizer.recognize_google(audio)
                 text = text.lower().strip()
-
-                print(
-                    f"Heard: '{text}'"
-                )
+                print(f"Heard: '{text}'")
 
                 # --------------------------------
                 # Check trigger
@@ -148,46 +116,25 @@ class WhoIsThisListener:
 
                 for trigger in self.trigger_phrases:
                     if trigger in text:
-                        print()
-                        print("=" * 50)
+                        print("\n" + "=" * 50)
                         print("WHO IS THIS TRIGGER DETECTED")
                         print("=" * 50)
+                        self._reset_failure_counters()
+                        # Enforce a short cooldown after a successful trigger
+                        self._last_success_ts = time.time()
+                        time.sleep(self._post_trigger_cooldown)
                         return "who_is_this"
 
-                for trigger in self.video_trigger_phrases:
-                    if trigger in text:
-                        print()
-                        print("=" * 50)
-                        print("TAKE A VIDEO TRIGGER DETECTED")
-                        print("=" * 50)
-                        return "take_a_video"
-
-                # --------------------------------
-                # Not the trigger
-                # --------------------------------
-
-                print(
-                    "Not a trigger."
-                )
-
-                print(
-                    "Continuing to listen..."
-                )
+                print("Not a trigger.")
+                print("Continuing to listen...")
 
             # ------------------------------------
             # Speech was not understandable
             # ------------------------------------
 
             except sr.UnknownValueError:
-
-                print(
-                    "Could not understand speech."
-                )
-
-                print(
-                    "Continuing to listen..."
-                )
-
+                print("Could not understand speech.")
+                self._record_failure()
                 continue
 
             # ------------------------------------
@@ -195,16 +142,8 @@ class WhoIsThisListener:
             # ------------------------------------
 
             except sr.RequestError as error:
-
-                print(
-                    f"Speech recognition error: "
-                    f"{error}"
-                )
-
-                print(
-                    "Continuing to listen..."
-                )
-
+                print(f"Speech recognition error: {error}")
+                self._record_failure()
                 continue
 
             # ------------------------------------
@@ -212,10 +151,6 @@ class WhoIsThisListener:
             # ------------------------------------
 
             except KeyboardInterrupt:
-
                 print()
-                print(
-                    "Stopping audio listener..."
-                )
-
+                print("Stopping audio listener...")
                 raise

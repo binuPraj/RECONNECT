@@ -453,15 +453,16 @@ class SpeakerRecogniser:
     """
 
     def __init__(self, registry: PersonRegistry):
-        from speechbrain.inference.speaker import SpeakerRecognition
-        from speechbrain.utils.fetching import LocalStrategy
+        from speechbrain.inference.classifiers import EncoderClassifier
 
         print("[Step 4] Loading ECAPA-TDNN speaker recognition model...")
-        self.model = SpeakerRecognition.from_hparams(
-            source="speechbrain/spkrec-ecapa-voxceleb",
-            savedir="pretrained_models/spkrec-ecapa-voxceleb",
-            local_strategy=LocalStrategy.COPY
-        )               #load ECAPA-TDNN model from pretrained models directory, if not present, it will be downloaded from speechbrain/spkrec-ecapa-voxceleb
+        savedir = BACKEND_ROOT / "tmp_speechbrain"
+        if not savedir.exists():
+            savedir = BACKEND_ROOT.parent / "pretrained_models" / "spkrec-ecapa-voxceleb"
+        self.model = EncoderClassifier.from_hparams(
+            source=str(savedir),
+            savedir=str(savedir),
+        )
         self.registry = registry
         print(f"  ECAPA-TDNN loaded. Known identities so far: {list(self.registry.people.keys())}")
 

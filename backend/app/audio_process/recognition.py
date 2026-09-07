@@ -157,7 +157,10 @@ class AudioEmbedder:
 class AudioMatcher:
     """Matches live embeddings against enrolled SQLite voice embeddings."""
     
-    def __init__(self, gallery_path="data/embeddings/", threshold=0.65):
+    def __init__(self, gallery_path="data/embeddings/", threshold=0.60):
+        """Initialize AudioMatcher with a matching threshold.
+        The default threshold has been increased to 0.60 to reduce false positives.
+        """
         self.gallery_path = gallery_path
         self.threshold = threshold
         self.known_embeddings = self._load_gallery()
@@ -295,99 +298,20 @@ class SessionSpeakerMemory:
         return None, gallery_best_score, None
 
 
-class UnknownAudioManager:
-    """Handles unknown clustering, saving embeddings, .wav snippets, and metadata."""
-    
-    def __init__(self, unknown_path="data/enrollment_audio/unknown/", threshold=0.65):
-        self.unknown_path = unknown_path
-        self.threshold = threshold
-        self.unknown_embeddings = self._load_unknowns()
-
-    def _load_unknowns(self):
-        """Loads previously seen unknown embeddings."""
-        unknowns = {}
-        if not os.path.exists(self.unknown_path):
-            os.makedirs(self.unknown_path)
-            return unknowns
-            
-        for unknown_id in os.listdir(self.unknown_path):
-            unknown_dir = os.path.join(self.unknown_path, unknown_id)
-            if os.path.isdir(unknown_dir):
-                emb_path = os.path.join(unknown_dir, "audio_embeddings.npy")
-                if os.path.exists(emb_path):
-                    unknowns[unknown_id] = np.load(emb_path)
-        return unknowns
-
-    def process_unknown(self, embedding, audio_path):
-        """Checks embedding against existing unknowns or creates a new one."""
-        best_match = None
-        best_score = -1.0
-
-        for unknown_id, unknown_emb in self.unknown_embeddings.items():
-            sim = 1 - cosine(embedding.flatten(), unknown_emb.flatten())
-            if sim > best_score:
-                best_score = sim
-                best_match = unknown_id
-
-        if best_score >= self.threshold:
-            # Existing Unknown
-            self._update_metadata(best_match)
-            return best_match, "existing_unknown"
-        else:
-            # New Unknown
-            existing_nums = []
-            for uid in self.unknown_embeddings.keys():
-                if uid.startswith("unknown_"):
-                    try:
-                        existing_nums.append(int(uid.split("_")[1]))
-                    except (IndexError, ValueError):
-                        pass
-            next_num = max(existing_nums) + 1 if existing_nums else 1
-            new_id = f"unknown_{next_num}"
-            
-            self._create_new_unknown(new_id, embedding, audio_path)
-            self.unknown_embeddings[new_id] = embedding
-            return new_id, "new_unknown"
-
-    def _create_new_unknown(self, unknown_id, embedding, audio_path):
-        """Creates a new folder and saves embedding, audio snippet, and metadata."""
-        unknown_dir = os.path.join(self.unknown_path, unknown_id)
-        os.makedirs(unknown_dir, exist_ok=True)
-
-        # Save embedding
-        np.save(os.path.join(unknown_dir, "audio_embeddings.npy"), embedding)
-
-        # Copy audio snippet
-        import shutil
-        shutil.copy(audio_path, os.path.join(unknown_dir, "best_audio.wav"))
-
-        # Save metadata
-        metadata = {
-            "id": unknown_id,
-            "observations": 1,
-            "status": "new_unknown"
-        }
-        with open(os.path.join(unknown_dir, "metadata.json"), "w") as f:
-            json.dump(metadata, f, indent=4)
-
-    def _update_metadata(self, unknown_id):
-        """Updates the observation count for an existing unknown."""
-        meta_path = os.path.join(self.unknown_path, unknown_id, "metadata.json")
-        if os.path.exists(meta_path):
-            with open(meta_path, "r") as f:
-                metadata = json.load(f)
-            metadata["observations"] += 1
-            metadata["status"] = "existing_unknown"
-            with open(meta_path, "w") as f:
-                json.dump(metadata, f, indent=4)
 
 
 class AudioAggregator:
-    """Collects segments over a short time window to prevent ghost profiles."""
+    """Collects segments over a short time window to prevent ghost profiles.
+
+    The default ``min_observations`` is taken from ``config.MIN_UNKNOWN_OBSERVATIONS``
+    so that the threshold can be adjusted centrally.
+    """
     
-    def __init__(self, min_observations=2):
-        self.min_observations = min_observations
-        self.observation_buffer = {} # speaker_id -> count
+    def __init__(self, min_observations=None):
+        # If not provided, use the configured minimum observations for unknowns.
+        from config import MIN_UNKNOWN_OBSERVATIONS
+        self.min_observations = min_observations if min_observations is not None else MIN_UNKNOWN_OBSERVATIONS
+        self.observation_buffer = {}  # speaker_id -> count
 
     def add_observation(self, speaker_id):
         if speaker_id not in self.observation_buffer:

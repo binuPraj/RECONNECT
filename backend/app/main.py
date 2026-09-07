@@ -128,7 +128,7 @@ async def audio_stream(websocket: WebSocket):
                 len(canonical_data),
             )
             now = time.monotonic()
-            if now - last_progress_at >= 5.0:
+            if now - last_progress_at >= 15.0:
                 status = recorder.status_snapshot()
                 LOGGER.info(
                     "[STREAM] progress session=%s chunks=%s source_bytes=%s "
@@ -161,10 +161,6 @@ async def audio_stream(websocket: WebSocket):
                 acknowledgement["identity_result"] = identity_result
 
             await websocket.send_json(acknowledgement)
-
-            if identity_result is not None:
-                await websocket.close(code=1000)
-                return
 
     except WebSocketDisconnect:
         LOGGER.info("[STREAM] disconnected session=%s", session_id)

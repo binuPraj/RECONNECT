@@ -70,7 +70,7 @@ class StreamingSpeechRecorder:
             ):
                 self._on_confirmed_idle_audio(data)
             if self.temp_buffer.start_sample != prior_start:
-                LOGGER.info(
+                LOGGER.debug(
                     "[BUFFER] evicted_oldest duration=%.3fs",
                     self.temp_buffer.buffered_duration,
                 )

@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 import json
 import logging
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -30,6 +31,9 @@ PipelineRunner = Callable[..., AudioPerceptionResult]
 Transcriber = Callable[[str | Path], str]
 IdentityCallback = Callable[[dict[str, object]], None]
 
+_active_video_proc: subprocess.Popen | None = None
+_active_video_lock = Lock()
+
 
 class StreamingSegmentProcessor:
     """Persist finalized stream segments and process them without blocking VAD."""
@@ -50,6 +54,8 @@ class StreamingSegmentProcessor:
         self.noise_profile = SessionNoiseProfile()
         self._session_transcript_lock = Lock()
         self._session_transcript_by_recording: dict[int, list[dict[str, object]]] = {}
+        self._video_triggered = False
+        self._unknown_count = 0
 
     def add_confirmed_idle_audio(self, data: bytes) -> None:
         """Learn current background sound from live VAD-confirmed silence."""
@@ -117,6 +123,28 @@ class StreamingSegmentProcessor:
                 progress_callback=self._pipeline_progress(segment, started_at),
                 identity_callback=self._identity_callback,
             )
+
+            # Check for unknown speakers in this finalized recording
+            unknown_speaker_labels = {
+                s.speaker_label
+                for s in (result.segments or [])
+                if s.match_status in ("unenrolled", "new_unenrolled")
+            }
+            if unknown_speaker_labels:
+                self._unknown_count += len(unknown_speaker_labels)
+                LOGGER.info(
+                    "[PIPELINE] session=%s recording=%s detected_unknowns=%d session_unknown_total=%d",
+                    self.session_id,
+                    segment.segment_id,
+                    len(unknown_speaker_labels),
+                    self._unknown_count,
+                )
+
+            # Trigger video capture at most once per session
+            if self._unknown_count > 0 and not self._video_triggered:
+                self._video_triggered = True
+                self._maybe_trigger_video_capture()
+
             # Recognition labels speakers first; transcription runs on those clips.
             transcript_rows = await asyncio.to_thread(
                 self._transcribe_labeled_segments,
@@ -198,6 +226,46 @@ class StreamingSegmentProcessor:
                 self.session_id,
                 segment.segment_id,
                 time.perf_counter() - started_at,
+            )
+
+    def _maybe_trigger_video_capture(self) -> None:
+        """Trigger video capture if no capture is currently in flight; otherwise drop."""
+        global _active_video_proc
+        with _active_video_lock:
+            if _active_video_proc is not None and _active_video_proc.poll() is None:
+                LOGGER.info(
+                    "[PIPELINE] trigger=unknown_speaker session=%s unknown_count=%d action=dropped_in_flight",
+                    self.session_id,
+                    self._unknown_count,
+                )
+                return
+
+            backend_root = Path(__file__).resolve().parents[2]
+            LOGGER.info(
+                "[PIPELINE] trigger=unknown_speaker session=%s unknown_count=%d action=start_subprocess",
+                self.session_id,
+                self._unknown_count,
+            )
+            sub_env = dict(os.environ)
+            sub_env["PYTHONIOENCODING"] = "utf-8"
+            sub_env["OMP_NUM_THREADS"] = "2"
+            sub_env["MKL_NUM_THREADS"] = "2"
+            sub_env["OPENBLAS_NUM_THREADS"] = "2"
+            sub_env["VECLIB_MAXIMUM_THREADS"] = "2"
+            sub_env["NUMEXPR_NUM_THREADS"] = "2"
+
+            creation_flags = 0
+            if sys.platform == "win32":
+                creation_flags = getattr(subprocess, "BELOW_NORMAL_PRIORITY_CLASS", 0x00004000)
+
+            _active_video_proc = subprocess.Popen(
+                [sys.executable, str(backend_root / "main.py"), "--take-a-video"],
+                cwd=str(backend_root),
+                stdin=subprocess.DEVNULL,
+                stdout=None,
+                stderr=None,
+                env=sub_env,
+                creationflags=creation_flags,
             )
 
     def _save_segment(
@@ -317,11 +385,26 @@ class StreamingSegmentProcessor:
         if who_is_this_triggered:
             backend_root = Path(__file__).resolve().parents[2]
             LOGGER.info("[PIPELINE] trigger=who_is_this action=start_subprocess session=%s", stream_info.main_segment_id)
+            sub_env = dict(os.environ)
+            sub_env["PYTHONIOENCODING"] = "utf-8"
+            sub_env["OMP_NUM_THREADS"] = "2"
+            sub_env["MKL_NUM_THREADS"] = "2"
+            sub_env["OPENBLAS_NUM_THREADS"] = "2"
+            sub_env["VECLIB_MAXIMUM_THREADS"] = "2"
+            sub_env["NUMEXPR_NUM_THREADS"] = "2"
+
+            creation_flags = 0
+            if sys.platform == "win32":
+                creation_flags = getattr(subprocess, "BELOW_NORMAL_PRIORITY_CLASS", 0x00004000)
+
             subprocess.Popen(
                 [sys.executable, str(backend_root / "main.py"), "--who-is-this"],
                 cwd=str(backend_root),
+                stdin=subprocess.DEVNULL,
                 stdout=None,
                 stderr=None,
+                env=sub_env,
+                creationflags=creation_flags,
             )
 
         return rows

@@ -39,6 +39,12 @@ Usage:
 
 import os
 import sys
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 import math
 import cv2
 import torch
@@ -104,7 +110,7 @@ def extract_audio_from_video(video_path: str, output_audio: str = "temp_audio.wa
     if result.returncode != 0:
         raise RuntimeError(f"ffmpeg failed: {result.stderr}")
 
-    print(f"  Audio extracted → {output_audio}")
+    print(f"  Audio extracted -> {output_audio}")
     return output_audio
 
 
@@ -481,14 +487,15 @@ class SpeakerRecogniser:
     """
 
     def __init__(self, registry: PersonRegistry):
-        from speechbrain.inference.speaker import SpeakerRecognition
-        from speechbrain.utils.fetching import LocalStrategy
+        from speechbrain.inference.classifiers import EncoderClassifier
 
         print("[Step 4] Loading ECAPA-TDNN speaker recognition model...")
-        self.model = SpeakerRecognition.from_hparams(
-            source="speechbrain/spkrec-ecapa-voxceleb",
-            savedir="pretrained_models/spkrec-ecapa-voxceleb",
-            local_strategy=LocalStrategy.COPY
+        savedir = BACKEND_ROOT / "tmp_speechbrain"
+        if not savedir.exists():
+            savedir = BACKEND_ROOT.parent / "pretrained_models" / "spkrec-ecapa-voxceleb"
+        self.model = EncoderClassifier.from_hparams(
+            source=str(savedir),
+            savedir=str(savedir),
         )
         self.registry = registry
         print(f"  ECAPA-TDNN loaded. Known identities so far: {list(self.registry.people.keys())}")
@@ -950,8 +957,8 @@ class SpeakerFaceMatcher:
             association = result.get("speaker_face_association")
             if association:
                 print(
-                    f"      ↳ PyAnnote {turn['speaker_label']} "
-                    f"→ {association['face_id']} "
+                    f"      |-> PyAnnote {turn['speaker_label']} "
+                    f"-> {association['face_id']} "
                     f"(avg ASD={association['confidence']:.2f}, "
                     f"observations={association['observations']})"
                 )
@@ -1178,9 +1185,9 @@ def run_pipeline(
     for speaker_label, person_id in final_links.items():
         if person_id:
             rec = registry.people[person_id]
-            print(f"  {speaker_label} → {rec.display_label()} (person_id={person_id}) CONFIRMED")
+            print(f"  {speaker_label} -> {rec.display_label()} (person_id={person_id}) CONFIRMED")
         else:
-            print(f"  {speaker_label} → insufficient evidence, not linked")
+            print(f"  {speaker_label} -> insufficient evidence, not linked")
 
     render_debug_video(video_path, frame_faces, results, output_path="debug_overlay.mp4")
 
@@ -1235,7 +1242,13 @@ def run_pipeline(
     if os.path.exists(audio_path):
         os.unlink(audio_path)
 
-    return results
+    class ActiveSpeakerPipelineResult(list):
+        def __init__(self, turns, final_links=None, registry=None):
+            super().__init__(turns)
+            self.final_links = final_links or {}
+            self.registry = registry
+
+    return ActiveSpeakerPipelineResult(results, final_links=final_links, registry=registry)
 
 
 # ╔══════════════════════════════════════════════════════════╗
@@ -1288,7 +1301,7 @@ def quick_test():
     print("="*60)
     for r in results:
         print(
-            f"\n[{r['start_time']}s → {r['end_time']}s]"
+            f"\n[{r['start_time']}s -> {r['end_time']}s]"
             f"\n  Speaker:        {r['label']}"
             f"\n  Confirmation:   {r['confirmation']}"
             f"\n  Confidence:     {r['confidence']:.0%}"

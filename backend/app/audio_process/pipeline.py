@@ -46,16 +46,6 @@ PipelineProgressCallback = Callable[[str, str, dict[str, object]], None]
 IdentityCallback = Callable[[dict[str, object]], None]
 
 
-def _trigger_video_pipeline() -> None:
-    backend_root = Path(__file__).resolve().parents[2]
-    subprocess.Popen(
-        [sys.executable, str(backend_root / "main.py"), "--take-a-video"],
-        cwd=str(backend_root.parent),
-        stdout=None,
-        stderr=None,
-    )
-
-
 def _report(
     callback: PipelineProgressCallback | None,
     stage: str,
@@ -202,15 +192,19 @@ def run_audio_pipeline(
         AudioMatcher,
         AudioAggregator,
         SessionSpeakerMemory,
-        UnknownAudioManager,
         load_audio_tensor,
     )
-    global _embedder, _matcher, _unknown_manager, _aggregator, _session_memory
+    from database.db import (
+        create_unenrolled_identity,
+        update_unenrolled_voice,
+        find_matching_unenrolled_voice,
+    )
+    global _embedder, _matcher, _aggregator, _session_memory, _triggered_unknowns
     if '_embedder' not in globals():
         _embedder = AudioEmbedder()
         _matcher = AudioMatcher()
-        _unknown_manager = UnknownAudioManager()
         _aggregator = AudioAggregator()
+        _triggered_unknowns = set()
     if '_session_memory' not in globals():
         _session_memory = SessionSpeakerMemory()
 
@@ -317,9 +311,18 @@ def run_audio_pipeline(
                     print(f"\n{log_msg}")
                 else:
                     # Save concatenated audio for unknowns (longest representation)
-                    identity, status = _unknown_manager.process_unknown(
-                        embedding, concat_path
-                    )
+                    # Attempt to match against unenrolled voice embeddings
+                    match_row, match_score = find_matching_unenrolled_voice(embedding)
+                    if match_row is not None:
+                        identity = f"unenrolled_{match_row['id']}"
+                        status = "unenrolled"
+                        # Update stored voice embedding
+                        update_unenrolled_voice(match_row['id'], embedding)
+                    else:
+                        # Create a new unenrolled identity entry
+                        new_id = create_unenrolled_identity(voice_embedding=embedding)
+                        identity = f"unenrolled_{new_id}"
+                        status = "new_unenrolled"
                     score = gallery_best_score
                     log_msg = (
                         f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
@@ -327,16 +330,7 @@ def run_audio_pipeline(
                         f"Speaker: {speaker_label} | Duration: {duration:.2f}s)"
                     )
                     print(f"\n{log_msg}")
-                    
-                    # Aggregation & Vision Trigger
-                    is_confirmed = _aggregator.add_observation(identity)
-                    if is_confirmed:
-                        print(
-                            f"VISION TRIGGER: Unknown speaker confirmed - "
-                            f"{identity} ({status})"
-                        )
-                        _aggregator.reset()
-                    
+
             with open(log_file_path, "a", encoding="utf-8") as f:
                 f.write(log_msg + "\n")
                 
