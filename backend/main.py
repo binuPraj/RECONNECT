@@ -10,6 +10,14 @@ try:
 except Exception:
     pass
 
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
+
+import logging
+for _noisy in ("insightface", "onnxruntime", "urllib3", "httpx", "speechbrain", "pyannote"):
+    logging.getLogger(_noisy).setLevel(logging.WARNING)
+
 import threading
 import time
 
@@ -371,7 +379,7 @@ def _start_audio_capture(temp_aud: str, seconds: int):
 # VIDEO CAPTURE & ASD PIPELINE
 # ==================================================
 
-def capture_and_process_video(vision_pipeline=None) -> bool:
+def capture_and_process_video(vision_pipeline=None, target_unenrolled_id=None) -> bool:
     """
     Records a 5-second video (webcam + mic), runs WhoIsThis on the first second,
     and runs Active Speaker Detection on the full video.
@@ -550,6 +558,97 @@ def capture_and_process_video(vision_pipeline=None) -> bool:
                     print("\n>>> No face detected on camera (nobody visible is talking) <<<\n")
             print("="*60 + "\n")
 
+            # 9. Cross-Modal Alignment: Match Video Audio Voice Embedding to Live Unknown Voice
+            if target_unenrolled_id is not None:
+                from database.db import get_unenrolled_identity, update_unenrolled_face, voice_blob_to_embeddings
+                import numpy as np
+
+                target_row = get_unenrolled_identity(target_unenrolled_id)
+                target_voice_blob = target_row.get("voice_embedding") if target_row else None
+                target_voice_embs = voice_blob_to_embeddings(target_voice_blob) if target_voice_blob else []
+
+                voice_matched_face_id = None
+                best_voice_sim = -1.0
+                matched_time_interval = None
+
+                # Compare each speech turn in the video against the target voice embedding
+                if target_voice_embs and isinstance(results, list):
+                    for r in results:
+                        turn_voice_emb = r.get("voice_embedding")
+                        if turn_voice_emb is None:
+                            continue
+                        if hasattr(turn_voice_emb, "detach"):
+                            turn_voice_arr = turn_voice_emb.detach().cpu().numpy().flatten().astype(np.float32)
+                        else:
+                            turn_voice_arr = np.asarray(turn_voice_emb, dtype=np.float32).flatten()
+
+                        t_norm = np.linalg.norm(turn_voice_arr)
+                        if t_norm == 0:
+                            continue
+
+                        for stored_emb in target_voice_embs:
+                            s_arr = np.asarray(stored_emb, dtype=np.float32).flatten()
+                            s_norm = np.linalg.norm(s_arr)
+                            if s_norm == 0 or s_arr.shape != turn_voice_arr.shape:
+                                continue
+                            sim = float(np.dot(turn_voice_arr, s_arr) / (t_norm * s_norm))
+                            if sim > best_voice_sim:
+                                best_voice_sim = sim
+                                # Check if TalkNet ASD identified an active face on this turn
+                                face_cand = r.get("face_id") or (r.get("person_id") if r.get("person_id") not in ("binu",) else None)
+                                if face_cand:
+                                    voice_matched_face_id = face_cand
+                                    matched_time_interval = (r.get("start_time", 0.0), r.get("end_time", 0.0))
+
+                print("\n" + "="*60)
+                print("CROSS-MODAL VOICE-TO-FACE MATCHING")
+                print("="*60)
+                active_face_embedding = None
+
+                # If a turn matched the live voice embedding with threshold >= 0.55
+                if best_voice_sim >= 0.55 and matched_time_interval is not None:
+                    print(
+                        f"  [VOICE MATCH] Video audio interval [{matched_time_interval[0]:.1f}s - {matched_time_interval[1]:.1f}s] "
+                        f"matches live unknown voice (Similarity: {best_voice_sim:.3f})"
+                    )
+                    # Retrieve the face embedding for the matched active speaker
+                    if registry and hasattr(registry, "people") and voice_matched_face_id in registry.people:
+                        p_rec = registry.people[voice_matched_face_id]
+                        if p_rec.face_embedding is not None:
+                            active_face_embedding = p_rec.face_embedding
+                        elif p_rec.face_gallery:
+                            active_face_embedding = p_rec.face_gallery[0]
+
+                # Fallback: check speaker_face_associations from ASD if only 1 active speaker was confirmed
+                if active_face_embedding is None and best_voice_sim >= 0.50:
+                    if registry and hasattr(registry, "speaker_face_associations"):
+                        for spk_label, info in registry.speaker_face_associations().items():
+                            f_id = info.get("face_id")
+                            if f_id and f_id in registry.people:
+                                p_rec = registry.people[f_id]
+                                if p_rec.face_embedding is not None:
+                                    active_face_embedding = p_rec.face_embedding
+                                    voice_matched_face_id = f_id
+                                    break
+                                elif p_rec.face_gallery:
+                                    active_face_embedding = p_rec.face_gallery[0]
+                                    voice_matched_face_id = f_id
+                                    break
+
+                # If face confirmed, bind to SQLite
+                if active_face_embedding is not None:
+                    update_unenrolled_face(target_unenrolled_id, active_face_embedding)
+                    print(
+                        f"  [ENROLLMENT] Successfully bound confirmed face ({voice_matched_face_id}) "
+                        f"to unenrolled_{target_unenrolled_id} in reconnect.db!"
+                    )
+                else:
+                    if best_voice_sim >= 0.55:
+                        print(f"  [ENROLLMENT] Voice matched (sim={best_voice_sim:.2f}) but face was not clearly visible or unconfirmed by ASD.")
+                    else:
+                        print(f"  [ENROLLMENT] No turn in video matched the unknown voice (highest sim={best_voice_sim:.2f}, needed 0.55).")
+                print("="*60 + "\n")
+
         except Exception as e:
             print(f"Activity pipeline error: {e}")
 
@@ -574,7 +673,7 @@ def capture_and_process_video(vision_pipeline=None) -> bool:
 # MAIN
 # ==================================================
 
-def main(take_video_only=False, who_is_this_only=False):
+def main(take_video_only=False, who_is_this_only=False, target_unenrolled_id=None):
     if who_is_this_only:
         print()
         print("=" * 50)
@@ -603,7 +702,7 @@ def main(take_video_only=False, who_is_this_only=False):
         return
 
     if take_video_only:
-        capture_and_process_video()
+        capture_and_process_video(target_unenrolled_id=target_unenrolled_id)
         return
 
     print()
@@ -821,5 +920,15 @@ if __name__ == "__main__":
         action="store_true",
         help="Run the existing who is this pipeline once without starting the listener.",
     )
+    parser.add_argument(
+        "--unenrolled-id",
+        type=int,
+        default=None,
+        help="Optional unenrolled identity ID to bind the active speaker's face to.",
+    )
     args = parser.parse_args()
-    main(take_video_only=args.take_a_video, who_is_this_only=args.who_is_this)
+    main(
+        take_video_only=args.take_a_video,
+        who_is_this_only=args.who_is_this,
+        target_unenrolled_id=args.unenrolled_id,
+    )

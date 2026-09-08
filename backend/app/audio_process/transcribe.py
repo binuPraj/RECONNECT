@@ -53,8 +53,8 @@ def transcribe_wav(audio_path: str | Path) -> str:
     try:
         model = get_whisper_model()
         segments, _info = model.transcribe(str(path), language=None)
-        text = " ".join(segment.text.strip() for segment in segments).strip()
-        LOGGER.info("[WHISPER] transcribed path=%s chars=%s", path.name, len(text))
+        if text:
+            LOGGER.info("[WHISPER] \"%s\" (%s)", text, path.name)
         return text
     except ImportError:
         LOGGER.exception(

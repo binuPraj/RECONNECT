@@ -942,6 +942,7 @@ class SpeakerFaceMatcher:
                 "start_time":    round(turn["start"], 2),
                 "end_time":      round(turn["end"], 2),
                 "speaker_label": turn["speaker_label"],
+                "voice_embedding": turn.get("voice_embedding"),
             })
 
             icon = {

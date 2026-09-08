@@ -20,6 +20,13 @@ logging.basicConfig(
 )
 LOGGER = logging.getLogger(__name__)
 
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
+
+for _noisy in ("faster_whisper", "speechbrain", "pyannote", "urllib3", "httpx", "huggingface_hub", "onnxruntime"):
+    logging.getLogger(_noisy).setLevel(logging.WARNING)
+
 app = FastAPI(title="RECONNECT Audio Streaming API", version="1.1.0")
 
 
@@ -130,7 +137,7 @@ async def audio_stream(websocket: WebSocket):
             now = time.monotonic()
             if now - last_progress_at >= 15.0:
                 status = recorder.status_snapshot()
-                LOGGER.info(
+                LOGGER.debug(
                     "[STREAM] progress session=%s chunks=%s source_bytes=%s "
                     "canonical_bytes=%s temp_buffer=%s/%.3fs vad=%s frames=%s "
                     "probability=%s recording=%s main_duration=%.3fs",

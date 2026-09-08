@@ -53,8 +53,8 @@ class StreamingSegmentProcessor:
         self._tasks: set[asyncio.Task] = set()
         self.noise_profile = SessionNoiseProfile()
         self._session_transcript_lock = Lock()
-        self._session_transcript_by_recording: dict[int, list[dict[str, object]]] = {}
-        self._video_triggered = False
+        self._last_video_trigger_ts = 0.0
+        self._video_cooldown_sec = float(os.getenv("VIDEO_TRIGGER_COOLDOWN_SEC", "60.0"))
         self._unknown_count = 0
 
     def add_confirmed_idle_audio(self, data: bytes) -> None:
@@ -75,7 +75,7 @@ class StreamingSegmentProcessor:
         task = asyncio.create_task(self._process(segment, profile_snapshot))
         self._tasks.add(task)
         task.add_done_callback(self._tasks.discard)
-        LOGGER.info(
+        LOGGER.debug(
             "----- [PIPELINE] queued session=%s recording=%s -----",
             self.session_id,
             segment.segment_id,
@@ -99,7 +99,7 @@ class StreamingSegmentProcessor:
                 self._save_segment,
                 segment,
             )
-            LOGGER.info(
+            LOGGER.debug(
                 "[PIPELINE] raw_saved session=%s recording=%s path=%s",
                 self.session_id,
                 segment.segment_id,
@@ -124,26 +124,28 @@ class StreamingSegmentProcessor:
                 identity_callback=self._identity_callback,
             )
 
-            # Check for unknown speakers in this finalized recording
-            unknown_speaker_labels = {
-                s.speaker_label
-                for s in (result.segments or [])
-                if s.match_status in ("unenrolled", "new_unenrolled")
-            }
-            if unknown_speaker_labels:
-                self._unknown_count += len(unknown_speaker_labels)
+            # Check for unknown speakers that need video capture (no face linked yet)
+            unknown_needing_video = [
+                s for s in (result.segments or [])
+                if s.match_status in ("unenrolled", "new_unenrolled") and s.speaker_identity
+            ]
+            if unknown_needing_video:
+                self._unknown_count += len(unknown_needing_video)
+                target_ident = unknown_needing_video[0].speaker_identity
+                target_un_id = None
+                if target_ident and target_ident.startswith("unenrolled_"):
+                    try:
+                        target_un_id = int(target_ident.split("_")[1])
+                    except ValueError:
+                        pass
+
                 LOGGER.info(
-                    "[PIPELINE] session=%s recording=%s detected_unknowns=%d session_unknown_total=%d",
+                    "[PIPELINE] session=%s recording=%s unknown=%s (needs face enrollment)",
                     self.session_id,
                     segment.segment_id,
-                    len(unknown_speaker_labels),
-                    self._unknown_count,
+                    target_ident,
                 )
-
-            # Trigger video capture at most once per session
-            if self._unknown_count > 0 and not self._video_triggered:
-                self._video_triggered = True
-                self._maybe_trigger_video_capture()
+                self._maybe_trigger_video_capture(target_unenrolled_id=target_un_id)
 
             # Recognition labels speakers first; transcription runs on those clips.
             transcript_rows = await asyncio.to_thread(
@@ -164,7 +166,7 @@ class StreamingSegmentProcessor:
                 segment.segment_id,
                 transcript_rows,
             )
-            LOGGER.info(
+            LOGGER.debug(
                 "[PIPELINE] segments_manifest=saved session=%s recording=%s path=%s",
                 self.session_id,
                 segment.segment_id,
@@ -193,17 +195,17 @@ class StreamingSegmentProcessor:
                 recording_dir / "recording.json",
                 manifest,
             )
-            LOGGER.info(
+            LOGGER.debug(
                 "[PIPELINE] recording_manifest=saved session=%s recording=%s path=%s",
                 self.session_id,
                 segment.segment_id,
                 recording_dir / "recording.json",
             )
             LOGGER.info(
-                "----- [PIPELINE] completed session=%s recording=%s elapsed=%.3fs -----",
-                self.session_id,
+                "[PIPELINE] Recording #%d processed in %.2fs (segments=%d)",
                 segment.segment_id,
                 time.perf_counter() - started_at,
+                len(result.segments or []),
             )
         except Exception as error:
             await asyncio.to_thread(
@@ -228,23 +230,32 @@ class StreamingSegmentProcessor:
                 time.perf_counter() - started_at,
             )
 
-    def _maybe_trigger_video_capture(self) -> None:
-        """Trigger video capture if no capture is currently in flight; otherwise drop."""
+    def _maybe_trigger_video_capture(self, target_unenrolled_id: int | None = None) -> None:
+        """Trigger video capture if cooldown has elapsed and no capture is in flight."""
         global _active_video_proc
         with _active_video_lock:
-            if _active_video_proc is not None and _active_video_proc.poll() is None:
-                LOGGER.info(
-                    "[PIPELINE] trigger=unknown_speaker session=%s unknown_count=%d action=dropped_in_flight",
-                    self.session_id,
-                    self._unknown_count,
+            now = time.time()
+            if now - self._last_video_trigger_ts < self._video_cooldown_sec:
+                LOGGER.debug(
+                    "[PIPELINE] video_trigger=suppressed_cooldown remaining=%.1fs",
+                    self._video_cooldown_sec - (now - self._last_video_trigger_ts),
                 )
                 return
 
+            if _active_video_proc is not None and _active_video_proc.poll() is None:
+                LOGGER.info(
+                    "[PIPELINE] trigger=unknown_speaker session=%s target=%s action=dropped_in_flight",
+                    self.session_id,
+                    target_unenrolled_id,
+                )
+                return
+
+            self._last_video_trigger_ts = now
             backend_root = Path(__file__).resolve().parents[2]
             LOGGER.info(
-                "[PIPELINE] trigger=unknown_speaker session=%s unknown_count=%d action=start_subprocess",
+                "[PIPELINE] trigger=unknown_speaker session=%s target=%s action=start_subprocess",
                 self.session_id,
-                self._unknown_count,
+                target_unenrolled_id,
             )
             sub_env = dict(os.environ)
             sub_env["PYTHONIOENCODING"] = "utf-8"
@@ -258,8 +269,12 @@ class StreamingSegmentProcessor:
             if sys.platform == "win32":
                 creation_flags = getattr(subprocess, "BELOW_NORMAL_PRIORITY_CLASS", 0x00004000)
 
+            cmd = [sys.executable, str(backend_root / "main.py"), "--take-a-video"]
+            if target_unenrolled_id is not None:
+                cmd.extend(["--unenrolled-id", str(target_unenrolled_id)])
+
             _active_video_proc = subprocess.Popen(
-                [sys.executable, str(backend_root / "main.py"), "--take-a-video"],
+                cmd,
                 cwd=str(backend_root),
                 stdin=subprocess.DEVNULL,
                 stdout=None,
@@ -298,7 +313,7 @@ class StreamingSegmentProcessor:
             detail_text = " ".join(
                 f"{key}={value}" for key, value in details.items()
             )
-            LOGGER.info(
+            LOGGER.debug(
                 "[PIPELINE] stage=%s status=%s session=%s recording=%s elapsed=%.3fs %s",
                 stage,
                 status,
@@ -447,7 +462,7 @@ class StreamingSegmentProcessor:
                     "segments": ordered,
                 },
             )
-            LOGGER.info(
+            LOGGER.debug(
                 "[TRANSCRIPT] session_file=updated session=%s recordings=%s segments=%s",
                 self.session_id,
                 len(self._session_transcript_by_recording),

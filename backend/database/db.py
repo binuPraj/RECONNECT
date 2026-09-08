@@ -175,12 +175,21 @@ def create_unenrolled_identity(face_embedding=None, voice_embedding=None):
         )
         return cursor.lastrowid
 
+def get_unenrolled_identity(un_id):
+    init_database()
+    with _connect() as connection:
+        row = connection.execute(
+            "SELECT * FROM unenrolled_identities WHERE id = ?",
+            (int(un_id),),
+        ).fetchone()
+        return dict(row) if row else None
+
 def update_unenrolled_face(un_id, face_embedding):
     init_database()
     with _connect() as connection:
         connection.execute(
             "UPDATE unenrolled_identities SET face_embedding = ? WHERE id = ?",
-            (embedding_to_blob(face_embedding), un_id),
+            (embedding_to_blob(face_embedding), int(un_id)),
         )
 
 def update_unenrolled_voice(un_id, voice_embedding):

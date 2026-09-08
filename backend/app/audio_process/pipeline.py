@@ -280,11 +280,6 @@ def run_audio_pipeline(
                 )
                 print(f"\n{log_msg}")
             else:
-                if identity_callback is not None:
-                    identity_callback({
-                        "known": False,
-                    })
-
                 gallery_best_id, gallery_best_score = _matcher.best_match(embedding)
                 continuity_id, continuity_score, continuity_reason = (
                     _session_memory.resolve(
@@ -294,7 +289,7 @@ def run_audio_pipeline(
                         gallery_best_score,
                     )
                 )
-                if continuity_id:
+                if continuity_id is not None:
                     identity = continuity_id
                     status = "known"
                     score = continuity_score
@@ -309,13 +304,21 @@ def run_audio_pipeline(
                         f"Via: {match_reason})"
                     )
                     print(f"\n{log_msg}")
+                    if identity_callback is not None:
+                        identity_row = get_identity_by_name(identity)
+                        identity_callback({
+                            "known": True,
+                            "name": identity,
+                            "relation": identity_row["relation"] if identity_row else None,
+                        })
                 else:
                     # Save concatenated audio for unknowns (longest representation)
                     # Attempt to match against unenrolled voice embeddings
                     match_row, match_score = find_matching_unenrolled_voice(embedding)
                     if match_row is not None:
                         identity = f"unenrolled_{match_row['id']}"
-                        status = "unenrolled"
+                        has_face = match_row.get("face_embedding") is not None
+                        status = "unenrolled_with_face" if has_face else "unenrolled"
                         # Update stored voice embedding
                         update_unenrolled_voice(match_row['id'], embedding)
                     else:
@@ -324,12 +327,19 @@ def run_audio_pipeline(
                         identity = f"unenrolled_{new_id}"
                         status = "new_unenrolled"
                     score = gallery_best_score
+                    face_note = " (face linked)" if status == "unenrolled_with_face" else " (no face)"
                     log_msg = (
                         f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
-                        f"[NO MATCH]: {identity} (Highest Score: {score:.3f} | "
+                        f"[NO MATCH]: {identity}{face_note} (Highest Score: {score:.3f} | "
                         f"Speaker: {speaker_label} | Duration: {duration:.2f}s)"
                     )
                     print(f"\n{log_msg}")
+                    if identity_callback is not None:
+                        identity_callback({
+                            "known": False,
+                            "speaker": identity,
+                            "has_face": status == "unenrolled_with_face",
+                        })
 
             with open(log_file_path, "a", encoding="utf-8") as f:
                 f.write(log_msg + "\n")

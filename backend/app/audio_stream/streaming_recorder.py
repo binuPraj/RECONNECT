@@ -57,7 +57,7 @@ class StreamingSpeechRecorder:
 
         if self._active is None:
             if not self._temporary_buffer_active:
-                LOGGER.info("[BUFFER] started")
+                LOGGER.debug("[BUFFER] started")
                 self._temporary_buffer_active = True
             prior_start = self.temp_buffer.start_sample
             self.temp_buffer.add(data)
@@ -97,13 +97,13 @@ class StreamingSpeechRecorder:
                 self._start_continuation(overflow)
             else:
                 self.temp_buffer.reset()
-                LOGGER.info("[BUFFER] cleared reason=max_duration")
+                LOGGER.debug("[BUFFER] cleared reason=max_duration")
             return events
 
         if any(event.event_type == VADEventType.SPEECH_ENDED for event in events):
             self._finalize_active("silence")
             self.temp_buffer.reset()
-            LOGGER.info("[BUFFER] cleared reason=speech_ended")
+            LOGGER.debug("[BUFFER] cleared reason=speech_ended")
 
         return events
 
@@ -221,9 +221,7 @@ class StreamingSpeechRecorder:
                 event.state.value,
             )
             if event.event_type != VADEventType.NONE:
-                level = logging.DEBUG if event.event_type.value == "speech_continuing" else logging.INFO
-                LOGGER.log(
-                    level,
+                LOGGER.debug(
                     "[VAD] transition=%s probability=%.3f state=%s",
                     event.event_type.value,
                     event.speech_probability or 0.0,
