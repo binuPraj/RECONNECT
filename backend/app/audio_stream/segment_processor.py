@@ -17,6 +17,7 @@ import numpy as np
 import soundfile as sf
 
 from app.audio_process.pipeline import run_audio_pipeline
+from app.audio_process.identity_barrier import SessionIdentityResolutionBarrier
 from app.audio_process.transcribe import transcribe_wav
 from app.audio_stream.protocol import SAMPLE_RATE
 from app.audio_stream.noise_profile import SessionNoiseProfile
@@ -54,6 +55,7 @@ class StreamingSegmentProcessor:
         self.noise_profile = SessionNoiseProfile()
         self._session_transcript_lock = Lock()
         self._session_transcript_by_recording: dict[int, list[dict[str, object]]] = {}
+        self._identity_resolution_barrier = SessionIdentityResolutionBarrier()
         self._last_video_trigger_ts = 0.0
         self._video_cooldown_sec = float(os.getenv("VIDEO_TRIGGER_COOLDOWN_SEC", "60.0"))
         self._unknown_count = 0
@@ -72,6 +74,9 @@ class StreamingSegmentProcessor:
     def submit(self, segment: FinalizedSpeechSegment) -> None:
         """Schedule isolated processing for one finalized main recording."""
 
+        self._identity_resolution_barrier.register(
+            self.session_id, segment.segment_id
+        )
         profile_snapshot = self.noise_profile.snapshot()
         task = asyncio.create_task(self._process(segment, profile_snapshot))
         self._tasks.add(task)
@@ -123,6 +128,7 @@ class StreamingSegmentProcessor:
                 session_noise_profile=session_noise_profile,
                 progress_callback=self._pipeline_progress(segment, started_at),
                 identity_callback=self._identity_callback,
+                identity_resolution_barrier=self._identity_resolution_barrier,
             )
 
             # Check for unknown speakers that need video capture (no face linked yet)
@@ -229,6 +235,13 @@ class StreamingSegmentProcessor:
                 self.session_id,
                 segment.segment_id,
                 time.perf_counter() - started_at,
+            )
+        finally:
+            # Unblock a later recording if this one failed before entering the
+            # pipeline's recognition critical section. This is idempotent when
+            # normal recognition has already committed its outcome.
+            self._identity_resolution_barrier.complete(
+                self.session_id, segment.segment_id
             )
 
     def _maybe_trigger_video_capture(self, target_unenrolled_id: int | None = None) -> None:

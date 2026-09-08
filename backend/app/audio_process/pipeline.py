@@ -30,6 +30,7 @@ from app.audio_process.segmentation import (
     export_segment_wavs,
 )
 from app.audio_process.vad import VAD_MODEL
+from app.audio_process.identity_barrier import SessionIdentityResolutionBarrier
 
 from app.schemas.audio import (
     AudioInfo,
@@ -68,6 +69,7 @@ def run_audio_pipeline(
     session_noise_profile = None,
     progress_callback: PipelineProgressCallback | None = None,
     identity_callback: IdentityCallback | None = None,
+    identity_resolution_barrier: SessionIdentityResolutionBarrier | None = None,
 ) -> AudioPerceptionResult:
     """
     Run the complete RECONNECT audio perception pipeline.
@@ -215,6 +217,15 @@ def run_audio_pipeline(
 
     segments = []
     _report(progress_callback, "recognition", "started")
+
+    recording_id = stream_segment.main_segment_id if stream_segment is not None else None
+    barrier_acquired = False
+    if identity_resolution_barrier is not None and recording_id is not None:
+        # Preprocessing, diarization, and export above stay concurrent. Only
+        # recognition, memory mutation, and unknown persistence commit in
+        # chronological order within this live session.
+        identity_resolution_barrier.wait_for_turn(session_id, recording_id)
+        barrier_acquired = True
     
     # 1. Group segments by speaker
     speaker_groups = {}
@@ -260,7 +271,9 @@ def run_audio_pipeline(
             
             # Extract embedding from the glued audio
             embedding = _embedder.extract_embedding(concat_path)
-            matched_id, score = _matcher.match(embedding)
+            matched_id, score = _matcher.match(
+                embedding, segment_duration_sec=duration
+            )
             match_reason = "gallery"
             
             if matched_id:
@@ -285,7 +298,9 @@ def run_audio_pipeline(
                 )
                 print(f"\n{log_msg}")
             else:
-                gallery_best_id, gallery_best_score = _matcher.best_match(embedding)
+                gallery_best_id, gallery_best_score = _matcher.best_match(
+                    embedding, segment_duration_sec=duration
+                )
                 continuity_id, continuity_score, continuity_reason = (
                     _session_memory.resolve(
                         session_id,
@@ -365,7 +380,10 @@ def run_audio_pipeline(
         except Exception as e:
             print(f"Error during recognition for {speaker_label}: {e}")
             speaker_identities[speaker_label] = {"identity": None, "status": None}
-            
+
+    if barrier_acquired:
+        identity_resolution_barrier.complete(session_id, recording_id)
+
     # 3. Apply to all segments
     for segment in exported_segments:
         identity_info = speaker_identities.get(segment.speaker_label, {"identity": None, "status": None})
