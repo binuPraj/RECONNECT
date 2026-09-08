@@ -1,6 +1,7 @@
 """End-to-end RECONNECT audio perception pipeline."""
 
 from datetime import datetime
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -57,6 +58,15 @@ def _report(
 
     if callback is not None:
         callback(stage, status, details)
+
+
+def _append_resolution_failure_log(
+    log_path: Path,
+    record: dict[str, object],
+) -> None:
+    """Persist a resolution failure for post-session threshold analysis."""
+    with open(log_path, "a", encoding="utf-8") as failure_log:
+        failure_log.write(json.dumps(record, sort_keys=True) + "\n")
 
 
 def run_audio_pipeline(
@@ -301,8 +311,8 @@ def run_audio_pipeline(
                 gallery_best_id, gallery_best_score = _matcher.best_match(
                     embedding, segment_duration_sec=duration
                 )
-                continuity_id, continuity_score, continuity_reason = (
-                    _session_memory.resolve(
+                continuity_id, continuity_score, continuity_reason, continuity_details = (
+                    _session_memory.resolve_with_details(
                         session_id,
                         embedding,
                         gallery_best_id,
@@ -355,6 +365,30 @@ def run_audio_pipeline(
                         new_id = create_unenrolled_identity(voice_embedding=embedding)
                         identity = f"unenrolled_{new_id}"
                         status = "new_unenrolled"
+
+                    session_failure_log = segments_output_dir.parent.parent / (
+                        "identity_resolution_failures.jsonl"
+                    )
+                    _append_resolution_failure_log(
+                        session_failure_log,
+                        {
+                            "event": "session_resolution_failed",
+                            "timestamp": datetime.now().astimezone().isoformat(),
+                            "session_id": session_id,
+                            "recording_id": recording_id,
+                            "main_segment_id": recording_id,
+                            "candidate_duration_sec": round(duration, 3),
+                            "gallery_best_identity": gallery_best_id,
+                            "gallery_best_score": gallery_best_score,
+                            **continuity_details,
+                            "final_outcome": (
+                                "matched_existing_unenrolled"
+                                if match_row is not None
+                                else "created_new_unenrolled"
+                            ),
+                            "final_identity": identity,
+                        },
+                    )
 
                     _session_memory.remember(session_id, identity, embedding, confirmed=False)
                     score = gallery_best_score

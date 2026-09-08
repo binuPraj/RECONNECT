@@ -2,6 +2,7 @@ import os
 import json
 import uuid
 import shutil
+import logging
 from pathlib import Path
 from threading import Lock
 
@@ -11,6 +12,9 @@ from scipy.io import wavfile
 import torchaudio
 
 from database.db import get_all_identities, voice_blob_to_embeddings
+
+
+logger = logging.getLogger(__name__)
 
 # Patch torchaudio for speechbrain compatibility with newer torchaudio versions
 if not hasattr(torchaudio, 'list_audio_backends'):
@@ -157,9 +161,9 @@ class AudioEmbedder:
 class AudioMatcher:
     """Matches live embeddings against enrolled SQLite voice embeddings."""
     
-    def __init__(self, gallery_path="data/embeddings/", threshold=0.65):
+    def __init__(self, gallery_path="data/embeddings/", threshold=0.60):
         """Initialize AudioMatcher with a matching threshold.
-        Updated default threshold to 0.65 for both enrolled and unenrolled identity matching.
+        The default enrolled-identity match threshold is 0.60.
         """
         self.gallery_path = gallery_path
         self.threshold = threshold
@@ -181,15 +185,17 @@ class AudioMatcher:
         """Refresh SQLite templates so enrollment changes need no restart."""
         self.known_embeddings = self._load_gallery()
 
-    def match(self, embedding):
+    def match(self, embedding, segment_duration_sec=None):
         """Compare against every enrolled SQLite voice template."""
         self.refresh()
-        best_match, best_score = self.best_match(embedding)
+        best_match, best_score = self.best_match(
+            embedding, segment_duration_sec=segment_duration_sec
+        )
         if best_match is not None and best_score >= self.threshold:
             return best_match, best_score
         return None, best_score
 
-    def best_match(self, embedding):
+    def best_match(self, embedding, segment_duration_sec=None):
         """Return the highest cosine similarity without applying the threshold."""
 
         best_match = None
@@ -198,6 +204,15 @@ class AudioMatcher:
         candidate_norm = np.linalg.norm(candidate)
 
         if candidate_norm == 0 or not np.isfinite(candidate).all():
+            logger.info(
+                "audio_match_attempt best_score=%+.4f best_identity=%s matched_identity=%s duration_sec=%s "
+                "gallery_identities=%d invalid_embedding=true",
+                best_score,
+                None,
+                None,
+                f"{segment_duration_sec:.3f}" if segment_duration_sec is not None else "unknown",
+                len(self.known_embeddings),
+            )
             return None, best_score
 
         candidate = candidate / candidate_norm
@@ -215,6 +230,15 @@ class AudioMatcher:
                     best_score = sim
                     best_match = person_name
 
+        logger.info(
+            "audio_match_attempt best_score=%+.4f best_identity=%s matched_identity=%s duration_sec=%s "
+            "gallery_identities=%d invalid_embedding=false",
+            best_score,
+            best_match,
+            best_match if best_score >= self.threshold else None,
+            f"{segment_duration_sec:.3f}" if segment_duration_sec is not None else "unknown",
+            len(self.known_embeddings),
+        )
         return best_match, best_score
 
 
@@ -264,24 +288,48 @@ class SessionSpeakerMemory:
         gallery_best_id: str | None,
         gallery_best_score: float,
     ) -> tuple[str | None, float, str | None]:
+        identity, score, reason, _ = self.resolve_with_details(
+            session_id,
+            embedding,
+            gallery_best_id,
+            gallery_best_score,
+        )
+        return identity, score, reason
+
+    def resolve_with_details(
+        self,
+        session_id: str,
+        embedding: np.ndarray,
+        gallery_best_id: str | None,
+        gallery_best_score: float,
+    ) -> tuple[str | None, float, str | None, dict[str, object]]:
         """
         Try to keep the same identity across recordings in one session.
 
-        Returns (identity, score, reason) or (None, score, None).
+        Returns (identity, score, reason, diagnostics). Diagnostics retain the
+        raw session comparison details when a caller needs to audit a failure.
         """
 
         flat = np.asarray(embedding, dtype=np.float32).reshape(-1)
+        with self._lock:
+            confirmed_identities = self._confirmed.get(session_id, set()).copy()
+            session_embs = self._embeddings.get(session_id, {}).copy()
+        gallery_best_previously_confirmed = (
+            gallery_best_id is not None and gallery_best_id in confirmed_identities
+        )
+        diagnostics: dict[str, object] = {
+            "gallery_best_previously_confirmed": gallery_best_previously_confirmed,
+            "max_session_embedding_score": None,
+            "max_session_embedding_identity": None,
+        }
 
         # Near-miss against someone already confirmed earlier in this session.
         if (
             gallery_best_id is not None
             and gallery_best_score >= self.continuity_threshold
-            and gallery_best_id in self._confirmed.get(session_id, set())
+            and gallery_best_previously_confirmed
         ):
-            return gallery_best_id, gallery_best_score, "session_continuity"
-
-        with self._lock:
-            session_embs = self._embeddings.get(session_id, {})
+            return gallery_best_id, gallery_best_score, "session_continuity", diagnostics
 
         best_id = None
         best_score = -1.0
@@ -293,9 +341,14 @@ class SessionSpeakerMemory:
                     best_id = identity
 
         if best_id is not None and best_score >= self.session_embed_threshold:
-            return best_id, best_score, "session_embedding"
+            diagnostics["max_session_embedding_score"] = best_score
+            diagnostics["max_session_embedding_identity"] = best_id
+            return best_id, best_score, "session_embedding", diagnostics
 
-        return None, gallery_best_score, None
+        if best_id is not None:
+            diagnostics["max_session_embedding_score"] = best_score
+            diagnostics["max_session_embedding_identity"] = best_id
+        return None, gallery_best_score, None, diagnostics
 
 
 
