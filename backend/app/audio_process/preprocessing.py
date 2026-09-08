@@ -52,6 +52,10 @@ def preprocess_audio(
 
     return {
         "audio": cleaned_audio,
+        # Speaker diarization is intentionally run on the resampled source
+        # waveform. VAD-guided denoising remains available for transcription
+        # and exported clips, but it can alter speaker-discriminative detail.
+        "raw_resampled_audio": audio,
         "original_sample_rate": original_sample_rate,
         "processed_sample_rate": processed_sample_rate,
         "duration": len(cleaned_audio) / processed_sample_rate,

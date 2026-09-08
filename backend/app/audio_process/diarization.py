@@ -248,18 +248,18 @@ def reconstruct_clean_audio(
 # ---------------------------------------------------------
 
 def diarize_audio(
-    cleaned_audio: np.ndarray,
+    raw_resampled_audio: np.ndarray,
     sample_rate: int,
     min_speakers: int | None = None,
     max_speakers: int | None = None,
 ) -> list[DiarizationTurn]:
     """
-    Run speaker diarization on the reconstructed
-    full-length cleaned recording.
+    Run speaker diarization on the full-length raw, resampled recording.
 
     Args:
-        cleaned_audio:
-            Full-length cleaned waveform.
+        raw_resampled_audio:
+            Full-length source waveform resampled to 16 kHz. Denoising is
+            intentionally excluded because it can alter speaker detail.
 
         sample_rate:
             Expected to be 16000 Hz.
@@ -274,7 +274,7 @@ def diarize_audio(
         Ordered list of DiarizationTurn objects.
     """
 
-    if cleaned_audio.size == 0:
+    if raw_resampled_audio.size == 0:
         return []
 
     if sample_rate != TARGET_SAMPLE_RATE:
@@ -286,7 +286,7 @@ def diarize_audio(
     pipeline = _get_diarization_pipeline()
 
     waveform = torch.from_numpy(
-        cleaned_audio.astype(np.float32)
+        raw_resampled_audio.astype(np.float32)
     )
 
     # Convert:

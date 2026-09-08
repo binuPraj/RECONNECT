@@ -139,7 +139,12 @@ def run_audio_pipeline(
     diarization_turns = []
     if duration_sec >= 10.0:
         _report(progress_callback, "diarization", "started")
-        diarization_turns = diarize_audio(cleaned_audio=audio, sample_rate=sample_rate)
+        diarization_turns = diarize_audio(
+            raw_resampled_audio=preprocessing["raw_resampled_audio"],
+            sample_rate=sample_rate,
+            min_speakers=2,
+            max_speakers=6,
+        )
         _report(progress_callback, "diarization", "completed", turn_count=len(diarization_turns))
     else:
         _report(progress_callback, "diarization", "skipped", reason="recording_under_10_seconds")
