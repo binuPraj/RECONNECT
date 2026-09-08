@@ -48,3 +48,13 @@ app.*.map.json
 android/app/debug/
 android/app/profile/
 android/app/release/
+
+# SQLite WAL & temporary files
+*.db-shm
+*.db-wal
+*.db-journal
+
+# Runtime video / debug artifacts
+backend/uploads/
+backend/debug_overlay*.mp4
+backend/asd_output.json

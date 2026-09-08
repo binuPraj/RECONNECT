@@ -392,11 +392,23 @@ class UnknownManager:
                 else "existing_unknown"
             )
 
+            unenrolled_db_id = None
+            if cluster["is_new"]:
+                try:
+                    from database.db import create_unenrolled_identity
+                    face_emb = embeddings[0] if len(embeddings) > 0 else None
+                    unenrolled_db_id = create_unenrolled_identity(face_embedding=face_emb, face_image=best_face)
+                    print(f"[{entity_id}] Saved new unknown face to unenrolled_identities (id={unenrolled_db_id}) in SQLite.")
+                except Exception as db_err:
+                    print(f"[{entity_id}] Warning: could not store unknown face in SQLite: {db_err}")
+
             metadata = {
 
                 "entity_id": entity_id,
 
                 "status": status,
+
+                "unenrolled_db_id": unenrolled_db_id,
 
                 "observation_count": len(
                     cluster["observations"]

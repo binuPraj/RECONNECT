@@ -97,8 +97,8 @@ def enroll_user():
         print("Enrollment stopped; no database or image changes were made.")
         return identity_id
     else:
-        identity_id = create_identity(name, relation, embedding)
-        print(f"Face enrolled in SQLite with id={identity_id}.")
+        identity_id = create_identity(name, relation, embedding, face_image=image)
+        print(f"Face enrolled in SQLite with id={identity_id} (including image BLOB).")
 
     image_directory = Path(ENROLLMENT_IMAGE_PATH) / name
     image_directory.mkdir(parents=True, exist_ok=True)

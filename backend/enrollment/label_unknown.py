@@ -155,6 +155,25 @@ def label_unknown(
             indent=4
         )
 
+    # Save labeled identity into SQLite enrolled_identities
+    best_face_file = metadata.get("best_face_image")
+    face_img_bytes = None
+    if best_face_file and os.path.exists(best_face_file):
+        try:
+            with open(best_face_file, "rb") as f:
+                face_img_bytes = f.read()
+        except Exception:
+            pass
+
+    try:
+        from database.db import create_identity
+        first_emb = embeddings[0] if len(embeddings) > 0 else None
+        if first_emb is not None:
+            db_id = create_identity(identity, "unspecified", first_emb, face_image=face_img_bytes)
+            print(f"Stored {identity} in SQLite enrolled_identities (id={db_id}, with image BLOB).")
+    except Exception as db_err:
+        print(f"Warning: Could not save {identity} to SQLite: {db_err}")
+
     # For this prototype, remove the
     # unknown folder after successful labeling.
     shutil.rmtree(
