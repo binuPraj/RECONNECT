@@ -168,7 +168,7 @@ def show_result(results):
 # HANDLE NEW UNKNOWN PEOPLE
 # ==================================================
 
-def handle_new_unknowns(results):
+def handle_new_unknowns(results, interactive=False):
 
     people = results.get(
         "people",
@@ -201,7 +201,6 @@ def handle_new_unknowns(results):
         print("NEW UNKNOWN DETECTED")
         print("=" * 50)
 
-
         entity_id = person.get(
             "entity_id"
         )
@@ -222,6 +221,11 @@ def handle_new_unknowns(results):
             )
 
         print()
+
+        # In non-interactive mode or when stdin is not a TTY, don't prompt
+        if not interactive or not sys.stdin.isatty():
+            print("Non-interactive mode: keeping person as unknown.")
+            continue
 
         try:
 
@@ -321,67 +325,133 @@ def extract_first_second_frames(video_path):
 
 
 # ==================================================
-# AUDIO CAPTURE HELPERS
+# AUDIO & VIDEO CAPTURE HELPERS (DIRECTSHOW SYNC)
 # ==================================================
 
-def _audio_input_candidates():
-    """Build candidate DirectShow audio inputs for ffmpeg."""
-    candidates = []
+def detect_dshow_devices():
+    """Discover available DirectShow video and audio devices via ffmpeg."""
+    video_dev = os.getenv("FFMPEG_VIDEO_DEVICE_NAME", "").strip()
+    audio_dev = os.getenv("FFMPEG_AUDIO_DEVICE_NAME", "").strip()
 
-    env_name = os.getenv("FFMPEG_AUDIO_DEVICE_NAME", "").strip()
-    if env_name:
-        candidates.append(f"audio={env_name}")
+    if video_dev and audio_dev:
+        return video_dev, audio_dev
 
-    candidates.extend([
-        "audio=Microphone Array (Realtek(R) Audio)",
-        "audio=Microphone (Realtek(R) Audio)",
-        "audio=default",
-    ])
+    cmd = ["ffmpeg", "-list_devices", "true", "-f", "dshow", "-i", "dummy"]
+    try:
+        proc = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=5,
+        )
+        lines = proc.stderr.splitlines()
+        found_videos = []
+        found_audios = []
+        for line in lines:
+            if "(video)" in line and '"' in line:
+                parts = line.split('"')
+                if len(parts) >= 2:
+                    found_videos.append(parts[1])
+            elif "(audio)" in line and '"' in line:
+                parts = line.split('"')
+                if len(parts) >= 2:
+                    found_audios.append(parts[1])
 
-    deduped = []
-    seen = set()
-    for item in candidates:
-        key = item.lower()
-        if key not in seen:
-            seen.add(key)
-            deduped.append(item)
-    return deduped
+        if not video_dev and found_videos:
+            video_dev = found_videos[0]
+        if not audio_dev and found_audios:
+            audio_dev = found_audios[0]
+    except Exception as e:
+        print(f"[Device Detection Warning] {e}")
+
+    if not video_dev:
+        video_dev = "USB2.0 HD UVC WebCam"
+    if not audio_dev:
+        audio_dev = "Microphone Array (Realtek(R) Audio)"
+
+    return video_dev, audio_dev
 
 
-def _start_audio_capture(temp_aud: str, seconds: int):
-    """Try several audio device inputs and return (proc, input_name)."""
-    for input_name in _audio_input_candidates():
-        audio_cmd = [
-            "ffmpeg", "-y", "-f", "dshow",
-            "-i", input_name,
-            "-t", str(seconds),
-            temp_aud,
-        ]
+def record_synchronized_video(output_path: str, seconds: float = 10.0) -> bool:
+    """
+    Record webcam video and microphone audio concurrently into a single MP4
+    using DirectShow with hardware presentation timestamps (PTS).
+    Guarantees millisecond-accurate audio/video synchronization.
+    """
+    video_dev, audio_dev = detect_dshow_devices()
+    print(f"Recording {seconds}s synchronized video: video='{video_dev}', audio='{audio_dev}'...")
 
+    os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+    if os.path.exists(output_path):
+        try:
+            os.remove(output_path)
+        except Exception:
+            pass
+
+    cmd = [
+        "ffmpeg", "-y",
+        "-f", "dshow",
+        "-i", f"video={video_dev}:audio={audio_dev}",
+        "-t", str(seconds),
+        "-c:v", "libx264",
+        "-preset", "ultrafast",
+        "-c:a", "aac",
+        "-avoid_negative_ts", "make_zero",
+        output_path,
+    ]
+
+    proc = None
+    try:
         proc = subprocess.Popen(
-            audio_cmd,
+            cmd,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.PIPE,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
+        _, stderr_text = proc.communicate(timeout=seconds + 20.0)
+        if proc.returncode != 0:
+            print(f"[Record ERROR] ffmpeg exited with code {proc.returncode}:")
+            print(stderr_text[-1500:] if stderr_text else "No stderr output")
+            return False
 
-        # Check inputs that fail immediately without delaying video start.
-        if proc.poll() is not None:
-            continue
+        if not os.path.exists(output_path) or os.path.getsize(output_path) < 4096:
+            print(f"[Record ERROR] Output file missing or too small: {output_path}")
+            return False
 
-        print(f"Using audio input: {input_name}")
-        return proc, input_name
-
-    return None, None
+        print(f"Video recorded successfully: {os.path.abspath(output_path)} ({os.path.getsize(output_path)//1024} KB)")
+        return True
+    except subprocess.TimeoutExpired:
+        print("[Record ERROR] ffmpeg timed out while recording.")
+        if proc:
+            proc.kill()
+            proc.communicate()
+        return False
+    except Exception as e:
+        print(f"[Record ERROR] {e}")
+        if proc:
+            proc.kill()
+            proc.communicate()
+        return False
+    finally:
+        if proc and proc.poll() is None:
+            try:
+                proc.kill()
+                proc.communicate()
+            except Exception:
+                pass
 
 
 # ==================================================
 # VIDEO CAPTURE & ASD PIPELINE
 # ==================================================
 
-def capture_and_process_video(vision_pipeline=None, target_unenrolled_id=None) -> bool:
+def capture_and_process_video(vision_pipeline=None, target_unenrolled_id=None, interactive=False) -> bool:
     """
-    Records a 5-second video (webcam + mic), runs WhoIsThis on the first second,
+    Records a 10-second video (webcam + mic with perfect sync), runs WhoIsThis on the first second,
     and runs Active Speaker Detection on the full video.
     Guarded by _video_lock and PipelineState to ensure only one recording at a time.
     Returns True if capture succeeded, False if skipped or failed.
@@ -398,73 +468,21 @@ def capture_and_process_video(vision_pipeline=None, target_unenrolled_id=None) -
             reset_state()
             return False
 
-    print("Recording 5-second video (webcam + mic)...")
     os.makedirs("uploads", exist_ok=True)
-    temp_vid = os.path.join("uploads", f"temp_video_{int(time.time())}.avi")
-    temp_aud = os.path.join("uploads", f"temp_audio_{int(time.time())}.wav")
     video_filename = os.path.join("uploads", "activity_video.mp4")
 
     if vision_pipeline is None:
         vision_pipeline = WhoIsThisPipeline()
 
     try:
-        # 1. Start audio capture
-        audio_proc, audio_input_name = _start_audio_capture(
-            temp_aud=temp_aud,
-            seconds=5,
-        )
-        if audio_proc is None:
-            print("Could not start microphone recording via ffmpeg.")
-            print("Set FFMPEG_AUDIO_DEVICE_NAME to your exact mic device name and retry.")
-            print("Tip: run 'ffmpeg -list_devices true -f dshow -i dummy' to list names.")
-            raise RuntimeError("Audio capture failed")
+        success = record_synchronized_video(video_filename, seconds=10.0)
+        if not success:
+            raise RuntimeError("DirectShow synchronized recording failed")
 
-        # 2. Capture video frames
-        cap = cv2.VideoCapture(0)
-        fps = cap.get(cv2.CAP_PROP_FPS)
-        if fps <= 0:
-            fps = 30.0
-        out = None
-        frames_written = 0
-        start_time = time.time()
-        while time.time() - start_time < 5.0:
-            ret, frame = cap.read()
-            if ret and frame is not None and frame.shape[0] > 0:
-                if out is None:
-                    h, w = frame.shape[:2]
-                    fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-                    out = cv2.VideoWriter(temp_vid, fourcc, fps, (w, h))
-                out.write(frame)
-                frames_written += 1
-            else:
-                time.sleep(0.05)
-                continue
-        cap.release()
-        if out is not None:
-            out.release()
-
-        # 3. Wait for audio to finish and validate
-        audio_proc.wait()
-        if not os.path.exists(temp_aud) or os.path.getsize(temp_aud) < 4096:
-            print("Audio track appears empty or too small.")
-            print(f"Mic input attempted: {audio_input_name}")
-            raise RuntimeError("Invalid audio file")
-        if frames_written == 0:
-            print("Failed to capture any valid frames from the webcam.")
-            raise RuntimeError("No video frames captured")
-
-        # 4. Merge audio and video with timeout to avoid hangs
-        mux_cmd = [
-            "ffmpeg", "-y", "-i", temp_vid, "-i", temp_aud,
-            "-c:v", "libx264", "-c:a", "aac", video_filename
-        ]
-        subprocess.run(mux_cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=15)
-        print("Video recorded successfully to activity_video.mp4!")
-
-        # 5. Transition to processing
+        # 2. Transition to processing
         set_state(PipelineState.PROCESSING)
 
-        # 6. Run vision pipeline on first second
+        # 3. Run vision pipeline on first second
         print("Running Who Is This on the first second of the video...")
         vision_people = []
         try:
@@ -472,12 +490,12 @@ def capture_and_process_video(vision_pipeline=None, target_unenrolled_id=None) -
             vision_results = vision_pipeline.process_frames(who_frames, capture_seconds=1.0)
             save_results(vision_results)
             show_result(vision_results)
-            handle_new_unknowns(vision_results)
+            handle_new_unknowns(vision_results, interactive=interactive)
             vision_people = vision_results.get("people", [])
         except Exception as e:
             print(f"Who Is This pipeline error: {e}")
 
-        # 7. Run active speaker detection pipeline
+        # 4. Run active speaker detection pipeline
         print("Running Active Speaker Detection pipeline...")
         try:
             results = run_activity_pipeline(
@@ -507,7 +525,7 @@ def capture_and_process_video(vision_pipeline=None, target_unenrolled_id=None) -
             else:
                 print("No active speakers found or linked.")
 
-            # 8. Cross-modal match: Vision Face vs Active Speaker
+            # 5. Cross-modal match: Vision Face vs Active Speaker
             active_speakers = set()
             final_links = getattr(results, "final_links", {})
             registry = getattr(results, "registry", None)
@@ -558,7 +576,7 @@ def capture_and_process_video(vision_pipeline=None, target_unenrolled_id=None) -
                     print("\n>>> No face detected on camera (nobody visible is talking) <<<\n")
             print("="*60 + "\n")
 
-            # 9. Cross-Modal Alignment: Match Video Audio Voice Embedding to Live Unknown Voice
+            # 6. Cross-Modal Alignment: Match Video Audio Voice Embedding to Live Unknown Voice
             if target_unenrolled_id is not None:
                 from database.db import get_unenrolled_identity, update_unenrolled_face, voice_blob_to_embeddings
                 import numpy as np
@@ -594,7 +612,6 @@ def capture_and_process_video(vision_pipeline=None, target_unenrolled_id=None) -
                             sim = float(np.dot(turn_voice_arr, s_arr) / (t_norm * s_norm))
                             if sim > best_voice_sim:
                                 best_voice_sim = sim
-                                # Check if TalkNet ASD identified an active face on this turn
                                 face_cand = r.get("face_id") or (r.get("person_id") if r.get("person_id") not in ("binu",) else None)
                                 if face_cand:
                                     voice_matched_face_id = face_cand
@@ -658,13 +675,6 @@ def capture_and_process_video(vision_pipeline=None, target_unenrolled_id=None) -
         print(f"Error during video trigger processing: {e}")
         return False
     finally:
-        # Cleanup temporary files
-        for fp in (temp_vid, temp_aud):
-            try:
-                if os.path.exists(fp):
-                    os.remove(fp)
-            except Exception:
-                pass
         reset_state()
         print("Returning to listening...")
 
@@ -673,7 +683,7 @@ def capture_and_process_video(vision_pipeline=None, target_unenrolled_id=None) -
 # MAIN
 # ==================================================
 
-def main(take_video_only=False, who_is_this_only=False, target_unenrolled_id=None):
+def main(take_video_only=False, who_is_this_only=False, target_unenrolled_id=None, interactive=False):
     if who_is_this_only:
         print()
         print("=" * 50)
@@ -696,13 +706,13 @@ def main(take_video_only=False, who_is_this_only=False, target_unenrolled_id=Non
             print(error)
             
         show_result(results)
-        handle_new_unknowns(results)
+        handle_new_unknowns(results, interactive=interactive)
         
         print("Vision complete.")
         return
 
     if take_video_only:
-        capture_and_process_video(target_unenrolled_id=target_unenrolled_id)
+        capture_and_process_video(target_unenrolled_id=target_unenrolled_id, interactive=interactive)
         return
 
     print()
@@ -926,9 +936,15 @@ if __name__ == "__main__":
         default=None,
         help="Optional unenrolled identity ID to bind the active speaker's face to.",
     )
+    parser.add_argument(
+        "--interactive",
+        action="store_true",
+        help="Allow interactive prompts for labeling new unknown faces.",
+    )
     args = parser.parse_args()
     main(
         take_video_only=args.take_a_video,
         who_is_this_only=args.who_is_this,
         target_unenrolled_id=args.unenrolled_id,
+        interactive=args.interactive,
     )

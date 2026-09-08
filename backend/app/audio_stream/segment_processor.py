@@ -53,6 +53,7 @@ class StreamingSegmentProcessor:
         self._tasks: set[asyncio.Task] = set()
         self.noise_profile = SessionNoiseProfile()
         self._session_transcript_lock = Lock()
+        self._session_transcript_by_recording: dict[int, list[dict[str, object]]] = {}
         self._last_video_trigger_ts = 0.0
         self._video_cooldown_sec = float(os.getenv("VIDEO_TRIGGER_COOLDOWN_SEC", "60.0"))
         self._unknown_count = 0
@@ -369,6 +370,10 @@ class StreamingSegmentProcessor:
 
         for segment, transcript in zip(final_segments, transcripts):
             text = (transcript or "").lower()
+            spk_display = speaker_name(segment)
+            if transcript:
+                LOGGER.info("[TRANSCRIPT] %s: \"%s\"", spk_display, transcript.strip())
+                print(f"\n>>> [TRANSCRIPT] {spk_display}: \"{transcript.strip()}\" <<<\n")
             if not who_is_this_triggered:
                 for trigger in trigger_phrases:
                     if trigger in text:

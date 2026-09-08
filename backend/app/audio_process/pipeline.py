@@ -291,30 +291,39 @@ def run_audio_pipeline(
                 )
                 if continuity_id is not None:
                     identity = continuity_id
-                    status = "known"
+                    is_unenrolled = identity.startswith("unenrolled_")
+                    status = "unenrolled" if is_unenrolled else "known"
                     score = continuity_score
                     match_reason = continuity_reason or "session_continuity"
                     _session_memory.remember(
-                        session_id, identity, embedding, confirmed=True
+                        session_id, identity, embedding, confirmed=not is_unenrolled
                     )
+                    prefix = "[MATCH]" if not is_unenrolled else "[SESSION UNKNOWN]"
                     log_msg = (
                         f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
-                        f"[MATCH]: '{identity}' (Score: {score:.3f} | "
+                        f"{prefix}: '{identity}' (Score: {score:.3f} | "
                         f"Speaker: {speaker_label} | Duration: {duration:.2f}s | "
                         f"Via: {match_reason})"
                     )
                     print(f"\n{log_msg}")
                     if identity_callback is not None:
-                        identity_row = get_identity_by_name(identity)
-                        identity_callback({
-                            "known": True,
-                            "name": identity,
-                            "relation": identity_row["relation"] if identity_row else None,
-                        })
+                        if is_unenrolled:
+                            identity_callback({
+                                "known": False,
+                                "speaker": identity,
+                                "has_face": False,
+                            })
+                        else:
+                            identity_row = get_identity_by_name(identity)
+                            identity_callback({
+                                "known": True,
+                                "name": identity,
+                                "relation": identity_row["relation"] if identity_row else None,
+                            })
                 else:
                     # Save concatenated audio for unknowns (longest representation)
                     # Attempt to match against unenrolled voice embeddings
-                    match_row, match_score = find_matching_unenrolled_voice(embedding)
+                    match_row, match_score = find_matching_unenrolled_voice(embedding, threshold=0.52)
                     if match_row is not None:
                         identity = f"unenrolled_{match_row['id']}"
                         has_face = match_row.get("face_embedding") is not None
@@ -326,6 +335,8 @@ def run_audio_pipeline(
                         new_id = create_unenrolled_identity(voice_embedding=embedding)
                         identity = f"unenrolled_{new_id}"
                         status = "new_unenrolled"
+
+                    _session_memory.remember(session_id, identity, embedding, confirmed=False)
                     score = gallery_best_score
                     face_note = " (face linked)" if status == "unenrolled_with_face" else " (no face)"
                     log_msg = (

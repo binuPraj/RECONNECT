@@ -157,9 +157,9 @@ class AudioEmbedder:
 class AudioMatcher:
     """Matches live embeddings against enrolled SQLite voice embeddings."""
     
-    def __init__(self, gallery_path="data/embeddings/", threshold=0.60):
+    def __init__(self, gallery_path="data/embeddings/", threshold=0.65):
         """Initialize AudioMatcher with a matching threshold.
-        The default threshold has been increased to 0.60 to reduce false positives.
+        Updated default threshold to 0.65 for both enrolled and unenrolled identity matching.
         """
         self.gallery_path = gallery_path
         self.threshold = threshold

@@ -93,7 +93,10 @@ load_dotenv()
 HF_TOKEN = os.getenv("HF_TOKEN")
 
 
-def extract_audio_from_video(video_path: str, output_audio: str = "temp_audio.wav") -> str:
+def extract_audio_from_video(video_path: str, output_audio: str = None) -> str:
+    if output_audio is None:
+        fd, output_audio = tempfile.mkstemp(prefix="extracted_audio_", suffix=".wav")
+        os.close(fd)
 
     print(f"[Step 1] Extracting audio from {video_path}...")
 
@@ -108,6 +111,11 @@ def extract_audio_from_video(video_path: str, output_audio: str = "temp_audio.wa
 
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
+        if os.path.exists(output_audio):
+            try:
+                os.unlink(output_audio)
+            except Exception:
+                pass
         raise RuntimeError(f"ffmpeg failed: {result.stderr}")
 
     print(f"  Audio extracted -> {output_audio}")
@@ -680,10 +688,20 @@ class ActiveSpeakerDetector:
         end_sample = int(turn["end"] * sr)
         audio_segment = audio_data[start_sample:end_sample]
 
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
-            wavfile.write(tmp.name, sr, audio_segment)
-            temp_audio = tmp.name
+        temp_audio = None
+        try:
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+                wavfile.write(tmp.name, sr, audio_segment)
+                temp_audio = tmp.name
+            return self._run_talknet_compute(turn, video_path, face_app, registry, temp_audio, frame_faces)
+        finally:
+            if temp_audio and os.path.exists(temp_audio):
+                try:
+                    os.unlink(temp_audio)
+                except Exception:
+                    pass
 
+    def _run_talknet_compute(self, turn: dict, video_path: str, face_app, registry, temp_audio: str, frame_faces: dict) -> dict:
         # ── dense, native-fps re-detection for THIS turn only ──
         dense_frames = extract_frames_in_range(video_path, turn["start"], turn["end"])
         n_dense = len(dense_frames)
@@ -858,8 +876,6 @@ class ActiveSpeakerDetector:
             except Exception as e:
                 print(f"  WARNING: TalkNet failed for {identity}: {e}")
                 continue
-
-        os.unlink(temp_audio)
 
         return {
             "candidates": sorted(all_scores, key=lambda x: x[1], reverse=True),
@@ -1128,24 +1144,40 @@ def run_pipeline(
 ):
     """
     Run the complete Active Speaker Detection pipeline.
-
-    Args:
-        video_path:      Path to input video file (.mp4, .avi, etc.)
-        enrolled_voices: dict {name: embedding_tensor} — pre-enrolled voices
-        output_path:     Path to save JSON output
-
-    Returns:
-        list of matched speaker objects
+    Ensures extracted audio is safely cleaned up even on failure.
     """
+    audio_path = extract_audio_from_video(video_path)
+    try:
+        return _run_pipeline_inner(
+            video_path=video_path,
+            audio_path=audio_path,
+            enrolled_voices=enrolled_voices,
+            output_path=output_path,
+            **_legacy_options
+        )
+    finally:
+        if audio_path and os.path.exists(audio_path):
+            try:
+                os.unlink(audio_path)
+            except Exception:
+                pass
+
+
+def _run_pipeline_inner(
+    video_path: str,
+    audio_path: str,
+    enrolled_voices: dict = None,
+    output_path: str = "asd_output.json",
+    **_legacy_options
+):
     print("\n" + "="*60)
     print("RECONNECT — Active Speaker Detection Pipeline")
     print("="*60 + "\n")
 
-    # ── Step 1: Extract video frames and audio ───────────────
+    # ── Step 1: Extract video frames ─────────────────────────
     frames = extract_frames(video_path, fps=2)
     who_is_this_pipeline = WhoIsThisPipeline()
     registry = PersonRegistry(enrolled_voices)
-    audio_path = extract_audio_from_video(video_path)
 
     # ── Step 2: Face detection + recognition ────────────────
     face_detector = FaceDetector(
@@ -1201,6 +1233,8 @@ def run_pipeline(
     }
 
     def _json_default(o):
+        if hasattr(o, "detach"):
+            return o.detach().cpu().numpy().tolist()
         if isinstance(o, (np.floating,)):
             return float(o)
         if isinstance(o, (np.integer,)):
@@ -1239,9 +1273,6 @@ def run_pipeline(
             print("  No reliable speaker/face associations yet.")
 
     print(f"\nFull output saved to: {output_path}")
-
-    if os.path.exists(audio_path):
-        os.unlink(audio_path)
 
     class ActiveSpeakerPipelineResult(list):
         def __init__(self, turns, final_links=None, registry=None):

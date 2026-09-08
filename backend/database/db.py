@@ -1,12 +1,35 @@
 import sqlite3
+import threading
 from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
 
+_DB_LOCK = threading.Lock()
+_DB_INITIALISED = False
 
 DATABASE_PATH = Path(__file__).resolve().parent / "reconnect.db"
 FACE_MATCH_THRESHOLD = 0.50
+
+
+def _enable_wal_once():
+    """Enable WAL journal mode exactly once at module load.
+
+    WAL mode requires an *exclusive* lock on the database file, so it must
+    be set before any other connections are opened.  Calling it from inside
+    _connect() (which can be called concurrently) causes 'database is locked'.
+    Errors are silently ignored – the database still works in the default
+    DELETE journal mode if WAL cannot be activated.
+    """
+    try:
+        conn = sqlite3.connect(DATABASE_PATH, timeout=10, check_same_thread=False)
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.close()
+    except sqlite3.OperationalError:
+        pass  # Already in WAL or some other process holds the DB; non-fatal
+
+
+_enable_wal_once()
 
 
 def embedding_to_blob(embedding):
@@ -28,13 +51,20 @@ def voice_blob_to_embeddings(blob, dimension=192):
 
 
 def _connect():
-    connection = sqlite3.connect(DATABASE_PATH)
-    connection.row_factory = sqlite3.Row
-    return connection
+    """Open a thread-safe SQLite connection with a generous busy timeout."""
+    conn = sqlite3.connect(DATABASE_PATH, timeout=30, check_same_thread=False)
+    conn.row_factory = sqlite3.Row
+    # Tell SQLite to wait up to 30 s before giving up on a locked page.
+    # This is safe to call on every connection unlike journal_mode=WAL.
+    conn.execute("PRAGMA busy_timeout = 30000")
+    return conn
 
 
 def init_database():
-    with _connect() as connection:
+    global _DB_INITIALISED
+    if _DB_INITIALISED:
+        return
+    with _DB_LOCK, _connect() as connection:
         existing = connection.execute(
             "SELECT name FROM sqlite_master WHERE type = 'table' "
             "AND name = 'enrolled_identities'"
@@ -72,11 +102,12 @@ def init_database():
             )
             """
         )
+    _DB_INITIALISED = True
 
 
 def get_all_identities():
     init_database()
-    with _connect() as connection:
+    with _DB_LOCK, _connect() as connection:
         return connection.execute(
             "SELECT * FROM enrolled_identities ORDER BY id"
         ).fetchall()
@@ -84,7 +115,7 @@ def get_all_identities():
 
 def get_identity_by_name(name):
     init_database()
-    with _connect() as connection:
+    with _DB_LOCK, _connect() as connection:
         return connection.execute(
             "SELECT * FROM enrolled_identities WHERE name = ? "
             "ORDER BY id LIMIT 1",
@@ -113,7 +144,7 @@ def find_matching_face(embedding, threshold=FACE_MATCH_THRESHOLD):
 
 def create_identity(name, relation, face_embedding):
     init_database()
-    with _connect() as connection:
+    with _DB_LOCK, _connect() as connection:
         cursor = connection.execute(
             """
             INSERT INTO enrolled_identities
@@ -132,7 +163,7 @@ def create_identity(name, relation, face_embedding):
 
 def update_voice_embedding(identity_id, voice_embedding):
     init_database()
-    with _connect() as connection:
+    with _DB_LOCK, _connect() as connection:
         connection.execute(
             "UPDATE enrolled_identities SET voice_embedding = ? WHERE id = ?",
             (embedding_to_blob(voice_embedding), identity_id),
@@ -141,7 +172,7 @@ def update_voice_embedding(identity_id, voice_embedding):
 
 def append_voice_embedding(identity_id, voice_embedding):
     init_database()
-    with _connect() as connection:
+    with _DB_LOCK, _connect() as connection:
         row = connection.execute(
             "SELECT voice_embedding FROM enrolled_identities WHERE id = ?",
             (identity_id,),
@@ -161,7 +192,7 @@ def create_unenrolled_identity(face_embedding=None, voice_embedding=None):
     Returns the generated row id.
     """
     init_database()
-    with _connect() as connection:
+    with _DB_LOCK, _connect() as connection:
         cursor = connection.execute(
             """
             INSERT INTO unenrolled_identities (timestamp, face_embedding, voice_embedding)
@@ -177,7 +208,7 @@ def create_unenrolled_identity(face_embedding=None, voice_embedding=None):
 
 def get_unenrolled_identity(un_id):
     init_database()
-    with _connect() as connection:
+    with _DB_LOCK, _connect() as connection:
         row = connection.execute(
             "SELECT * FROM unenrolled_identities WHERE id = ?",
             (int(un_id),),
@@ -186,7 +217,7 @@ def get_unenrolled_identity(un_id):
 
 def update_unenrolled_face(un_id, face_embedding):
     init_database()
-    with _connect() as connection:
+    with _DB_LOCK, _connect() as connection:
         connection.execute(
             "UPDATE unenrolled_identities SET face_embedding = ? WHERE id = ?",
             (embedding_to_blob(face_embedding), int(un_id)),
@@ -194,7 +225,7 @@ def update_unenrolled_face(un_id, face_embedding):
 
 def update_unenrolled_voice(un_id, voice_embedding):
     init_database()
-    with _connect() as connection:
+    with _DB_LOCK, _connect() as connection:
         connection.execute(
             "UPDATE unenrolled_identities SET voice_embedding = ? WHERE id = ?",
             (embedding_to_blob(voice_embedding), un_id),
@@ -207,7 +238,7 @@ def find_matching_unenrolled_voice(embedding, threshold=0.60):
     candidate = np.asarray(embedding, dtype=np.float32).reshape(-1)
     best_row = None
     best_similarity = -1.0
-    with _connect() as connection:
+    with _DB_LOCK, _connect() as connection:
         rows = connection.execute("SELECT * FROM unenrolled_identities").fetchall()
         for row in rows:
             voice_blob = row["voice_embedding"]
