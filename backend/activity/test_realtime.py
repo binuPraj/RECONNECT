@@ -92,6 +92,48 @@ load_dotenv()
 
 HF_TOKEN = os.getenv("HF_TOKEN")
 
+def display_diarised_segments(audio_path: str, turns: list):
+    """Print diarised audio segments with speaker labels and indexed suffixes.
+
+    For each speaker label (e.g., SPEAKER_00) the turns are numbered .01, .02, ...
+    The function prints label, suffix, start and end times.
+    """
+    import soundfile as sf
+    audio, sr = sf.read(audio_path)
+    speaker_counts = {}
+    for turn in turns:
+        label = turn["speaker_label"]
+        count = speaker_counts.get(label, 0) + 1
+        speaker_counts[label] = count
+        suffix = f".{count:02d}"
+        start = turn["start"]
+        end = turn["end"]
+        print(f"{label}{suffix}: {start:.2f}s - {end:.2f}s")
+
+def save_diarised_segments(audio_path: str, turns: list, out_dir: str = "diarised_segments"):
+    """Write each diarised turn to a separate .wav file.
+
+    The files are saved under `out_dir` with names like SPEAKER_00.01.wav.
+    """
+    import os, soundfile as sf
+    os.makedirs(out_dir, exist_ok=True)
+    audio, sr = sf.read(audio_path)
+    speaker_counts = {}
+    for turn in turns:
+        label = turn["speaker_label"]
+        count = speaker_counts.get(label, 0) + 1
+        speaker_counts[label] = count
+        suffix = f".{count:02d}"
+        start_idx = int(turn["start"] * sr)
+        end_idx = int(turn["end"] * sr)
+        segment = audio[start_idx:end_idx]
+        filename = f"{label}{suffix}.wav"
+        sf.write(os.path.join(out_dir, filename), segment, sr)
+        print(f"Saved diarised segment: {filename}")
+
+
+
+
 
 def extract_audio_from_video(video_path: str, output_audio: str = None) -> str:
     if output_audio is None:
@@ -1189,6 +1231,10 @@ def _run_pipeline_inner(
     # ── Step 3: Speaker diarisation ──────────────────────────
     diariser = SpeakerDiariser(HF_TOKEN)
     turns = diariser.diarise(audio_path)
+    # Display diarised audio segments with indexed speaker labels
+    display_diarised_segments(audio_path, turns)
+    save_diarised_segments(audio_path, turns)
+
 
     # ── Sanity check: does diarized speaker count match face count? ──
     # Must run AFTER Step 2 (needs registry.people populated) and can run

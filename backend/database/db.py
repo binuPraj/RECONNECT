@@ -148,6 +148,9 @@ def init_database():
         unenrolled_cols = [r[1] for r in connection.execute("PRAGMA table_info(unenrolled_identities)").fetchall()]
         if "face_image" not in unenrolled_cols:
             connection.execute("ALTER TABLE unenrolled_identities ADD COLUMN face_image BLOB")
+            
+        if "resolved_to" not in unenrolled_cols:
+            connection.execute("ALTER TABLE unenrolled_identities ADD COLUMN resolved_to INTEGER REFERENCES enrolled_identities(id)")
 
     _DB_INITIALISED = True
 
@@ -218,7 +221,7 @@ def update_voice_embedding(identity_id, voice_embedding):
         )
 
 
-def append_voice_embedding(identity_id, voice_embedding):
+def append_voice_embedding(identity_id, voice_embedding, max_templates=5):
     init_database()
     with _DB_LOCK, _connect() as connection:
         row = connection.execute(
@@ -228,10 +231,35 @@ def append_voice_embedding(identity_id, voice_embedding):
         existing = row["voice_embedding"] if row else None
         current = blob_to_embedding(existing) if existing else np.array([], dtype=np.float32)
         combined = np.concatenate((current, np.asarray(voice_embedding, dtype=np.float32)))
+        
+        # Enforce max templates cap
+        dimension = 192
+        num_embeddings = len(combined) // dimension
+        if num_embeddings > max_templates:
+            combined = combined[-(max_templates * dimension):]
+            
         connection.execute(
             "UPDATE enrolled_identities SET voice_embedding = ? WHERE id = ?",
             (embedding_to_blob(combined), identity_id),
         )
+
+def resolve_unenrolled_identity(unenrolled_id, enrolled_id):
+    """Mark an unenrolled identity as resolved to an enrolled identity, and merge templates."""
+    init_database()
+    with _DB_LOCK, _connect() as connection:
+        connection.execute(
+            "UPDATE unenrolled_identities SET resolved_to = ? WHERE id = ?",
+            (int(enrolled_id), int(unenrolled_id))
+        )
+        row = connection.execute(
+            "SELECT voice_embedding FROM unenrolled_identities WHERE id = ?",
+            (int(unenrolled_id),)
+        ).fetchone()
+        voice_embedding = row["voice_embedding"] if row else None
+        
+    if voice_embedding:
+        for emb in voice_blob_to_embeddings(voice_embedding):
+            append_voice_embedding(enrolled_id, emb, max_templates=5)
 
 # ---------- Unenrolled identities helpers ----------
 

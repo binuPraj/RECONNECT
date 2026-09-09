@@ -1,0 +1,79 @@
+[
+  {
+    "recording": "uploads\\streams\\session_001\\recording_0001",
+    "valid_embeddings_per_label": {
+      "SPEAKER_00": 3,
+      "SPEAKER_01": 3
+    },
+    "skipped": [],
+    "within_mean": 0.5702339418141281,
+    "cross_mean": 0.5844965101446038,
+    "consistent": true
+  },
+  {
+    "recording": "uploads\\streams\\session_001\\recording_0018",
+    "valid_embeddings_per_label": {
+      "SPEAKER_00": 5,
+      "SPEAKER_01": 2
+    },
+    "skipped": [],
+    "within_mean": 0.4552394784663504,
+    "cross_mean": 0.5125703009807921,
+    "consistent": true
+  },
+  {
+    "recording": "uploads\\streams\\session_002\\recording_0001",
+    "valid_embeddings_per_label": {
+      "SPEAKER_00": 3,
+      "SPEAKER_01": 4
+    },
+    "skipped": [],
+    "within_mean": 0.3249646754095746,
+    "cross_mean": 0.5490708408081503,
+    "consistent": true
+  },
+  {
+    "recording": "uploads\\streams\\session_003\\recording_0001",
+    "valid_embeddings_per_label": {
+      "SPEAKER_00": 8,
+      "SPEAKER_01": 7
+    },
+    "skipped": [],
+    "within_mean": 0.6835789653061255,
+    "cross_mean": 0.675192127433579,
+    "consistent": false
+  },
+  {
+    "recording": "uploads\\streams\\session_003\\recording_0005",
+    "valid_embeddings_per_label": {
+      "SPEAKER_00": 2,
+      "SPEAKER_01": 3
+    },
+    "skipped": [],
+    "within_mean": 0.7230537930878037,
+    "cross_mean": 0.7552249590572115,
+    "consistent": true
+  },
+  {
+    "recording": "uploads\\streams\\session_003\\recording_0015",
+    "valid_embeddings_per_label": {
+      "SPEAKER_00": 5,
+      "SPEAKER_01": 2
+    },
+    "skipped": [],
+    "within_mean": 0.6368249726331044,
+    "cross_mean": 0.7605864992906244,
+    "consistent": true
+  },
+  {
+    "recording": "uploads\\streams\\session_003\\recording_0020",
+    "valid_embeddings_per_label": {
+      "SPEAKER_00": 2,
+      "SPEAKER_01": 8
+    },
+    "skipped": [],
+    "within_mean": 0.6600496885569019,
+    "cross_mean": 0.6835930149006455,
+    "consistent": true
+  }
+]

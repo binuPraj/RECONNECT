@@ -18,7 +18,7 @@ DETECTION_THRESHOLD = 0.50
 KNOWN_MATCH_THRESHOLD = 0.50
 
 # Similarity threshold for matching unknown faces
-UNKNOWN_CLUSTER_THRESHOLD = 0.65
+UNKNOWN_CLUSTER_THRESHOLD = 0.60
 
 # Minimum number of observations before trusting an identity
 MIN_KNOWN_OBSERVATIONS = 2

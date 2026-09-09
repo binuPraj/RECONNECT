@@ -1,0 +1,5201 @@
+{
+  "wav_files": [
+    {
+      "path": "uploads\\streams\\session_001\\recording_0001\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 293760,
+      "duration_sec": 18.36,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0001\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 293760,
+      "duration_sec": 18.36,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0001\\segments\\concat_SPEAKER_00.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 82624,
+      "duration_sec": 5.164,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0001\\segments\\concat_SPEAKER_01.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 130688,
+      "duration_sec": 8.168,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0001\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 11824,
+      "duration_sec": 0.739,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0001\\segments\\speaker_01_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 20256,
+      "duration_sec": 1.266,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0001\\segments\\speaker_01_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 38880,
+      "duration_sec": 2.43,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0001\\segments\\speaker_01_003.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 23488,
+      "duration_sec": 1.468,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0001\\segments\\speaker_02_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 8368,
+      "duration_sec": 0.523,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0001\\segments\\speaker_02_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 70480,
+      "duration_sec": 4.405,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0001\\segments\\speaker_02_003.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 51840,
+      "duration_sec": 3.24,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0001\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 11824,
+      "duration_sec": 0.739,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0002\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 114560,
+      "duration_sec": 7.16,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0002\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 114560,
+      "duration_sec": 7.16,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0002\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 87680,
+      "duration_sec": 5.48,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0002\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 87680,
+      "duration_sec": 5.48,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0003\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 112960,
+      "duration_sec": 7.06,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0003\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 112960,
+      "duration_sec": 7.06,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0003\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 83712,
+      "duration_sec": 5.232,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0003\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 46208,
+      "duration_sec": 2.888,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0003\\segments\\speaker_unknown_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 37504,
+      "duration_sec": 2.344,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0004\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 58240,
+      "duration_sec": 3.64,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0004\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 58240,
+      "duration_sec": 3.64,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0004\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 35456,
+      "duration_sec": 2.216,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0004\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 35456,
+      "duration_sec": 2.216,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0005\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 34880,
+      "duration_sec": 2.18,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0005\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 34880,
+      "duration_sec": 2.18,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0005\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 21824,
+      "duration_sec": 1.364,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0005\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 21824,
+      "duration_sec": 1.364,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0006\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 47360,
+      "duration_sec": 2.96,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0006\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 47360,
+      "duration_sec": 2.96,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0006\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 22144,
+      "duration_sec": 1.384,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0006\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 22144,
+      "duration_sec": 1.384,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0007\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 59200,
+      "duration_sec": 3.7,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0007\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 59200,
+      "duration_sec": 3.7,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0007\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 30464,
+      "duration_sec": 1.904,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0007\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 14976,
+      "duration_sec": 0.936,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0007\\segments\\speaker_unknown_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 15488,
+      "duration_sec": 0.968,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0008\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 70080,
+      "duration_sec": 4.38,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0008\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 70080,
+      "duration_sec": 4.38,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0008\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 44672,
+      "duration_sec": 2.792,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0008\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 44672,
+      "duration_sec": 2.792,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0009\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 56320,
+      "duration_sec": 3.52,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0009\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 56320,
+      "duration_sec": 3.52,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0010\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 33600,
+      "duration_sec": 2.1,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0010\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 33600,
+      "duration_sec": 2.1,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0011\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 40640,
+      "duration_sec": 2.54,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0011\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 40640,
+      "duration_sec": 2.54,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0011\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 15488,
+      "duration_sec": 0.968,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0011\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 15488,
+      "duration_sec": 0.968,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0012\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 86720,
+      "duration_sec": 5.42,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0012\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 86720,
+      "duration_sec": 5.42,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0012\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 60160,
+      "duration_sec": 3.76,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0012\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 48768,
+      "duration_sec": 3.048,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0012\\segments\\speaker_unknown_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 11392,
+      "duration_sec": 0.712,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0013\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 46400,
+      "duration_sec": 2.9,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0013\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 46400,
+      "duration_sec": 2.9,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0013\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 20608,
+      "duration_sec": 1.288,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0013\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 20608,
+      "duration_sec": 1.288,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0014\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 97600,
+      "duration_sec": 6.1,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0014\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 97600,
+      "duration_sec": 6.1,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0014\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 61312,
+      "duration_sec": 3.832,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0014\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 16000,
+      "duration_sec": 1.0,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0014\\segments\\speaker_unknown_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 20096,
+      "duration_sec": 1.256,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0014\\segments\\speaker_unknown_003.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 25216,
+      "duration_sec": 1.576,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0015\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 65280,
+      "duration_sec": 4.08,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0015\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 65280,
+      "duration_sec": 4.08,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0015\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 40576,
+      "duration_sec": 2.536,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0015\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 40576,
+      "duration_sec": 2.536,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0016\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 59520,
+      "duration_sec": 3.72,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0016\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 59520,
+      "duration_sec": 3.72,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0016\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 33408,
+      "duration_sec": 2.088,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0016\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 33408,
+      "duration_sec": 2.088,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0017\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 42560,
+      "duration_sec": 2.66,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0017\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 42560,
+      "duration_sec": 2.66,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0017\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 19584,
+      "duration_sec": 1.224,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0017\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 19584,
+      "duration_sec": 1.224,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0018\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 320640,
+      "duration_sec": 20.04,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0018\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 320640,
+      "duration_sec": 20.04,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0018\\segments\\concat_SPEAKER_00.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 170112,
+      "duration_sec": 10.632,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0018\\segments\\concat_SPEAKER_01.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 54272,
+      "duration_sec": 3.392,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0018\\segments\\speaker_01_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 52656,
+      "duration_sec": 3.291,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0018\\segments\\speaker_01_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 55088,
+      "duration_sec": 3.443,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0018\\segments\\speaker_01_003.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 37792,
+      "duration_sec": 2.362,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0018\\segments\\speaker_01_004.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 15936,
+      "duration_sec": 0.996,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0018\\segments\\speaker_01_005.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 8640,
+      "duration_sec": 0.54,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0018\\segments\\speaker_02_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 25920,
+      "duration_sec": 1.62,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0018\\segments\\speaker_02_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 28352,
+      "duration_sec": 1.772,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0019\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 52160,
+      "duration_sec": 3.26,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0019\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 52160,
+      "duration_sec": 3.26,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0019\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 19584,
+      "duration_sec": 1.224,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0019\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 19584,
+      "duration_sec": 1.224,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0020\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 95040,
+      "duration_sec": 5.94,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0020\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 95040,
+      "duration_sec": 5.94,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0020\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 69760,
+      "duration_sec": 4.36,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0020\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 69760,
+      "duration_sec": 4.36,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0021\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 136000,
+      "duration_sec": 8.5,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0021\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 136000,
+      "duration_sec": 8.5,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0021\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 101760,
+      "duration_sec": 6.36,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0021\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 34944,
+      "duration_sec": 2.184,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0021\\segments\\speaker_unknown_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 52352,
+      "duration_sec": 3.272,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0021\\segments\\speaker_unknown_003.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 14464,
+      "duration_sec": 0.904,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0022\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 36480,
+      "duration_sec": 2.28,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0022\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 36480,
+      "duration_sec": 2.28,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0022\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 15680,
+      "duration_sec": 0.98,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0022\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 15680,
+      "duration_sec": 0.98,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0023\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 135680,
+      "duration_sec": 8.48,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0023\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 135680,
+      "duration_sec": 8.48,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0023\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 113280,
+      "duration_sec": 7.08,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0023\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 113280,
+      "duration_sec": 7.08,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0024\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 92800,
+      "duration_sec": 5.8,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0024\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 92800,
+      "duration_sec": 5.8,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0024\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 67712,
+      "duration_sec": 4.232,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0024\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 67712,
+      "duration_sec": 4.232,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0025\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 64000,
+      "duration_sec": 4.0,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0025\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 64000,
+      "duration_sec": 4.0,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0025\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 39040,
+      "duration_sec": 2.44,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0025\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 39040,
+      "duration_sec": 2.44,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0026\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 41280,
+      "duration_sec": 2.58,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0026\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 41280,
+      "duration_sec": 2.58,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0026\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 16512,
+      "duration_sec": 1.032,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0026\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 16512,
+      "duration_sec": 1.032,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0027\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 59520,
+      "duration_sec": 3.72,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0027\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 59520,
+      "duration_sec": 3.72,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0027\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 27776,
+      "duration_sec": 1.736,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0027\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 27776,
+      "duration_sec": 1.736,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0028\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 62720,
+      "duration_sec": 3.92,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0028\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 62720,
+      "duration_sec": 3.92,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0028\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 38016,
+      "duration_sec": 2.376,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0028\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 38016,
+      "duration_sec": 2.376,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0029\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 53440,
+      "duration_sec": 3.34,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0029\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 53440,
+      "duration_sec": 3.34,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0029\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 28800,
+      "duration_sec": 1.8,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_001\\recording_0029\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 28800,
+      "duration_sec": 1.8,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0001\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 462080,
+      "duration_sec": 28.88,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0001\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 462080,
+      "duration_sec": 28.88,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0001\\segments\\concat_SPEAKER_00.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 158224,
+      "duration_sec": 9.889,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0001\\segments\\concat_SPEAKER_01.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 234512,
+      "duration_sec": 14.657,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0001\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 8112,
+      "duration_sec": 0.507,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0001\\segments\\speaker_01_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 42400,
+      "duration_sec": 2.65,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0001\\segments\\speaker_01_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 52656,
+      "duration_sec": 3.291,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0001\\segments\\speaker_01_003.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 63168,
+      "duration_sec": 3.948,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0001\\segments\\speaker_02_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 70352,
+      "duration_sec": 4.397,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0001\\segments\\speaker_02_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 74240,
+      "duration_sec": 4.64,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0001\\segments\\speaker_02_003.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 64800,
+      "duration_sec": 4.05,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0001\\segments\\speaker_02_004.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 25120,
+      "duration_sec": 1.57,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0001\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 8112,
+      "duration_sec": 0.507,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0002\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 38720,
+      "duration_sec": 2.42,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0002\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 38720,
+      "duration_sec": 2.42,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0003\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 34560,
+      "duration_sec": 2.16,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0003\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 34560,
+      "duration_sec": 2.16,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0004\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 43200,
+      "duration_sec": 2.7,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0004\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 43200,
+      "duration_sec": 2.7,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0004\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 13952,
+      "duration_sec": 0.872,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0004\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 13952,
+      "duration_sec": 0.872,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0005\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 32320,
+      "duration_sec": 2.02,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0005\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 32320,
+      "duration_sec": 2.02,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0006\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 78720,
+      "duration_sec": 4.92,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0006\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 78720,
+      "duration_sec": 4.92,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0006\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 33024,
+      "duration_sec": 2.064,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0006\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 14976,
+      "duration_sec": 0.936,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0006\\segments\\speaker_unknown_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 18048,
+      "duration_sec": 1.128,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0007\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 18240,
+      "duration_sec": 1.14,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0007\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 18240,
+      "duration_sec": 1.14,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0007\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 15488,
+      "duration_sec": 0.968,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_002\\recording_0007\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 15488,
+      "duration_sec": 0.968,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0001\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 488000,
+      "duration_sec": 30.5,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0001\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 488000,
+      "duration_sec": 30.5,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0001\\segments\\concat_SPEAKER_00.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 214655,
+      "duration_sec": 13.4159375,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0001\\segments\\concat_SPEAKER_01.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 167568,
+      "duration_sec": 10.473,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0001\\segments\\speaker_01_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 23232,
+      "duration_sec": 1.452,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0001\\segments\\speaker_01_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 29424,
+      "duration_sec": 1.839,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0001\\segments\\speaker_01_003.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 17280,
+      "duration_sec": 1.08,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0001\\segments\\speaker_01_004.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 24832,
+      "duration_sec": 1.552,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0001\\segments\\speaker_01_005.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 43744,
+      "duration_sec": 2.734,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0001\\segments\\speaker_01_006.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 12416,
+      "duration_sec": 0.776,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0001\\segments\\speaker_01_007.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 46175,
+      "duration_sec": 2.8859375,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0001\\segments\\speaker_01_008.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 17552,
+      "duration_sec": 1.097,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0001\\segments\\speaker_02_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 10800,
+      "duration_sec": 0.675,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0001\\segments\\speaker_02_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 8912,
+      "duration_sec": 0.557,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0001\\segments\\speaker_02_003.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 14848,
+      "duration_sec": 0.928,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0001\\segments\\speaker_02_004.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 46160,
+      "duration_sec": 2.885,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0001\\segments\\speaker_02_005.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 37808,
+      "duration_sec": 2.363,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0001\\segments\\speaker_02_006.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 35648,
+      "duration_sec": 2.228,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0001\\segments\\speaker_02_007.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 13392,
+      "duration_sec": 0.837,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0002\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 95040,
+      "duration_sec": 5.94,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0002\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 95040,
+      "duration_sec": 5.94,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0002\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 71744,
+      "duration_sec": 4.484,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0002\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 26944,
+      "duration_sec": 1.684,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0002\\segments\\speaker_unknown_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 25728,
+      "duration_sec": 1.608,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0002\\segments\\speaker_unknown_003.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 19072,
+      "duration_sec": 1.192,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0003\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 88320,
+      "duration_sec": 5.52,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0003\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 88320,
+      "duration_sec": 5.52,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0003\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 57088,
+      "duration_sec": 3.568,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0003\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 18048,
+      "duration_sec": 1.128,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0003\\segments\\speaker_unknown_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 39040,
+      "duration_sec": 2.44,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0004\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 55360,
+      "duration_sec": 3.46,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0004\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 55360,
+      "duration_sec": 3.46,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0004\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 29824,
+      "duration_sec": 1.864,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0004\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 29824,
+      "duration_sec": 1.864,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0005\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 193920,
+      "duration_sec": 12.12,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0005\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 193920,
+      "duration_sec": 12.12,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0005\\segments\\concat_SPEAKER_00.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 32400,
+      "duration_sec": 2.025,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0005\\segments\\concat_SPEAKER_01.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 57760,
+      "duration_sec": 3.61,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0005\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 32608,
+      "duration_sec": 2.038,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0005\\segments\\speaker_01_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 21600,
+      "duration_sec": 1.35,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0005\\segments\\speaker_01_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 10800,
+      "duration_sec": 0.675,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0005\\segments\\speaker_02_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 20784,
+      "duration_sec": 1.299,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0005\\segments\\speaker_02_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 24560,
+      "duration_sec": 1.535,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0005\\segments\\speaker_02_003.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 12416,
+      "duration_sec": 0.776,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0005\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 10048,
+      "duration_sec": 0.628,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0005\\segments\\speaker_unknown_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 13440,
+      "duration_sec": 0.84,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0005\\segments\\speaker_unknown_003.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 9120,
+      "duration_sec": 0.57,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0006\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 36800,
+      "duration_sec": 2.3,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0006\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 36800,
+      "duration_sec": 2.3,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0007\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 110720,
+      "duration_sec": 6.92,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0007\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 110720,
+      "duration_sec": 6.92,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0007\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 74624,
+      "duration_sec": 4.664,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0007\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 12928,
+      "duration_sec": 0.808,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0007\\segments\\speaker_unknown_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 21120,
+      "duration_sec": 1.32,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0007\\segments\\speaker_unknown_003.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 40576,
+      "duration_sec": 2.536,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0008\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 32640,
+      "duration_sec": 2.04,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0008\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 32640,
+      "duration_sec": 2.04,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0009\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 46400,
+      "duration_sec": 2.9,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0009\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 46400,
+      "duration_sec": 2.9,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0009\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 24192,
+      "duration_sec": 1.512,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0009\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 24192,
+      "duration_sec": 1.512,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0010\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 32640,
+      "duration_sec": 2.04,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0010\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 32640,
+      "duration_sec": 2.04,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0011\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 52480,
+      "duration_sec": 3.28,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0011\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 52480,
+      "duration_sec": 3.28,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0011\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 26240,
+      "duration_sec": 1.64,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0011\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 26240,
+      "duration_sec": 1.64,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0012\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 66880,
+      "duration_sec": 4.18,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0012\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 66880,
+      "duration_sec": 4.18,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0012\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 13440,
+      "duration_sec": 0.84,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0012\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 13440,
+      "duration_sec": 0.84,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0013\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 53440,
+      "duration_sec": 3.34,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0013\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 53440,
+      "duration_sec": 3.34,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0013\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 28288,
+      "duration_sec": 1.768,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0013\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 28288,
+      "duration_sec": 1.768,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0014\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 91200,
+      "duration_sec": 5.7,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0014\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 91200,
+      "duration_sec": 5.7,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0014\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 48768,
+      "duration_sec": 3.048,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0014\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 48768,
+      "duration_sec": 3.048,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0015\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 182080,
+      "duration_sec": 11.38,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0015\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 182080,
+      "duration_sec": 11.38,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0015\\segments\\concat_SPEAKER_00.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 77696,
+      "duration_sec": 4.856,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0015\\segments\\concat_SPEAKER_01.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 22944,
+      "duration_sec": 1.434,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0015\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 20480,
+      "duration_sec": 1.28,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0015\\segments\\speaker_01_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 36480,
+      "duration_sec": 2.28,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0015\\segments\\speaker_01_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 8912,
+      "duration_sec": 0.557,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0015\\segments\\speaker_01_003.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 12672,
+      "duration_sec": 0.792,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0015\\segments\\speaker_01_004.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 11536,
+      "duration_sec": 0.721,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0015\\segments\\speaker_01_005.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 8096,
+      "duration_sec": 0.506,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0015\\segments\\speaker_02_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 11328,
+      "duration_sec": 0.708,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0015\\segments\\speaker_02_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 11616,
+      "duration_sec": 0.726,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0015\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 9856,
+      "duration_sec": 0.616,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0015\\segments\\speaker_unknown_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 10624,
+      "duration_sec": 0.664,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0016\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 112960,
+      "duration_sec": 7.06,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0016\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 112960,
+      "duration_sec": 7.06,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0016\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 71936,
+      "duration_sec": 4.496,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0016\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 43136,
+      "duration_sec": 2.696,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0016\\segments\\speaker_unknown_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 28800,
+      "duration_sec": 1.8,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0017\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 46400,
+      "duration_sec": 2.9,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0017\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 46400,
+      "duration_sec": 2.9,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0017\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 21120,
+      "duration_sec": 1.32,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0017\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 21120,
+      "duration_sec": 1.32,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0018\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 47040,
+      "duration_sec": 2.94,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0018\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 47040,
+      "duration_sec": 2.94,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0018\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 21120,
+      "duration_sec": 1.32,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0018\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 21120,
+      "duration_sec": 1.32,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0019\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 51520,
+      "duration_sec": 3.22,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0019\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 51520,
+      "duration_sec": 3.22,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0019\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 27264,
+      "duration_sec": 1.704,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0019\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 27264,
+      "duration_sec": 1.704,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0020\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 458880,
+      "duration_sec": 28.68,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0020\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 458880,
+      "duration_sec": 28.68,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0020\\segments\\concat_SPEAKER_00.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 146897,
+      "duration_sec": 9.1810625,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0020\\segments\\concat_SPEAKER_01.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 237312,
+      "duration_sec": 14.832,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0020\\segments\\speaker_01_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 11344,
+      "duration_sec": 0.709,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0020\\segments\\speaker_01_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 135553,
+      "duration_sec": 8.4720625,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0020\\segments\\speaker_02_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 38352,
+      "duration_sec": 2.397,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0020\\segments\\speaker_02_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 34832,
+      "duration_sec": 2.177,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0020\\segments\\speaker_02_003.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 24288,
+      "duration_sec": 1.518,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0020\\segments\\speaker_02_004.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 10528,
+      "duration_sec": 0.658,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0020\\segments\\speaker_02_005.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 70736,
+      "duration_sec": 4.421,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0020\\segments\\speaker_02_006.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 9712,
+      "duration_sec": 0.607,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0020\\segments\\speaker_02_007.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 39152,
+      "duration_sec": 2.447,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0020\\segments\\speaker_02_008.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 9712,
+      "duration_sec": 0.607,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0021\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 37760,
+      "duration_sec": 2.36,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0021\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 37760,
+      "duration_sec": 2.36,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0021\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 28864,
+      "duration_sec": 1.804,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0021\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 28864,
+      "duration_sec": 1.804,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0022\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 40000,
+      "duration_sec": 2.5,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0022\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 40000,
+      "duration_sec": 2.5,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0022\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 22144,
+      "duration_sec": 1.384,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0022\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 22144,
+      "duration_sec": 1.384,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0023\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 43520,
+      "duration_sec": 2.72,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0023\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 43520,
+      "duration_sec": 2.72,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0023\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 27264,
+      "duration_sec": 1.704,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0023\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 27264,
+      "duration_sec": 1.704,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0024\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 37120,
+      "duration_sec": 2.32,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0024\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 37120,
+      "duration_sec": 2.32,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0024\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 13952,
+      "duration_sec": 0.872,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0024\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 13952,
+      "duration_sec": 0.872,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0025\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 51200,
+      "duration_sec": 3.2,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0025\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 51200,
+      "duration_sec": 3.2,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0025\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 19072,
+      "duration_sec": 1.192,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0025\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 19072,
+      "duration_sec": 1.192,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0026\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 49920,
+      "duration_sec": 3.12,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_003\\recording_0026\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 49920,
+      "duration_sec": 3.12,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0001\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 73600,
+      "duration_sec": 4.6,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0001\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 73600,
+      "duration_sec": 4.6,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0001\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 48256,
+      "duration_sec": 3.016,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0001\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 48256,
+      "duration_sec": 3.016,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0002\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 60800,
+      "duration_sec": 3.8,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0002\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 60800,
+      "duration_sec": 3.8,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0002\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 35968,
+      "duration_sec": 2.248,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0002\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 35968,
+      "duration_sec": 2.248,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0003\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 247680,
+      "duration_sec": 15.48,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0003\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 247680,
+      "duration_sec": 15.48,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0003\\segments\\concat_SPEAKER_00.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 17280,
+      "duration_sec": 1.08,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0003\\segments\\concat_SPEAKER_01.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 102064,
+      "duration_sec": 6.379,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0003\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 22272,
+      "duration_sec": 1.392,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0003\\segments\\speaker_01_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 17280,
+      "duration_sec": 1.08,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0003\\segments\\speaker_02_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 8112,
+      "duration_sec": 0.507,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0003\\segments\\speaker_02_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 51024,
+      "duration_sec": 3.189,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0003\\segments\\speaker_02_003.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 32672,
+      "duration_sec": 2.042,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0003\\segments\\speaker_02_004.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 10256,
+      "duration_sec": 0.641,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0003\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 11904,
+      "duration_sec": 0.744,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0003\\segments\\speaker_unknown_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 10368,
+      "duration_sec": 0.648,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0004\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 40000,
+      "duration_sec": 2.5,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0004\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 40000,
+      "duration_sec": 2.5,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0005\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 36480,
+      "duration_sec": 2.28,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0005\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 36480,
+      "duration_sec": 2.28,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0005\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 14976,
+      "duration_sec": 0.936,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0005\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 14976,
+      "duration_sec": 0.936,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0006\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 44800,
+      "duration_sec": 2.8,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0006\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 44800,
+      "duration_sec": 2.8,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0007\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 83200,
+      "duration_sec": 5.2,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0007\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 83200,
+      "duration_sec": 5.2,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0007\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 29952,
+      "duration_sec": 1.872,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0007\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 14976,
+      "duration_sec": 0.936,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0007\\segments\\speaker_unknown_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 14976,
+      "duration_sec": 0.936,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0008\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 60160,
+      "duration_sec": 3.76,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0008\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 60160,
+      "duration_sec": 3.76,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0008\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 34944,
+      "duration_sec": 2.184,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0008\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 34944,
+      "duration_sec": 2.184,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0009\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 85120,
+      "duration_sec": 5.32,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0009\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 85120,
+      "duration_sec": 5.32,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0009\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 60031,
+      "duration_sec": 3.7519375,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0009\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 60031,
+      "duration_sec": 3.7519375,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0010\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 45760,
+      "duration_sec": 2.86,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0010\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 45760,
+      "duration_sec": 2.86,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0010\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 19072,
+      "duration_sec": 1.192,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0010\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 19072,
+      "duration_sec": 1.192,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0011\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 63360,
+      "duration_sec": 3.96,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0011\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 63360,
+      "duration_sec": 3.96,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0011\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 36480,
+      "duration_sec": 2.28,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0011\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 36480,
+      "duration_sec": 2.28,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0012\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 104320,
+      "duration_sec": 6.52,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0012\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 104320,
+      "duration_sec": 6.52,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0012\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 74496,
+      "duration_sec": 4.656,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0012\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 30848,
+      "duration_sec": 1.928,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0012\\segments\\speaker_unknown_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 43648,
+      "duration_sec": 2.728,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0013\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 47360,
+      "duration_sec": 2.96,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0013\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 47360,
+      "duration_sec": 2.96,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0013\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 18048,
+      "duration_sec": 1.128,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0013\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 18048,
+      "duration_sec": 1.128,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0014\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 46400,
+      "duration_sec": 2.9,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0014\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 46400,
+      "duration_sec": 2.9,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0014\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 20608,
+      "duration_sec": 1.288,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0014\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 20608,
+      "duration_sec": 1.288,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0015\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 137600,
+      "duration_sec": 8.6,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0015\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 137600,
+      "duration_sec": 8.6,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0015\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 85631,
+      "duration_sec": 5.3519375,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0015\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 12416,
+      "duration_sec": 0.776,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0015\\segments\\speaker_unknown_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 20096,
+      "duration_sec": 1.256,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0015\\segments\\speaker_unknown_003.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 15999,
+      "duration_sec": 0.9999375,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0015\\segments\\speaker_unknown_004.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 12928,
+      "duration_sec": 0.808,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0015\\segments\\speaker_unknown_005.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 24192,
+      "duration_sec": 1.512,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0016\\cleaned.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 95680,
+      "duration_sec": 5.98,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0016\\raw.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 95680,
+      "duration_sec": 5.98,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0016\\segments\\concat_SPEAKER_UNKNOWN.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 82496,
+      "duration_sec": 5.156,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0016\\segments\\speaker_unknown_001.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 61248,
+      "duration_sec": 3.828,
+      "finite": true,
+      "non_silent": true
+    },
+    {
+      "path": "uploads\\streams\\session_004\\recording_0016\\segments\\speaker_unknown_002.wav",
+      "error": null,
+      "sample_rate": 16000,
+      "samples": 21248,
+      "duration_sec": 1.328,
+      "finite": true,
+      "non_silent": true
+    }
+  ],
+  "recordings": [
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0001",
+      "segment_count": 7,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [
+        {
+          "left": "seg_001",
+          "right": "seg_002",
+          "sec": 0.54
+        }
+      ],
+      "concat": [
+        {
+          "label": "SPEAKER_00",
+          "exists": true,
+          "source_clips": 3,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 82624,
+          "expected_samples": 82624,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        },
+        {
+          "label": "SPEAKER_01",
+          "exists": true,
+          "source_clips": 3,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 130688,
+          "expected_samples": 130688,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        },
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 11824,
+          "expected_samples": 11824,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_00": 3,
+        "SPEAKER_01": 3,
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0002",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 87680,
+          "expected_samples": 87680,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0003",
+      "segment_count": 2,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 2,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 83712,
+          "expected_samples": 83712,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 2
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0004",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 35456,
+          "expected_samples": 35456,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0005",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 21824,
+          "expected_samples": 21824,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0006",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 22144,
+          "expected_samples": 22144,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0007",
+      "segment_count": 2,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 2,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 30464,
+          "expected_samples": 30464,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 2
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0008",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 44672,
+          "expected_samples": 44672,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0009",
+      "segment_count": 0,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [],
+      "labels": {}
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0010",
+      "segment_count": 0,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [],
+      "labels": {}
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0011",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 15488,
+          "expected_samples": 15488,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0012",
+      "segment_count": 2,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 2,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 60160,
+          "expected_samples": 60160,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 2
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0013",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 20608,
+          "expected_samples": 20608,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0014",
+      "segment_count": 3,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 3,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 61312,
+          "expected_samples": 61312,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 3
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0015",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 40576,
+          "expected_samples": 40576,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0016",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 33408,
+          "expected_samples": 33408,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0017",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 19584,
+          "expected_samples": 19584,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0018",
+      "segment_count": 7,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_00",
+          "exists": true,
+          "source_clips": 5,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 170112,
+          "expected_samples": 170112,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        },
+        {
+          "label": "SPEAKER_01",
+          "exists": true,
+          "source_clips": 2,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 54272,
+          "expected_samples": 54272,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_00": 5,
+        "SPEAKER_01": 2
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0019",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 19584,
+          "expected_samples": 19584,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0020",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 69760,
+          "expected_samples": 69760,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0021",
+      "segment_count": 3,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 3,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 101760,
+          "expected_samples": 101760,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 3
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0022",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 15680,
+          "expected_samples": 15680,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0023",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 113280,
+          "expected_samples": 113280,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0024",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 67712,
+          "expected_samples": 67712,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0025",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 39040,
+          "expected_samples": 39040,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0026",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 16512,
+          "expected_samples": 16512,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0027",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 27776,
+          "expected_samples": 27776,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0028",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 38016,
+          "expected_samples": 38016,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_001\\recording_0029",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 28800,
+          "expected_samples": 28800,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_002\\recording_0001",
+      "segment_count": 8,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_01",
+          "exists": true,
+          "source_clips": 4,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 234512,
+          "expected_samples": 234512,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        },
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 8112,
+          "expected_samples": 8112,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        },
+        {
+          "label": "SPEAKER_00",
+          "exists": true,
+          "source_clips": 3,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 158224,
+          "expected_samples": 158224,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_01": 4,
+        "SPEAKER_UNKNOWN": 1,
+        "SPEAKER_00": 3
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_002\\recording_0002",
+      "segment_count": 0,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [],
+      "labels": {}
+    },
+    {
+      "recording": "uploads\\streams\\session_002\\recording_0003",
+      "segment_count": 0,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [],
+      "labels": {}
+    },
+    {
+      "recording": "uploads\\streams\\session_002\\recording_0004",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 13952,
+          "expected_samples": 13952,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_002\\recording_0005",
+      "segment_count": 0,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [],
+      "labels": {}
+    },
+    {
+      "recording": "uploads\\streams\\session_002\\recording_0006",
+      "segment_count": 2,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 2,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 33024,
+          "expected_samples": 33024,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 2
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_003\\recording_0001",
+      "segment_count": 15,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [
+        {
+          "left": "seg_003",
+          "right": "seg_004",
+          "sec": 1.0629999999999997
+        }
+      ],
+      "concat": [
+        {
+          "label": "SPEAKER_00",
+          "exists": true,
+          "source_clips": 8,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 214655,
+          "expected_samples": 214655,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        },
+        {
+          "label": "SPEAKER_01",
+          "exists": true,
+          "source_clips": 7,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 167568,
+          "expected_samples": 167568,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_00": 8,
+        "SPEAKER_01": 7
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_003\\recording_0002",
+      "segment_count": 3,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 3,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 71744,
+          "expected_samples": 71744,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 3
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_003\\recording_0003",
+      "segment_count": 2,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 2,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 57088,
+          "expected_samples": 57088,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 2
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_003\\recording_0004",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 29824,
+          "expected_samples": 29824,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_003\\recording_0005",
+      "segment_count": 8,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_00",
+          "exists": true,
+          "source_clips": 2,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 32400,
+          "expected_samples": 32400,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        },
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 3,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 32608,
+          "expected_samples": 32608,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        },
+        {
+          "label": "SPEAKER_01",
+          "exists": true,
+          "source_clips": 3,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 57760,
+          "expected_samples": 57760,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_00": 2,
+        "SPEAKER_UNKNOWN": 3,
+        "SPEAKER_01": 3
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_003\\recording_0006",
+      "segment_count": 0,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [],
+      "labels": {}
+    },
+    {
+      "recording": "uploads\\streams\\session_003\\recording_0007",
+      "segment_count": 3,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 3,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 74624,
+          "expected_samples": 74624,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 3
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_003\\recording_0008",
+      "segment_count": 0,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [],
+      "labels": {}
+    },
+    {
+      "recording": "uploads\\streams\\session_003\\recording_0009",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 24192,
+          "expected_samples": 24192,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_003\\recording_0010",
+      "segment_count": 0,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [],
+      "labels": {}
+    },
+    {
+      "recording": "uploads\\streams\\session_003\\recording_0011",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 26240,
+          "expected_samples": 26240,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_003\\recording_0012",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 13440,
+          "expected_samples": 13440,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_003\\recording_0013",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 28288,
+          "expected_samples": 28288,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_003\\recording_0014",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 48768,
+          "expected_samples": 48768,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_003\\recording_0015",
+      "segment_count": 9,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_00",
+          "exists": true,
+          "source_clips": 5,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 77696,
+          "expected_samples": 77696,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        },
+        {
+          "label": "SPEAKER_01",
+          "exists": true,
+          "source_clips": 2,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 22944,
+          "expected_samples": 22944,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        },
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 2,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 20480,
+          "expected_samples": 20480,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_00": 5,
+        "SPEAKER_01": 2,
+        "SPEAKER_UNKNOWN": 2
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_003\\recording_0016",
+      "segment_count": 2,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 2,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 71936,
+          "expected_samples": 71936,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 2
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_003\\recording_0017",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 21120,
+          "expected_samples": 21120,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_003\\recording_0018",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 21120,
+          "expected_samples": 21120,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_003\\recording_0019",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 27264,
+          "expected_samples": 27264,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_003\\recording_0020",
+      "segment_count": 10,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [
+        {
+          "left": "seg_007",
+          "right": "seg_008",
+          "sec": 7.542999999999999
+        }
+      ],
+      "concat": [
+        {
+          "label": "SPEAKER_01",
+          "exists": true,
+          "source_clips": 8,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 237312,
+          "expected_samples": 237312,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        },
+        {
+          "label": "SPEAKER_00",
+          "exists": true,
+          "source_clips": 2,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 146897,
+          "expected_samples": 146897,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_01": 8,
+        "SPEAKER_00": 2
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_003\\recording_0021",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 28864,
+          "expected_samples": 28864,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_003\\recording_0022",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 22144,
+          "expected_samples": 22144,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_003\\recording_0023",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 27264,
+          "expected_samples": 27264,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_003\\recording_0024",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 13952,
+          "expected_samples": 13952,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_003\\recording_0025",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 19072,
+          "expected_samples": 19072,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_003\\recording_0026",
+      "segment_count": 0,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [],
+      "labels": {}
+    },
+    {
+      "recording": "uploads\\streams\\session_004\\recording_0001",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 48256,
+          "expected_samples": 48256,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_004\\recording_0002",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 35968,
+          "expected_samples": 35968,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_004\\recording_0004",
+      "segment_count": 0,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [],
+      "labels": {}
+    },
+    {
+      "recording": "uploads\\streams\\session_004\\recording_0005",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 14976,
+          "expected_samples": 14976,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_004\\recording_0006",
+      "segment_count": 0,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [],
+      "labels": {}
+    },
+    {
+      "recording": "uploads\\streams\\session_004\\recording_0007",
+      "segment_count": 2,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 2,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 29952,
+          "expected_samples": 29952,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 2
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_004\\recording_0008",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 34944,
+          "expected_samples": 34944,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_004\\recording_0009",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 60031,
+          "expected_samples": 60031,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_004\\recording_0010",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 19072,
+          "expected_samples": 19072,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    },
+    {
+      "recording": "uploads\\streams\\session_004\\recording_0011",
+      "segment_count": 1,
+      "missing_segment_files": [],
+      "duration_mismatches": [],
+      "timeline_overlaps": [],
+      "concat": [
+        {
+          "label": "SPEAKER_UNKNOWN",
+          "exists": true,
+          "source_clips": 1,
+          "error": null,
+          "sample_rate": 16000,
+          "expected_sample_rate": 16000,
+          "samples": 36480,
+          "expected_samples": 36480,
+          "max_abs_diff": 3.0517578125e-05,
+          "matches_source_sequence": true
+        }
+      ],
+      "labels": {
+        "SPEAKER_UNKNOWN": 1
+      }
+    }
+  ],
+  "summary": {
+    "wav_count": 387,
+    "unreadable_or_nonfinite_wavs": 0,
+    "silent_wavs": 0,
+    "recording_manifests": 71,
+    "missing_segment_files": 0,
+    "duration_mismatches": 0,
+    "timeline_overlaps": 3,
+    "concat_expected": 71,
+    "concat_missing": 0,
+    "concat_invalid": 0
+  }
+}

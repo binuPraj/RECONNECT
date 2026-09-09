@@ -739,8 +739,25 @@ def capture_and_process_video(vision_pipeline=None, target_unenrolled_id=None, i
                                         except Exception:
                                             pass
 
-                        # Bind face embedding and face image BLOB to the unenrolled identity in SQLite
-                        if active_face_embedding is not None:
+                        # Check if the confirmed speaking face is an enrolled identity (Resolution Pathway)
+                        if turn_face_id and turn_face_id.strip().lower() in enrolled_names_map:
+                            enrolled_name = enrolled_names_map[turn_face_id.strip().lower()]
+                            from database.db import get_identity_by_name
+                            enrolled_row = get_identity_by_name(enrolled_name)
+                            if enrolled_row:
+                                from app.audio_process.resolution import cascade_resolve_unenrolled, backfill_unenrolled_transcripts
+                                from database.db import resolve_unenrolled_identity
+                                
+                                enrolled_id = enrolled_row["id"]
+                                print(f"  [RESOLUTION] Video confirmed unenrolled_{matched_un_id} is actually {enrolled_name}!")
+                                resolve_unenrolled_identity(matched_un_id, enrolled_id)
+                                backfill_unenrolled_transcripts(matched_un_id, enrolled_name)
+                                cascade_resolve_unenrolled(enrolled_id, enrolled_name, turn_voice_arr, session_id="video_trigger")
+                                matched_any_unenrolled = True
+                                break
+
+                        # Otherwise, if it's an unenrolled face, bind the face embedding to unenrolled_identities
+                        elif active_face_embedding is not None:
                             update_unenrolled_face(matched_un_id, active_face_embedding, face_image=best_face_bytes)
                             img_status = "with best image BLOB stored in SQLite" if best_face_bytes else "(no image found)"
                             print(
@@ -1003,6 +1020,22 @@ def main(take_video_only=False, who_is_this_only=False, target_unenrolled_id=Non
 
 
 # ==================================================
+
+def run_vision_pipeline_live_test(record_seconds: float = 5.0, preview: bool = False) -> bool:
+    """Run the full pipeline as a one-shot test: records video, runs vision (WhoIsThis),
+    diarization, active speaker detection, and speaker matching.
+    This does NOT start the listener loop — just one capture-and-process cycle.
+    """
+    print("\n=== FULL PIPELINE TEST ===")
+    print("Recording, then running: Vision → Diarization → ASD → Speaker Matching")
+    print("=" * 40)
+    return capture_and_process_video(
+        vision_pipeline=None,
+        target_unenrolled_id=None,
+        interactive=False,
+    )
+
+# ==================================================
 # PROGRAM ENTRY
 # ==================================================
 
@@ -1031,10 +1064,19 @@ if __name__ == "__main__":
         action="store_true",
         help="Allow interactive prompts for labeling new unknown faces.",
     )
-    args = parser.parse_args()
-    main(
-        take_video_only=args.take_a_video,
-        who_is_this_only=args.who_is_this,
-        target_unenrolled_id=args.unenrolled_id,
-        interactive=args.interactive,
+    parser.add_argument(
+        "--vision-test",
+        action="store_true",
+        help="Run a live test of the vision pipeline only (records short video).",
     )
+    args = parser.parse_args()
+    if args.vision_test:
+        # Run the vision pipeline test helper
+        run_vision_pipeline_live_test()
+    else:
+        main(
+            take_video_only=args.take_a_video,
+            who_is_this_only=args.who_is_this,
+            target_unenrolled_id=args.unenrolled_id,
+            interactive=args.interactive,
+        )
