@@ -253,8 +253,8 @@ class SessionSpeakerMemory:
 
     def __init__(
         self,
-        continuity_threshold: float = 0.58,
-        session_embed_threshold: float = 0.60,
+        continuity_threshold: float = float(os.getenv("SESSION_CONTINUITY_THRESHOLD", "0.62")),
+        session_embed_threshold: float = float(os.getenv("SESSION_EMBED_THRESHOLD", "0.62")),
     ):
         self.continuity_threshold = continuity_threshold
         self.session_embed_threshold = session_embed_threshold
@@ -341,14 +341,9 @@ class SessionSpeakerMemory:
                     best_id = identity
 
         if best_id is not None:
-            threshold_to_use = 0.52 if best_id in confirmed_identities else self.session_embed_threshold
+            threshold_to_use = self.session_embed_threshold
             
             if best_score >= threshold_to_use:
-                if threshold_to_use < self.session_embed_threshold:
-                    logger.warning(
-                        "Lowered session continuity threshold accepted. Session: %s, Identity: %s, Score: %.3f",
-                        session_id, best_id, best_score
-                    )
                 diagnostics["max_session_embedding_score"] = best_score
                 diagnostics["max_session_embedding_identity"] = best_id
                 return best_id, best_score, "session_embedding", diagnostics

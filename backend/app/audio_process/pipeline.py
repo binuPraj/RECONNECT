@@ -1,5 +1,7 @@
 """End-to-end RECONNECT audio perception pipeline."""
 
+import logging
+import traceback
 from datetime import datetime
 import json
 import os
@@ -280,10 +282,21 @@ def run_audio_pipeline(
     from datetime import datetime
     os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
     
+    LOGGER = logging.getLogger(__name__)
+
     for speaker_label, spk_segments in speaker_groups.items():
         # Sort segments chronologically
         spk_segments = sorted(spk_segments, key=lambda s: s.start_sec)
-        
+
+        # Initialize per-iteration variables BEFORE the try block.
+        # If these are only set inside branches and an exception fires
+        # in audio-loading / embedding, we'd get a NameError caught by
+        # the outer except — silently dropping the entire enrollment.
+        identity: str | None = None
+        status: str | None = None
+        score: float = 0.0
+        log_msg: str = ""
+
         try:
             # Concatenate all audio segments for this speaker
             wavs = []
@@ -340,153 +353,109 @@ def run_audio_pipeline(
                 gallery_best_id, gallery_best_score = _matcher.best_match(
                     embedding, segment_duration_sec=duration
                 )
-                continuity_id, continuity_score, continuity_reason, continuity_details = (
-                    _session_memory.resolve_with_details(
-                        session_id,
-                        embedding,
-                        gallery_best_id,
-                        gallery_best_score,
+                # Only use session continuity to re-identify ENROLLED speakers
+                # (e.g. binu dipping just below gallery threshold on a short clip).
+                # Unknown/unenrolled speakers must NEVER be short-circuited via
+                # session continuity — each diarization label could be a different
+                # person, and we want them each enrolled separately.
+                enrolled_continuity_id = None
+                continuity_details: dict[str, object] = {
+                    "gallery_best_previously_confirmed": False,
+                    "max_session_embedding_score": None,
+                    "max_session_embedding_identity": None,
+                }
+                if gallery_best_id is not None and not (gallery_best_id or "").startswith("unenrolled_"):
+                    enrolled_continuity_id, continuity_score, continuity_reason, continuity_details = (
+                        _session_memory.resolve_with_details(
+                            session_id,
+                            embedding,
+                            gallery_best_id,
+                            gallery_best_score,
+                        )
                     )
-                )
-                if continuity_id is not None:
-                    identity = continuity_id
-                    is_unenrolled = identity.startswith("unenrolled_")
-                    status = "unenrolled" if is_unenrolled else "known"
+                if enrolled_continuity_id is not None:
+                    identity = enrolled_continuity_id
+                    is_unenrolled = False
+                    status = "known"
                     score = continuity_score
                     match_reason = continuity_reason or "session_continuity"
                     _session_memory.remember(
-                        session_id, identity, embedding, confirmed=not is_unenrolled
+                        session_id, identity, embedding, confirmed=True
                     )
-                    prefix = "[MATCH]" if not is_unenrolled else "[SESSION UNKNOWN]"
                     log_msg = (
                         f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
-                        f"{prefix}: '{identity}' (Score: {score:.3f} | "
+                        f"[MATCH]: '{identity}' (Score: {score:.3f} | "
                         f"Speaker: {speaker_label} | Duration: {duration:.2f}s | "
                         f"Via: {match_reason})"
                     )
                     print(f"\n{log_msg}")
                     if identity_callback is not None:
-                        if is_unenrolled:
-                            identity_callback({
-                                "known": False,
-                                "speaker": identity,
-                                "has_face": False,
-                            })
-                        else:
-                            identity_row = get_identity_by_name(identity)
-                            identity_callback({
-                                "known": True,
-                                "name": identity,
-                                "relation": identity_row["relation"] if identity_row else None,
-                            })
+                        identity_row = get_identity_by_name(identity)
+                        identity_callback({
+                            "known": True,
+                            "name": identity,
+                            "relation": identity_row["relation"] if identity_row else None,
+                        })
                 else:
                     session_root = segments_output_dir.parent.parent
-                    if duration < MIN_UNENROLLED_FALLBACK_DURATION_SEC:
-                        # Gallery and session continuity still ran. This only
-                        # prevents a low-evidence fallback from mutating the
-                        # unenrolled gallery or triggering video capture.
-                        identity = None
-                        status = "insufficient_audio"
+                    # Every unknown speaker turn is enrolled into the unenrolled table.
+                    # Attempt to match against existing unenrolled voice embeddings first.
+                    # Use a higher threshold (0.62) so different people in the same
+                    # room don't collapse into the same unenrolled_ID.
+                    match_row, match_score = find_matching_unenrolled_voice(
+                        embedding, threshold=0.62
+                    )
+                    if match_row is not None:
+                        un_id = match_row["id"]
+                        identity = f"unenrolled_{un_id}"
+                        has_face = match_row.get("face_embedding") is not None
+                        status = "unenrolled_with_face" if has_face else "unenrolled"
+                        update_unenrolled_voice(un_id, embedding)
+                        _session_memory.remember(
+                            session_id, identity, embedding, confirmed=False
+                        )
                         score = gallery_best_score
-                        _append_resolution_failure_log(
-                            session_root / "short_audio_fallbacks.jsonl",
-                            {
-                                "event": "insufficient_audio_fallback",
-                                "timestamp": datetime.now().astimezone().isoformat(),
-                                "session_id": session_id,
-                                "recording_id": recording_id,
-                                "main_segment_id": recording_id,
-                                "candidate_duration_sec": round(duration, 3),
-                                "minimum_duration_sec": MIN_UNENROLLED_FALLBACK_DURATION_SEC,
-                                "gallery_best_identity": gallery_best_id,
-                                "gallery_best_score": gallery_best_score,
-                                **continuity_details,
-                            },
+                        face_note = (
+                            " (face linked)"
+                            if status == "unenrolled_with_face"
+                            else " (no face)"
                         )
                         log_msg = (
                             f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
-                            f"[INSUFFICIENT AUDIO]: no unenrolled persistence "
-                            f"(Highest Score: {score:.3f} | Best: {gallery_best_id} | "
-                            f"Speaker: {speaker_label} | Duration: {duration:.2f}s)"
+                            f"[MATCH UNENROLLED]: {identity}{face_note} "
+                            f"(Highest Score: {score:.3f} | Speaker: {speaker_label} | "
+                            f"Duration: {duration:.2f}s)"
                         )
+                        if identity_callback is not None:
+                            identity_callback({
+                                "known": False,
+                                "speaker": identity,
+                                "unenrolled_id": un_id,
+                                "has_face": status == "unenrolled_with_face",
+                            })
                     else:
-                        # Save concatenated audio for unknowns (longest representation)
-                        # Attempt to match against unenrolled voice embeddings.
-                        match_row, match_score = find_matching_unenrolled_voice(
-                            embedding, threshold=0.52
+                        new_id = create_unenrolled_identity(voice_embedding=embedding)
+                        identity = f"unenrolled_{new_id}"
+                        un_id = new_id
+                        status = "new_unenrolled"
+
+                        _session_memory.remember(
+                            session_id, identity, embedding, confirmed=False
                         )
-                        if match_row is not None:
-                            identity = f"unenrolled_{match_row['id']}"
-                            has_face = match_row.get("face_embedding") is not None
-                            status = "unenrolled_with_face" if has_face else "unenrolled"
-                            update_unenrolled_voice(match_row['id'], embedding)
-                            _session_memory.remember(
-                                session_id, identity, embedding, confirmed=False
-                            )
-                            score = gallery_best_score
-                            face_note = (
-                                " (face linked)"
-                                if status == "unenrolled_with_face"
-                                else " (no face)"
-                            )
-                            log_msg = (
-                                f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
-                                f"[MATCH UNENROLLED]: {identity}{face_note} "
-                                f"(Highest Score: {score:.3f} | Speaker: {speaker_label} | "
-                                f"Duration: {duration:.2f}s)"
-                            )
-                            if identity_callback is not None:
-                                identity_callback({
-                                    "known": False,
-                                    "speaker": identity,
-                                    "has_face": status == "unenrolled_with_face",
-                                })
-                        else:
-                            # Right before persisting as new_unenrolled, apply transcript discard guards:
-                            # 1. Empty transcript -> discarded_no_transcript
-                            # 2. Unexpected script/language (e.g. Cyrillic mistranscription on noise) -> discarded_bad_transcript
-                            candidate_transcript = transcribe_wav(concat_path)
-                            is_valid, discard_reason = validate_transcript_guard(candidate_transcript)
-
-                            if not is_valid:
-                                identity = None
-                                status = discard_reason
-                                score = gallery_best_score
-                                if discard_reason == "discarded_no_transcript":
-                                    log_msg = (
-                                        f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
-                                        f"[DISCARDED NO TRANSCRIPT]: no unenrolled persistence "
-                                        f"(Highest Score: {score:.3f} | Best: {gallery_best_id} | "
-                                        f"Speaker: {speaker_label} | Duration: {duration:.2f}s)"
-                                    )
-                                else:
-                                    log_msg = (
-                                        f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
-                                        f"[DISCARDED BAD TRANSCRIPT]: '{candidate_transcript}' no unenrolled persistence "
-                                        f"(Highest Score: {score:.3f} | Best: {gallery_best_id} | "
-                                        f"Speaker: {speaker_label} | Duration: {duration:.2f}s)"
-                                    )
-                            else:
-                                new_id = create_unenrolled_identity(voice_embedding=embedding)
-                                identity = f"unenrolled_{new_id}"
-                                status = "new_unenrolled"
-
-                                _session_memory.remember(
-                                    session_id, identity, embedding, confirmed=False
-                                )
-                                score = gallery_best_score
-                                log_msg = (
-                                    f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
-                                    f"[NO MATCH]: {identity} (no face) "
-                                    f"(Highest Score: {score:.3f} | Speaker: {speaker_label} | "
-                                    f"Duration: {duration:.2f}s | Transcript: '{candidate_transcript}')"
-                                )
-                                if identity_callback is not None:
-                                    identity_callback({
-                                        "known": False,
-                                        "speaker": identity,
-                                        "has_face": False,
-                                    })
+                        score = gallery_best_score
+                        log_msg = (
+                            f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
+                            f"[NEW UNENROLLED]: {identity} (no face) "
+                            f"(Highest Score: {score:.3f} | Speaker: {speaker_label} | "
+                            f"Duration: {duration:.2f}s)"
+                        )
+                        if identity_callback is not None:
+                            identity_callback({
+                                "known": False,
+                                "speaker": identity,
+                                "unenrolled_id": un_id,
+                                "has_face": False,
+                            })
 
                     _append_resolution_failure_log(
                         session_root / "identity_resolution_failures.jsonl",
@@ -501,30 +470,31 @@ def run_audio_pipeline(
                             "gallery_best_score": gallery_best_score,
                             **continuity_details,
                             "final_outcome": (
-                                "insufficient_audio"
-                                if status == "insufficient_audio"
-                                else (
-                                    status
-                                    if status in ("discarded_no_transcript", "discarded_bad_transcript")
-                                    else (
-                                        "matched_existing_unenrolled"
-                                        if status != "new_unenrolled"
-                                        else "created_new_unenrolled"
-                                    )
-                                )
+                                "matched_existing_unenrolled"
+                                if status != "new_unenrolled"
+                                else "created_new_unenrolled"
                             ),
                             "final_identity": identity,
                         },
                     )
                     print(f"\n{log_msg}")
 
-            with open(log_file_path, "a", encoding="utf-8") as f:
-                f.write(log_msg + "\n")
-                
+            if log_msg:
+                with open(log_file_path, "a", encoding="utf-8") as f:
+                    f.write(log_msg + "\n")
+
             speaker_identities[speaker_label] = {"identity": identity, "status": status}
-            
+
         except Exception as e:
-            print(f"Error during recognition for {speaker_label}: {e}")
+            tb = traceback.format_exc()
+            LOGGER.error(
+                "[PIPELINE] Recognition FAILED for speaker %s — identity will be None.\n"
+                "  Error: %s\n%s",
+                speaker_label, e, tb,
+            )
+            print(
+                f"[PIPELINE ERROR] Recognition failed for {speaker_label}: {e}\n{tb}"
+            )
             speaker_identities[speaker_label] = {"identity": None, "status": None}
 
     if barrier_acquired:

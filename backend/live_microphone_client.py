@@ -120,8 +120,16 @@ async def stream_microphone(args: argparse.Namespace) -> None:
                                     f"({identity_result.get('relation') or 'relation unavailable'})"
                                 )
                             else:
+                                speaker_name = identity_result.get("speaker") or "unenrolled"
+                                un_id = identity_result.get("unenrolled_id")
+                                if un_id is None and str(speaker_name).startswith("unenrolled_"):
+                                    try:
+                                        un_id = int(str(speaker_name).split("_")[1])
+                                    except Exception:
+                                        pass
+                                id_display = f" ({un_id})" if un_id is not None else ""
                                 print(
-                                    f"Unknown speaker detected: {identity_result.get('speaker', 'unenrolled')}"
+                                    f"Unenrolled identity: {speaker_name}{id_display}"
                                 )
 
                         sent_chunks += 1

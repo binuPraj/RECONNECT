@@ -57,7 +57,7 @@ class StreamingSegmentProcessor:
         self._session_transcript_by_recording: dict[int, list[dict[str, object]]] = {}
         self._identity_resolution_barrier = SessionIdentityResolutionBarrier()
         self._last_video_trigger_ts = 0.0
-        self._video_cooldown_sec = float(os.getenv("VIDEO_TRIGGER_COOLDOWN_SEC", "60.0"))
+        self._video_cooldown_sec = float(os.getenv("VIDEO_TRIGGER_COOLDOWN_SEC", "0.0"))
         self._unknown_count = 0
 
     def add_confirmed_idle_audio(self, data: bytes) -> None:
@@ -249,7 +249,7 @@ class StreamingSegmentProcessor:
         global _active_video_proc
         with _active_video_lock:
             now = time.time()
-            if now - self._last_video_trigger_ts < self._video_cooldown_sec:
+            if self._video_cooldown_sec > 0 and (now - self._last_video_trigger_ts < self._video_cooldown_sec):
                 LOGGER.debug(
                     "[PIPELINE] video_trigger=suppressed_cooldown remaining=%.1fs",
                     self._video_cooldown_sec - (now - self._last_video_trigger_ts),

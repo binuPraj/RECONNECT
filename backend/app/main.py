@@ -58,12 +58,14 @@ async def audio_stream(websocket: WebSocket):
     await websocket.accept()
     session_id = allocate_stream_session_id()
     loop = asyncio.get_running_loop()
-    identity_events: asyncio.Queue[dict[str, object]] = asyncio.Queue(maxsize=1)
+    identity_events: asyncio.Queue[dict[str, object]] = asyncio.Queue(maxsize=50)
 
     def on_identity_result(result: dict[str, object]) -> None:
         def enqueue_result() -> None:
-            if identity_events.empty():
+            try:
                 identity_events.put_nowait(result)
+            except asyncio.QueueFull:
+                pass
 
         loop.call_soon_threadsafe(enqueue_result)
 

@@ -1,0 +1,12 @@
+{
+    "entity_id": "unknown_a8556aca",
+    "status": "new_unknown",
+    "unenrolled_db_id": 2,
+    "observation_count": 10,
+    "best_face_image": "C:\\Users\\ASUS\\OneDrive\\Desktop\\binu\\reconnect\\backend\\data\\unknown\\unknown_a8556aca\\best_face.jpg",
+    "label_request": true,
+    "modality": {
+        "face": true,
+        "voice": false
+    }
+}
