@@ -5,11 +5,14 @@
 venv/
 __pycache__/
 *.pyc
+*.pyd
+*.pyo
 
 # Miscellaneous
 *.class
 *.log
 *.swp
+*.ses
 .DS_Store
 .atom/
 .build/
@@ -54,7 +57,27 @@ android/app/release/
 *.db-wal
 *.db-journal
 
-# Runtime video / debug artifacts
+# ── Backend runtime data (recordings, streams, audio, databases) ──
+# These are large runtime artifacts that should not be in version control.
 backend/uploads/
-backend/debug_overlay*.mp4
+backend copy 2/uploads/
+
+# Backend debug/temp artifacts
 backend/asd_output.json
+backend/debug_overlay*.mp4
+backend/debug_raw_cleaned_diarization.py
+backend/output/
+backend/data/
+backend/notes/
+backend/audio/
+backend/diarised_segments/
+backend/activity/
+backend/trigger/
+backend/database/
+backend/vision/
+backend/reconnect.db
+backend/*.ses
+**/_memory_.ses
+
+# macOS metadata folders (created when zipping on Mac)
+__MACOSX/
