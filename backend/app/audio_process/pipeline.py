@@ -403,7 +403,7 @@ def run_audio_pipeline(
                     # Use a higher threshold (0.62) so different people in the same
                     # room don't collapse into the same unenrolled_ID.
                     match_row, match_score = find_matching_unenrolled_voice(
-                        embedding, threshold=0.62
+                        embedding, threshold=0.60
                     )
                     if match_row is not None:
                         un_id = match_row["id"]

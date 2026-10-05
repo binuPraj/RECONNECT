@@ -29,6 +29,7 @@ class FinalizedSpeechSegment:
     finalized_reason: str
 
     recorded_at: datetime | None = None
+    pre_roll_samples: int = 0
 
     @property
     def num_samples(self) -> int:
@@ -257,4 +258,5 @@ class SpeechSegment:
             end_sample=self.end_sample,
             finalized_reason=reason,
             recorded_at=self.recorded_at,
+            pre_roll_samples=self.pre_roll_samples,
         )

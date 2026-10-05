@@ -50,9 +50,9 @@ import numpy as np
 import torch
 from scipy.spatial.distance import cosine
 
-FACE_MATCH_THRESHOLD              = 0.50   # slightly relaxed — same person across
+FACE_MATCH_THRESHOLD              = 0.60   # slightly relaxed — same person across
                                             # lighting/expression can dip below 0.60
-VOICE_MATCH_THRESHOLD             = 0.70
+VOICE_MATCH_THRESHOLD             = 0.60
 ASD_LINK_THRESHOLD                = 0.05
 MIN_SPEAKING_TURNS_FOR_CONFIRMED  = 3
 MIN_SPEAKER_FACE_OBSERVATIONS = 2

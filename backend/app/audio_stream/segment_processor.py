@@ -18,6 +18,8 @@ import soundfile as sf
 
 from app.audio_process.pipeline import run_audio_pipeline
 from app.audio_process.identity_barrier import SessionIdentityResolutionBarrier
+from app.audio_process.chunk_writer import write_chunk
+from app.events.grouper import GrouperSegment, process_segment
 from app.audio_process.transcribe import transcribe_wav
 from app.audio_stream.protocol import SAMPLE_RATE
 from app.audio_stream.noise_profile import SessionNoiseProfile
@@ -168,6 +170,26 @@ class StreamingSegmentProcessor:
                 stream_info,
                 transcript_rows,
             )
+            # Write chunk.json immediately after segments.json is finalised.
+            chunk_path = await asyncio.to_thread(write_chunk, segments_manifest_path)
+
+            def _feed_grouper():
+                import json as _json
+                chunk_data = _json.loads(chunk_path.read_text(encoding="utf-8"))
+                recording_id = str(chunk_data["recording_id"])
+                for seg in chunk_data.get("segments", []):
+                    gs = GrouperSegment(
+                        parent_recording_id=recording_id,
+                        segment_id=seg["segment_id"],
+                        speaker=seg["speaker"],
+                        start=seg["start"],
+                        end=seg["end"],
+                        text=seg.get("text", "")
+                    )
+                    process_segment(gs)
+
+            await asyncio.to_thread(_feed_grouper)
+
             await asyncio.to_thread(
                 self._merge_session_transcript,
                 segment.segment_id,
@@ -377,6 +399,13 @@ class StreamingSegmentProcessor:
         else:
             transcripts = []
 
+        if recording.recorded_at is not None:
+            pre_roll_sec = recording.pre_roll_samples / SAMPLE_RATE
+            base_time = recording.recorded_at - timedelta(seconds=pre_roll_sec)
+            recording_id_val = base_time.isoformat()
+        else:
+            recording_id_val = str(stream_info.main_segment_id)
+
         rows: list[dict[str, object]] = []
         who_is_this_triggered = False
         trigger_phrases = ["who is this", "who's this", "who is that", "who's that"]
@@ -395,7 +424,7 @@ class StreamingSegmentProcessor:
 
             rows.append(
                 {
-                    "recording_id": stream_info.main_segment_id,
+                    "recording_id": recording_id_val,
                     "segment_id": segment.segment_id,
                     "speaker_label": segment.speaker_label,
                     "speaker": speaker_name(segment),
@@ -457,8 +486,10 @@ class StreamingSegmentProcessor:
 
         if recording.recorded_at is None:
             return None
+        pre_roll_sec = recording.pre_roll_samples / SAMPLE_RATE
+        base_time = recording.recorded_at - timedelta(seconds=pre_roll_sec)
         offset_sec = max(0.0, float(segment_start_sec))
-        stamp: datetime = recording.recorded_at + timedelta(seconds=offset_sec)
+        stamp: datetime = base_time + timedelta(seconds=offset_sec)
         return stamp.isoformat()
 
     def _merge_session_transcript(
@@ -505,8 +536,9 @@ class StreamingSegmentProcessor:
             {key: value for key, value in row.items() if key != "recording_id"}
             for row in transcript_rows
         ]
+        recording_id = transcript_rows[0].get("recording_id") if transcript_rows else str(stream_info.main_segment_id)
         data = {
-            "recording_id": stream_info.main_segment_id,
+            "recording_id": recording_id,
             "stream_start_sec": stream_info.stream_start_sec,
             "stream_end_sec": stream_info.stream_end_sec,
             "segments": segments,
