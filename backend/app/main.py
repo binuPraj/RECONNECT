@@ -10,6 +10,7 @@ import sqlite3
 from contextlib import asynccontextmanager
 
 from fastapi import Body, FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 
 from app.audio_stream.format_adapter import StreamAudioFormat, adapt_pcm16_stream_chunk
@@ -20,6 +21,11 @@ from app.memory.consolidation import MemoryConsolidator, make_batch_prompt, rend
 from app.memory.openrouter import OpenRouterError, OpenRouterMemoryClient
 from app.memory.store import SQLiteMemoryStore
 from app.utils.storage import allocate_stream_session_id
+from database.db import init_database
+from app.routers import auth as auth_router
+from app.routers import enroll as enroll_router
+from app.routers import memories as memories_router
+from app.routers import who_is_this as wit_router
 
 
 logging.basicConfig(
@@ -60,6 +66,7 @@ async def _memory_scheduler(app: FastAPI) -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    init_database()
     init_db()
     app.state.memory_consolidator = None
     app.state.memory_client = None
@@ -88,6 +95,22 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="RECONNECT Audio Streaming API", version="1.2.0", lifespan=lifespan)
+
+# Allow the Flutter app (running on the same LAN / Android device) to reach the API
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Flutter-facing REST routers
+app.include_router(auth_router.router)
+app.include_router(enroll_router.router)
+app.include_router(memories_router.router)
+app.include_router(wit_router.router)
+app.include_router(wit_router.unknown_voice_router)
 
 
 @app.get("/")

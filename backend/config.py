@@ -15,7 +15,7 @@ TARGET_FPS = 10
 DETECTION_THRESHOLD = 0.50
 
 # Similarity threshold for known people
-KNOWN_MATCH_THRESHOLD = 0.50
+KNOWN_MATCH_THRESHOLD = 0.60
 
 # Similarity threshold for matching unknown faces
 UNKNOWN_CLUSTER_THRESHOLD = 0.60

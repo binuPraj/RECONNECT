@@ -99,44 +99,28 @@ class FaceMatcher:
                 )
 
     def match(self, embedding):
-
         best_identity = None
-
         best_similarity = -1.0
 
-        for identity, embeddings in (
-            self.gallery.items()
-        ):
-
+        for identity, embeddings in self.gallery.items():
             for stored_embedding in embeddings:
-
-                similarity = float(
-                    np.dot(
-                        embedding,
-                        stored_embedding
-                    )
-                )
-
+                norm_q = np.linalg.norm(embedding)
+                norm_s = np.linalg.norm(stored_embedding)
+                if norm_q == 0 or norm_s == 0:
+                    continue
+                similarity = float(np.dot(embedding, stored_embedding) / (norm_q * norm_s))
                 if similarity > best_similarity:
-
                     best_similarity = similarity
-
                     best_identity = identity
 
         if (
             best_identity is not None
-            and best_similarity
-            >= KNOWN_MATCH_THRESHOLD
+            and best_similarity >= KNOWN_MATCH_THRESHOLD
         ):
-
             return {
-
                 "matched": True,
-
                 "identity": best_identity,
-
                 "similarity": best_similarity
-
             }
 
         return {

@@ -468,8 +468,9 @@ def capture_and_process_video(vision_pipeline=None, target_unenrolled_id=None, i
             reset_state()
             return False
 
-    os.makedirs("uploads", exist_ok=True)
-    video_filename = os.path.join("uploads", "activity_video.mp4")
+    upload_dir = BACKEND_ROOT / "uploads"
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    video_filename = str(upload_dir / "activity_video.mp4")
 
     if vision_pipeline is None:
         vision_pipeline = WhoIsThisPipeline()

@@ -170,25 +170,26 @@ class StreamingSegmentProcessor:
                 stream_info,
                 transcript_rows,
             )
-            # Write chunk.json immediately after segments.json is finalised.
-            chunk_path = await asyncio.to_thread(write_chunk, segments_manifest_path)
+            # Write chunk.json immediately after segments.json is finalised (if segments exist).
+            if transcript_rows:
+                chunk_path = await asyncio.to_thread(write_chunk, segments_manifest_path)
 
-            def _feed_grouper():
-                import json as _json
-                chunk_data = _json.loads(chunk_path.read_text(encoding="utf-8"))
-                recording_id = str(chunk_data["recording_id"])
-                for seg in chunk_data.get("segments", []):
-                    gs = GrouperSegment(
-                        parent_recording_id=recording_id,
-                        segment_id=seg["segment_id"],
-                        speaker=seg["speaker"],
-                        start=seg["start"],
-                        end=seg["end"],
-                        text=seg.get("text", "")
-                    )
-                    process_segment(gs)
+                def _feed_grouper():
+                    import json as _json
+                    chunk_data = _json.loads(chunk_path.read_text(encoding="utf-8"))
+                    recording_id = str(chunk_data["recording_id"])
+                    for seg in chunk_data.get("segments", []):
+                        gs = GrouperSegment(
+                            parent_recording_id=recording_id,
+                            segment_id=seg["segment_id"],
+                            speaker=seg["speaker"],
+                            start=seg["start"],
+                            end=seg["end"],
+                            text=seg.get("text", "")
+                        )
+                        process_segment(gs)
 
-            await asyncio.to_thread(_feed_grouper)
+                await asyncio.to_thread(_feed_grouper)
 
             await asyncio.to_thread(
                 self._merge_session_transcript,
@@ -267,57 +268,27 @@ class StreamingSegmentProcessor:
             )
 
     def _maybe_trigger_video_capture(self, target_unenrolled_id: int | None = None) -> None:
-        """Trigger video capture if cooldown has elapsed and no capture is in flight."""
-        global _active_video_proc
-        with _active_video_lock:
-            now = time.time()
-            if self._video_cooldown_sec > 0 and (now - self._last_video_trigger_ts < self._video_cooldown_sec):
-                LOGGER.debug(
-                    "[PIPELINE] video_trigger=suppressed_cooldown remaining=%.1fs",
-                    self._video_cooldown_sec - (now - self._last_video_trigger_ts),
-                )
-                return
-
-            if _active_video_proc is not None and _active_video_proc.poll() is None:
-                LOGGER.info(
-                    "[PIPELINE] trigger=unknown_speaker session=%s target=%s action=dropped_in_flight",
-                    self.session_id,
-                    target_unenrolled_id,
-                )
-                return
-
-            self._last_video_trigger_ts = now
-            backend_root = Path(__file__).resolve().parents[2]
-            LOGGER.info(
-                "[PIPELINE] trigger=unknown_speaker session=%s target=%s action=start_subprocess",
-                self.session_id,
-                target_unenrolled_id,
+        """Notify client phone to record unknown voice video capture."""
+        now = time.time()
+        if self._video_cooldown_sec > 0 and (now - self._last_video_trigger_ts < self._video_cooldown_sec):
+            LOGGER.debug(
+                "[PIPELINE] video_trigger=suppressed_cooldown remaining=%.1fs",
+                self._video_cooldown_sec - (now - self._last_video_trigger_ts),
             )
-            sub_env = dict(os.environ)
-            sub_env["PYTHONIOENCODING"] = "utf-8"
-            sub_env["OMP_NUM_THREADS"] = "2"
-            sub_env["MKL_NUM_THREADS"] = "2"
-            sub_env["OPENBLAS_NUM_THREADS"] = "2"
-            sub_env["VECLIB_MAXIMUM_THREADS"] = "2"
-            sub_env["NUMEXPR_NUM_THREADS"] = "2"
+            return
 
-            creation_flags = 0
-            if sys.platform == "win32":
-                creation_flags = getattr(subprocess, "BELOW_NORMAL_PRIORITY_CLASS", 0x00004000)
-
-            cmd = [sys.executable, str(backend_root / "main.py"), "--take-a-video"]
-            if target_unenrolled_id is not None:
-                cmd.extend(["--unenrolled-id", str(target_unenrolled_id)])
-
-            _active_video_proc = subprocess.Popen(
-                cmd,
-                cwd=str(backend_root),
-                stdin=subprocess.DEVNULL,
-                stdout=None,
-                stderr=None,
-                env=sub_env,
-                creationflags=creation_flags,
-            )
+        self._last_video_trigger_ts = now
+        LOGGER.info(
+            "[TRIGGER] Unknown speaker detected (session=%s, unenrolled_id=%s). Requesting phone camera capture...",
+            self.session_id,
+            target_unenrolled_id,
+        )
+        print(f"\n📸 [TRIGGER] Unknown voice detected (unenrolled_id={target_unenrolled_id}) -> Requesting phone camera capture...\n")
+        if self._identity_callback is not None:
+            self._identity_callback({
+                "event": "unknown_voice_capture_requested",
+                "unenrolled_id": target_unenrolled_id,
+            })
 
     def _save_segment(
         self,
@@ -445,29 +416,15 @@ class StreamingSegmentProcessor:
             )
 
         if who_is_this_triggered:
-            backend_root = Path(__file__).resolve().parents[2]
-            LOGGER.info("[PIPELINE] trigger=who_is_this action=start_subprocess session=%s", stream_info.main_segment_id)
-            sub_env = dict(os.environ)
-            sub_env["PYTHONIOENCODING"] = "utf-8"
-            sub_env["OMP_NUM_THREADS"] = "2"
-            sub_env["MKL_NUM_THREADS"] = "2"
-            sub_env["OPENBLAS_NUM_THREADS"] = "2"
-            sub_env["VECLIB_MAXIMUM_THREADS"] = "2"
-            sub_env["NUMEXPR_NUM_THREADS"] = "2"
-
-            creation_flags = 0
-            if sys.platform == "win32":
-                creation_flags = getattr(subprocess, "BELOW_NORMAL_PRIORITY_CLASS", 0x00004000)
-
-            subprocess.Popen(
-                [sys.executable, str(backend_root / "main.py"), "--who-is-this"],
-                cwd=str(backend_root),
-                stdin=subprocess.DEVNULL,
-                stdout=None,
-                stderr=None,
-                env=sub_env,
-                creationflags=creation_flags,
+            LOGGER.info(
+                "[TRIGGER] 'Who is this' phrase detected in audio (session=%s). Requesting phone camera capture...",
+                stream_info.main_segment_id,
             )
+            print(f"\n🔍 [TRIGGER] 'Who is this' phrase heard -> Requesting phone camera capture...\n")
+            if self._identity_callback is not None:
+                self._identity_callback({
+                    "event": "camera_capture_requested",
+                })
 
         return rows
 
