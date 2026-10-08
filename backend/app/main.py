@@ -18,6 +18,7 @@ from app.audio_stream.segment_processor import StreamingSegmentProcessor
 from app.audio_stream.streaming_recorder import StreamingSpeechRecorder
 from app.events.db import DB_PATH, get_connection, get_event, init_db, list_events
 from app.memory.consolidation import MemoryConsolidator, make_batch_prompt, render_transcript_text
+from app.memory.graph_store import GraphStore, GraphVectorMemoryStore, VectorStore, get_direct, get_open_ended
 from app.memory.openrouter import OpenRouterError, OpenRouterMemoryClient
 from app.memory.store import SQLiteMemoryStore
 from app.utils.storage import allocate_stream_session_id
@@ -71,10 +72,37 @@ async def lifespan(app: FastAPI):
     app.state.memory_consolidator = None
     app.state.memory_client = None
     app.state.memory_batch_lock = asyncio.Lock()
+    app.state.graph_store = None
+    app.state.vector_store = None
     try:
         client = OpenRouterMemoryClient()
         memory_store = SQLiteMemoryStore()
+        
+        # Check if Neo4j and FAISS graph projection should be enabled
+        neo4j_uri = os.getenv("NEO4J_URI")
+        neo4j_user = os.getenv("NEO4J_USER")
+        neo4j_password = os.getenv("NEO4J_PASSWORD")
+        graph_enabled = os.getenv("RECONNECT_GRAPH_MEMORY", "0") == "1" or bool(neo4j_uri and neo4j_user and neo4j_password)
+        
+        if graph_enabled:
+            graph_store = None
+            try:
+                graph_store = GraphStore.from_environment()
+                if graph_store is None:
+                    raise RuntimeError("Graph memory requires NEO4J_URI, NEO4J_USER, and NEO4J_PASSWORD")
+                projected_store = GraphVectorMemoryStore(memory_store, graph_store, VectorStore())
+                backfilled = projected_store.backfill()
+                memory_store = projected_store
+                app.state.graph_store, app.state.vector_store = graph_store, projected_store.vector
+                LOGGER.info("[memory] Neo4j + FAISS memory projection enabled; backfilled %s SQLite memories", backfilled)
+            except Exception:
+                # Graph/vector retrieval is optional: retain normal SQLite consolidation.
+                LOGGER.exception("[memory] Neo4j + FAISS projection disabled; SQLite remains active")
+                if graph_store is not None:
+                    graph_store.close()
+
         consolidator = MemoryConsolidator(memory_store)
+        app.state.memory_store = memory_store
         app.state.memory_consolidator = consolidator
         app.state.memory_client = client
         app.state.memory_task = asyncio.create_task(_memory_scheduler(app))
@@ -92,6 +120,9 @@ async def lifespan(app: FastAPI):
                 await task
             except asyncio.CancelledError:
                 pass
+        graph_store = getattr(app.state, "graph_store", None)
+        if graph_store is not None:
+            graph_store.close()
 
 
 app = FastAPI(title="RECONNECT Audio Streaming API", version="1.2.0", lifespan=lifespan)
@@ -248,6 +279,23 @@ async def delete_memory_batch_audit(batch_id: str):
 async def read_memories():
     """Read all durable memories as JSON, newest update first."""
     return {"database": str(SQLiteMemoryStore().path), "memories": SQLiteMemoryStore().list_all()}
+
+
+@app.get("/memories/direct/{person_name}")
+async def direct_memory_lookup(person_name: str):
+    """Return graph-backed, explicitly reported third-person memories."""
+    if app.state.graph_store is None:
+        raise HTTPException(status_code=503, detail="Graph memory is not enabled")
+    return {"memories": await asyncio.to_thread(get_direct, app.state.graph_store, person_name)}
+
+
+@app.get("/memories/search")
+async def semantic_memory_lookup(query: str = Query(min_length=1), k: int = Query(default=5, ge=1, le=20)):
+    """Use FAISS to find IDs, then Neo4j to return their structured records."""
+    if app.state.graph_store is None or app.state.vector_store is None:
+        raise HTTPException(status_code=503, detail="Graph memory is not enabled")
+    memories = await asyncio.to_thread(get_open_ended, query, app.state.graph_store, app.state.vector_store, k)
+    return {"memories": memories}
 
 
 @app.get("/dashboard", response_class=HTMLResponse)
