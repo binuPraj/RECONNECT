@@ -68,15 +68,12 @@ backend/asd_output.json
 backend/debug_overlay*.mp4
 backend/debug_raw_cleaned_diarization.py
 backend/output/
-backend/data/
 backend/notes/
 backend/audio/
 backend/diarised_segments/
 backend/activity/
 backend/trigger/
-backend/database/
 backend/vision/
-backend/reconnect.db
 backend/*.ses
 **/_memory_.ses
 
