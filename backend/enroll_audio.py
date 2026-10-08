@@ -18,7 +18,7 @@ from app.audio_process.vad import detect_speech_regions
 
 VOICE_DURATION_SECONDS = 10
 VOICE_SAMPLE_RATE = 16000
-ENROLLMENT_AUDIO_PATH = Path(__file__).resolve().parent / "enrollment" / "enrollment_audio"
+ENROLLMENT_AUDIO_PATH = Path(__file__).resolve().parent / "uploads" / "enrollment_audio"
 
 
 def _merge_intervals(intervals: list[tuple[float, float]]) -> list[tuple[float, float]]:

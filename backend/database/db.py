@@ -13,13 +13,14 @@ import numpy as np
 _DB_LOCK = threading.Lock()
 _DB_INITIALISED = False
 
-DATABASE_PATH = Path(__file__).resolve().parent / "reconnect.db"
+DATABASE_PATH = Path(__file__).resolve().parents[1] / "uploads" / "database" / "reconnect.db"
 FACE_MATCH_THRESHOLD = 0.50
 
 
 def _enable_wal_once():
     """Enable WAL journal mode exactly once at module load."""
     try:
+        DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
         conn = sqlite3.connect(DATABASE_PATH, timeout=10, check_same_thread=False)
         conn.execute("PRAGMA journal_mode=WAL")
         conn.close()

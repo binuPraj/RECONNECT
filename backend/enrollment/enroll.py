@@ -16,7 +16,7 @@ from vision.face_engine import FaceEngine
 from config import GALLERY_PATH
 
 
-ENROLLMENT_IMAGE_PATH = str(BACKEND_ROOT / "data" / "enrollment_images")
+ENROLLMENT_IMAGE_PATH = str(BACKEND_ROOT / "uploads" / "enrollment_images")
 
 
 IMAGE_EXTENSIONS = (
