@@ -60,7 +60,8 @@ android/app/release/
 # ── Backend runtime data (recordings, streams, audio, databases) ──
 # These are large runtime artifacts that should not be in version control.
 backend/uploads/
-backend copy 2/uploads/
+backend copy 2/
+
 
 # Backend debug/temp artifacts
 backend/asd_output.json

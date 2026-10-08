@@ -33,22 +33,36 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
   }
 
   Future<void> _loadEnrolledPersons() async {
-    final rows = await BackendApi.enrolledPeople(widget.patientId);
-    final persons = rows
-        .map(
-          (row) => EnrolledPerson(
-            id: row['id'] as int,
-            patientId: row['patient_id'] as int,
-            name: row['name'] as String,
-            relation: row['relation'] as String,
-            photoCount: 1,
-          ),
-        )
-        .toList();
-    setState(() {
-      _enrolledPersons = persons;
-      _isLoading = false;
-    });
+    try {
+      final rows = await BackendApi.enrolledPeople(widget.patientId);
+      final persons = rows
+          .map(
+            (row) => EnrolledPerson(
+              id: row['id'] as int?,
+              patientId: (row['patient_id'] as int?) ?? widget.patientId,
+              name: (row['name'] as String?) ?? '',
+              relation: (row['relation'] as String?) ?? '',
+              photoCount: (row['photoCount'] as int?) ?? 1,
+              photoUrl: row['photo_url'] as String?,
+            ),
+          )
+          .toList();
+      if (mounted) {
+        setState(() {
+          _enrolledPersons = persons;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not load enrolled people: $e')),
+        );
+      }
+    }
   }
 
   Future<void> _startEnrollPerson({
@@ -66,6 +80,8 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
     );
 
     if (result == null) return; // user cancelled
+
+    setState(() => _isLoading = true);
 
     try {
       await BackendApi.enrollPerson(
@@ -89,6 +105,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
       _loadEnrolledPersons();
     } catch (e) {
       if (!mounted) return;
+      setState(() => _isLoading = false);
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Failed to save enrollment: $e')));
@@ -125,11 +142,29 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                 final person = _enrolledPersons[index];
                 return Card(
                   child: ListTile(
-                    leading: const CircleAvatar(child: Icon(Icons.person)),
+                    leading: person.photoUrl != null
+                        ? FutureBuilder<String?>(
+                            future: BackendApi.token,
+                            builder: (context, snapshot) {
+                              return ClipOval(
+                                child: Image.network(
+                                  '${AppConfig.httpBaseUrl}${person.photoUrl}',
+                                  headers: snapshot.data == null
+                                      ? null
+                                      : {'Authorization': 'Bearer ${snapshot.data}'},
+                                  width: 48,
+                                  height: 48,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, _, _) => const CircleAvatar(
+                                    child: Icon(Icons.person),
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                        : const CircleAvatar(child: Icon(Icons.person)),
                     title: Text(person.name),
-                    subtitle: Text(
-                      '${person.relation} · ${person.photoCount} photo(s)',
-                    ),
+                    subtitle: Text(person.relation),
                   ),
                 );
               },

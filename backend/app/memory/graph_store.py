@@ -38,17 +38,24 @@ class GraphStore:
                     m.updated_at=$updated_at, m.created_at=coalesce(m.created_at, $created_at)
             """, **{key: memory.get(key) for key in ("memory_id", "summary", "category", "importance", "emotion", "topic", "source_events", "updated_at", "created_at")})
             for name in memory.get("participants", []):
-                session.run("""MERGE (p:Person {name:$name})
-                    MERGE (p)-[:PRESENT_AT]->(m:Memory {memory_id:$memory_id})""", name=name, memory_id=memory["memory_id"])
+                session.run("""
+                    MATCH (m:Memory {memory_id:$memory_id})
+                    MERGE (p:Person {name:$name})
+                    MERGE (p)-[:PRESENT_AT]->(m)
+                """, name=name, memory_id=memory["memory_id"])
             for entry in memory.get("about", []):
-                session.run("""MERGE (p:Person {name:$person})
-                    MERGE (m:Memory {memory_id:$memory_id})
+                session.run("""
+                    MATCH (m:Memory {memory_id:$memory_id})
+                    MERGE (p:Person {name:$person})
                     MERGE (p)-[r:CONCERNS]->(m)
-                    SET r.reported_by=$reported_by, r.what_was_said=$what_was_said""",
-                    person=entry["person"], reported_by=entry["reported_by"], what_was_said=entry["what_was_said"], memory_id=memory["memory_id"])
+                    SET r.reported_by=$reported_by, r.what_was_said=$what_was_said
+                """, person=entry["person"], reported_by=entry["reported_by"], what_was_said=entry["what_was_said"], memory_id=memory["memory_id"])
             for entity in memory.get("entities", []):
-                session.run("""MERGE (e:Entity {type:$type, text:$text})
-                    MERGE (m:Memory {memory_id:$memory_id})-[:MENTIONS]->(e)""", type=entity["type"], text=entity["text"], memory_id=memory["memory_id"])
+                session.run("""
+                    MATCH (m:Memory {memory_id:$memory_id})
+                    MERGE (e:Entity {type:$type, text:$text})
+                    MERGE (m)-[:MENTIONS]->(e)
+                """, type=entity["type"], text=entity["text"], memory_id=memory["memory_id"])
 
     def get_direct(self, person_name: str, limit: int = 5) -> list[dict]:
         with self.driver.session() as session:

@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 /// This is intentionally separate from WhoIsThisCameraScreen: it records a
 /// 10-second video with audio for backend active-speaker detection.
 class UnknownVoiceCameraScreen extends StatefulWidget {
-  const UnknownVoiceCameraScreen({super.key, this.captureSeconds = 10});
+  const UnknownVoiceCameraScreen({super.key, this.captureSeconds = 3});
 
   final int captureSeconds;
 
@@ -18,7 +18,7 @@ class UnknownVoiceCameraScreen extends StatefulWidget {
 
 class _UnknownVoiceCameraScreenState extends State<UnknownVoiceCameraScreen> {
   CameraController? _controller;
-  int _secondsRemaining = 10;
+  int _secondsRemaining = 3;
   String? _error;
 
   @override
@@ -39,7 +39,7 @@ class _UnknownVoiceCameraScreenState extends State<UnknownVoiceCameraScreen> {
       final controller = CameraController(
         camera,
         ResolutionPreset.medium,
-        enableAudio: true,
+        enableAudio: false,
       );
       await controller.initialize();
       if (!mounted) {
