@@ -1,12 +1,15 @@
 """Consolidate closed events into durable LLM-synthesized memories."""
 from __future__ import annotations
 import json
+import logging
 import uuid
 from collections.abc import Callable, Iterable
 from datetime import datetime, timedelta, timezone
 from typing import Any
 from app.events.db import get_connection, get_event, init_db, list_events
 from app.memory.store import MemoryStore
+
+LOGGER = logging.getLogger(__name__)
 
 BATCH_INTERVAL_SECONDS = 5 * 60
 MEMORY_CATEGORIES = {"identity", "relationship", "commitment", "significant_event", "preference", "routine_update"}
@@ -184,13 +187,53 @@ def _get_valid_merge_target(result: dict, memory_store: MemoryStore) -> dict:
         )
     return existing
 
+def _extract_deberta_entities(text: str) -> list[dict[str, str]]:
+    """Run DeBERTa NER on raw summary text only, catching exceptions gracefully."""
+    if not text or not isinstance(text, str) or not text.strip():
+        return []
+    try:
+        from services.ner_service import extract_entities
+        return extract_entities(text)
+    except ImportError:
+        import sys
+        from pathlib import Path
+        backend_dir = str(Path(__file__).resolve().parents[2])
+        if backend_dir not in sys.path:
+            sys.path.insert(0, backend_dir)
+        try:
+            from services.ner_service import extract_entities
+            return extract_entities(text)
+        except Exception:
+            LOGGER.exception("[consolidation] DeBERTa entity extraction failed")
+            return []
+    except Exception:
+        LOGGER.exception("[consolidation] DeBERTa entity extraction failed")
+        return []
+
 def apply_batch_response(results: list[dict], events_by_id: dict[str, dict], memory_store: MemoryStore, batch_processing_time: datetime | None = None) -> None:
     """Derive all time fields from source events; never trust LLM timestamps."""
     processed_at = (batch_processing_time or utc_now()).isoformat()
     for result in results:
         source_events = [events_by_id[event_id] for event_id in result["source_events"]]
+        llm_entities = result.get("llm_entities", result.get("entities", []))
         if result["action"] == "new":
-            memory_store.create({"memory_id": str(uuid.uuid4()), "category": result["category"], "summary": result["summary"], "participants": result["participants"], "about": result.get("about", []), "source_events": result["source_events"], "earliest_event_time": _iso(min(source_events, key=lambda e: _dt(e["start"]))["start"]), "latest_event_time": _iso(max(source_events, key=lambda e: _dt(e["end"]))["end"]), "importance": result["importance"], "entities": result["entities"], "topic": result.get("topic"), "emotion": result.get("emotion", "neutral"), "created_at": processed_at, "updated_at": processed_at})
+            memory_store.create({
+                "memory_id": str(uuid.uuid4()),
+                "category": result["category"],
+                "summary": result["summary"],
+                "participants": result["participants"],
+                "about": result.get("about", []),
+                "source_events": result["source_events"],
+                "earliest_event_time": _iso(min(source_events, key=lambda e: _dt(e["start"]))["start"]),
+                "latest_event_time": _iso(max(source_events, key=lambda e: _dt(e["end"]))["end"]),
+                "importance": result["importance"],
+                "entities": result["entities"],
+                "llm_entities": llm_entities,
+                "topic": result.get("topic"),
+                "emotion": result.get("emotion", "neutral"),
+                "created_at": processed_at,
+                "updated_at": processed_at,
+            })
             continue
         existing = _get_valid_merge_target(result, memory_store)
         existing["summary"], existing["emotion"] = result["summary"], result.get("emotion", existing.get("emotion", "neutral"))
@@ -200,6 +243,8 @@ def apply_batch_response(results: list[dict], events_by_id: dict[str, dict], mem
         all_sources = [events_by_id[event_id] for event_id in existing["source_events"]]
         existing["earliest_event_time"] = _iso(min(all_sources, key=lambda e: _dt(e["start"]))["start"])
         existing["latest_event_time"] = _iso(max(all_sources, key=lambda e: _dt(e["end"]))["end"])
+        existing["entities"] = result["entities"]
+        existing["llm_entities"] = llm_entities
         existing["updated_at"] = processed_at
         memory_store.update(existing)
 
@@ -259,6 +304,16 @@ class MemoryConsolidator:
         except Exception as error:
             self._record_audit(prompt, response_text, events, applied_at, "failed", str(error))
             raise
+
+        for result in results:
+            # Preserve original entities extracted by LLM for comparison/tallying
+            result["llm_entities"] = result.get("entities", [])
+            # Extract entities using fine-tuned DeBERTa model purely from the summary text
+            summary_text = result.get("summary", "")
+            deberta_entities = _extract_deberta_entities(summary_text)
+            result["model_entities"] = deberta_entities
+            # Use model-extracted entities for DB / Neo4j storage
+            result["entities"] = deberta_entities
         all_events = {e["event_id"]: e for e in events}
         for result in results:
             if result["action"] == "merge":

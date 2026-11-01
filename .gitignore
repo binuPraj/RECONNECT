@@ -60,7 +60,6 @@ android/app/release/
 # ── Backend runtime data (recordings, streams, audio, databases) ──
 # These are large runtime artifacts that should not be in version control.
 backend/uploads/
-backend copy 2/
 
 
 # Backend debug/temp artifacts
@@ -68,14 +67,24 @@ backend/asd_output.json
 backend/debug_overlay*.mp4
 backend/debug_raw_cleaned_diarization.py
 backend/output/
+backend/data/
 backend/notes/
 backend/audio/
 backend/diarised_segments/
 backend/activity/
 backend/trigger/
+backend/database/
 backend/vision/
+backend/reconnect.db
 backend/*.ses
 **/_memory_.ses
 
 # macOS metadata folders (created when zipping on Mac)
 __MACOSX/
+
+# Model weights and checkpoints
+/models/
+*.safetensors
+*.pt
+*.pth
+*.bin

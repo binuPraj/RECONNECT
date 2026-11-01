@@ -341,7 +341,8 @@ async def dashboard():
         f"<dt>Absent third parties / provenance</dt><dd><pre>{html.escape(json.dumps(memory.get('about', []), indent=2))}</pre></dd>"
         f"<dt>Source events</dt><dd>{html.escape(json.dumps(memory['source_events']))}</dd><dt>Earliest event time</dt><dd>{html.escape(memory['earliest_event_time'])}</dd>"
         f"<dt>Latest event time</dt><dd>{html.escape(memory['latest_event_time'])}</dd><dt>Importance</dt><dd>{html.escape(memory['importance'])}</dd>"
-        f"<dt>Entities</dt><dd><pre>{html.escape(json.dumps(memory['entities'], indent=2))}</pre></dd><dt>Topic</dt><dd>{html.escape(str(memory.get('topic')))}</dd>"
+        f"<dt>DeBERTa Entities (Neo4j/DB)</dt><dd><pre>{html.escape(json.dumps(memory.get('entities', []), indent=2))}</pre></dd>"
+        f"<dt>LLM Entities (for tallying)</dt><dd><pre>{html.escape(json.dumps(memory.get('llm_entities', []), indent=2))}</pre></dd><dt>Topic</dt><dd>{html.escape(str(memory.get('topic')))}</dd>"
         f"<dt>Emotion</dt><dd>{html.escape(memory.get('emotion', 'neutral'))}</dd><dt>Created at</dt><dd>{html.escape(memory['created_at'])}</dd>"
         f"<dt>Updated at</dt><dd>{html.escape(memory['updated_at'])}</dd></dl></details>"
         for memory in memories

@@ -115,3 +115,90 @@ def test_merge_rejects_a_category_mismatch(tmp_path):
         assert "Cannot merge relationship memory into identity memory" in str(error)
     else:
         raise AssertionError("A relationship must never merge into an identity memory")
+
+
+def test_deberta_and_llm_entities_storage_and_tallying(tmp_path):
+    class RecordingGraph:
+        def __init__(self): self.writes = []
+        def write_memory(self, memory): self.writes.append(memory.copy())
+    class RecordingVector:
+        def __init__(self): self.upserts = []
+        def upsert(self, memory_id, summary): self.upserts.append((memory_id, summary))
+
+    graph, vector = RecordingGraph(), RecordingVector()
+    store = GraphVectorMemoryStore(SQLiteMemoryStore(tmp_path / "memory.db"), graph, vector)
+    event = make_event("event-1", "2026-01-01T12:00:00+00:00", "2026-01-01T12:05:00+00:00")
+
+    deberta_entities = [
+        {"type": "ORGANIZATION", "text": "ABC Company"},
+        {"type": "TIME", "text": "3pm"},
+        {"type": "PERSON", "text": "Binu"},
+    ]
+    llm_entities = [
+        {"type": "PERSON", "text": "Binu"},
+    ]
+
+    mem_result = result(
+        "new",
+        ["event-1"],
+        summary="Binu works at ABC Company at 3pm.",
+        entities=deberta_entities,
+        llm_entities=llm_entities,
+    )
+
+    apply_batch_response([mem_result], {"event-1": event}, store)
+    saved = store.primary.list_all()[0]
+
+    # Model entities used for graph and primary entities
+    assert saved["entities"] == deberta_entities
+    # LLM entities preserved for side-by-side tallying
+    assert saved["llm_entities"] == llm_entities
+    # Graph store received DeBERTa entities
+    assert graph.writes[0]["entities"] == deberta_entities
+
+
+def test_consolidation_runs_deberta_on_summary_only(monkeypatch, tmp_path):
+    from app.memory.consolidation import MemoryConsolidator
+
+    passed_texts = []
+    def fake_extract(text: str):
+        passed_texts.append(text)
+        return [{"type": "ORGANIZATION", "text": "MockOrg"}]
+
+    monkeypatch.setattr("app.memory.consolidation._extract_deberta_entities", fake_extract)
+
+    store = SQLiteMemoryStore(tmp_path / "memory.db")
+    consolidator = MemoryConsolidator(store)
+
+    event = make_event("evt-1", "2026-01-01T12:00:00+00:00", "2026-01-01T12:05:00+00:00")
+
+    def fake_llm(prompt: str):
+        return [
+            {
+                "action": "new",
+                "category": "significant_event",
+                "summary": "Meeting at MockOrg headquarters.",
+                "participants": ["kris"],
+                "about": [],
+                "source_events": ["evt-1"],
+                "importance": "high",
+                "entities": [{"type": "PLACE", "text": "MockOrg"}],
+                "emotion": "calm",
+            }
+        ]
+
+    results = consolidator.run(fake_llm, events=[event])
+
+    # DeBERTa received ONLY the summary text
+    assert passed_texts == ["Meeting at MockOrg headquarters."]
+    # LLM entities preserved for tallying
+    assert results[0]["llm_entities"] == [{"type": "PLACE", "text": "MockOrg"}]
+    # DeBERTa entities assigned to model_entities and entities
+    assert results[0]["model_entities"] == [{"type": "ORGANIZATION", "text": "MockOrg"}]
+    assert results[0]["entities"] == [{"type": "ORGANIZATION", "text": "MockOrg"}]
+
+    # In SQLite, entities is DeBERTa and llm_entities is LLM
+    saved = store.list_all()[0]
+    assert saved["entities"] == [{"type": "ORGANIZATION", "text": "MockOrg"}]
+    assert saved["llm_entities"] == [{"type": "PLACE", "text": "MockOrg"}]
+
