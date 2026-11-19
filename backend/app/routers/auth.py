@@ -3,9 +3,11 @@
 Supports caregiver registration, patient registration, multi-actor login,
 and token-based session management backed by SQLite database.
 """
+import asyncio
+import logging
 from typing import Literal, Optional
 
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from database.db import (
@@ -18,6 +20,7 @@ from database.db import (
 )
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+LOGGER = logging.getLogger(__name__)
 
 
 class CaregiverRegistration(BaseModel):
@@ -76,7 +79,7 @@ def register_caregiver(payload: CaregiverRegistration):
 
 
 @router.post("/patients/register", status_code=201)
-def register_patient(payload: PatientRegistration):
+async def register_patient(payload: PatientRegistration, request: Request):
     try:
         patient_id = create_patient(**payload.model_dump())
     except Exception as exc:
@@ -85,6 +88,18 @@ def register_patient(payload: PatientRegistration):
         raise
     if patient_id is None:
         raise HTTPException(status_code=422, detail="No caregiver account exists for that phone number.")
+    graph_store = getattr(request.app.state, "graph_store", None)
+    if graph_store is not None:
+        try:
+            await asyncio.to_thread(
+                graph_store.upsert_patient,
+                patient_id=patient_id,
+                patient_name=payload.full_name,
+            )
+        except Exception:
+            # SQLite registration remains valid if optional Neo4j is offline;
+            # startup will seed the canonical patient node later.
+            LOGGER.exception("[auth] Failed to seed patient graph node for patient %s", patient_id)
     return {"id": patient_id, "patient_code": f"PT{patient_id:04d}", "registered": True}
 
 

@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:record/record.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -18,7 +18,7 @@ class AudioStreamingService {
   static const int _sampleRate = 16000;
   static const int _channels = 1;
 
-  Future<void> start(String wsUrl) async {
+  Future<void> start(String wsUrl, {int? patientId}) async {
     final hasPermission = await _recorder.hasPermission();
     if (!hasPermission) throw Exception('Microphone permission denied');
 
@@ -30,6 +30,7 @@ class AudioStreamingService {
         'sample_rate': _sampleRate,
         'channels': _channels,
         'encoding': 'pcm_s16le',
+        'patient_id': patientId,
       }),
     );
 
@@ -56,6 +57,15 @@ class AudioStreamingService {
 
   void _handleServerMessage(dynamic message) {
     final data = jsonDecode(message as String);
+
+    if (data['event'] == 'stream_closed') {
+      _events.add({'event': 'stream_closed'});
+      return;
+    }
+    if (data['event'] == 'capture_queue_ready') {
+      _events.add({'event': 'capture_queue_ready'});
+      return;
+    }
 
     if (data['received'] != true) {
       // Server rejected something — stop to avoid a silent broken stream
@@ -91,10 +101,34 @@ class AudioStreamingService {
     _isStreaming = false;
     await _micSubscription?.cancel();
     await _recorder.stop();
-    await _serverMessages?.cancel();
-    await _channel?.sink.close();
     _pendingQueue.clear();
     _awaitingAck = false;
+
+    if (_channel != null) {
+      try {
+        _channel!.sink.add(jsonEncode({'action': 'flush_and_stop'}));
+      } catch (e) {
+        debugPrint('[STREAM] Error sending flush_and_stop: $e');
+        await disconnect();
+      }
+    }
+  }
+
+  Future<void> disconnect() async {
+    await _serverMessages?.cancel();
+    await _channel?.sink.close();
+    _channel = null;
+  }
+
+  /// Tell the backend that every queued unknown-voice camera capture has
+  /// finished, so it may safely close this microphone session.
+  Future<void> completeCaptureQueue() async {
+    if (_channel == null) return;
+    try {
+      _channel!.sink.add(jsonEncode({'action': 'capture_queue_complete'}));
+    } catch (e) {
+      debugPrint('[STREAM] Error acknowledging completed capture queue: $e');
+    }
   }
 
   bool get isStreaming => _isStreaming;
@@ -103,6 +137,7 @@ class AudioStreamingService {
 
   Future<void> dispose() async {
     await stop();
+    await disconnect();
     await _recorder.dispose();
     await _events.close();
   }

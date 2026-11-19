@@ -111,6 +111,7 @@ def run_audio_pipeline(
     progress_callback: PipelineProgressCallback | None = None,
     identity_callback: IdentityCallback | None = None,
     identity_resolution_barrier: SessionIdentityResolutionBarrier | None = None,
+    patient_id: int | None = None,
 ) -> AudioPerceptionResult:
     """
     Run the complete RECONNECT audio perception pipeline.
@@ -403,7 +404,7 @@ def run_audio_pipeline(
                     # Use a higher threshold (0.62) so different people in the same
                     # room don't collapse into the same unenrolled_ID.
                     match_row, match_score = find_matching_unenrolled_voice(
-                        embedding, threshold=0.60
+                        embedding, threshold=0.60, patient_id=patient_id
                     )
                     if match_row is not None:
                         un_id = match_row["id"]
@@ -434,7 +435,9 @@ def run_audio_pipeline(
                                 "has_face": status == "unenrolled_with_face",
                             })
                     else:
-                        new_id = create_unenrolled_identity(voice_embedding=embedding)
+                        new_id = create_unenrolled_identity(
+                            voice_embedding=embedding, patient_id=patient_id
+                        )
                         identity = f"unenrolled_{new_id}"
                         un_id = new_id
                         status = "new_unenrolled"

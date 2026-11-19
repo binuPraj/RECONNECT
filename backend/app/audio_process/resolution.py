@@ -7,62 +7,48 @@ from app.utils.storage import STREAMS_FOLDER
 
 logger = logging.getLogger(__name__)
 
-def backfill_unenrolled_transcripts(unenrolled_id: int, enrolled_name: str):
+def backfill_unenrolled_transcripts(unenrolled_id: int, enrolled_name: str) -> int:
     """
     Update historical transcript segments tagged with unenrolled_{id} to the new enrolled_name.
     Touches STREAMS_FOLDER/*/transcript.json and STREAMS_FOLDER/*/recording_*/segments/segments.json.
     """
     target_ident = f"unenrolled_{unenrolled_id}"
     
-    # Iterate all sessions
+    changed_files = 0
+
+    def replace_identity(value):
+        nonlocal changed_files
+        if isinstance(value, dict):
+            for key, entry in value.items():
+                if key in {"speaker", "speaker_identity"} and entry == target_ident:
+                    value.setdefault("original_speaker_identity", target_ident)
+                    value[key] = enrolled_name
+                    changed_files += 1
+                elif key == "participants" and isinstance(entry, list):
+                    value[key] = list(dict.fromkeys(enrolled_name if item == target_ident else item for item in entry))
+                else:
+                    replace_identity(entry)
+        elif isinstance(value, list):
+            for entry in value:
+                replace_identity(entry)
+
+    # Iterate all historical JSON artefacts, including chunk metadata.
     for session_dir in STREAMS_FOLDER.iterdir():
         if not session_dir.is_dir():
             continue
-            
-        # Update session-level transcript.json
-        transcript_path = session_dir / "transcript.json"
-        if transcript_path.exists():
+        for json_path in session_dir.rglob("*.json"):
             try:
-                with open(transcript_path, "r", encoding="utf-8") as f:
+                with open(json_path, "r", encoding="utf-8") as f:
                     data = json.load(f)
-                
-                changed = False
-                for seg in data.get("segments", []):
-                    if seg.get("speaker_identity") == target_ident:
-                        seg["speaker_identity"] = enrolled_name
-                        seg["speaker"] = enrolled_name
-                        changed = True
-                        
-                if changed:
-                    with open(transcript_path, "w", encoding="utf-8") as f:
+                before = changed_files
+                replace_identity(data)
+                if changed_files != before:
+                    with open(json_path, "w", encoding="utf-8") as f:
                         json.dump(data, f, indent=2, sort_keys=True)
-                    logger.info("Backfilled %s in %s", target_ident, transcript_path)
+                    logger.info("Backfilled %s in %s", target_ident, json_path)
             except Exception as e:
-                logger.error("Failed to backfill %s: %s", transcript_path, e)
-                
-        # Update recording-level segments.json
-        for recording_dir in session_dir.iterdir():
-            if not recording_dir.is_dir() or not recording_dir.name.startswith("recording_"):
-                continue
-                
-            segments_json_path = recording_dir / "segments" / "segments.json"
-            if segments_json_path.exists():
-                try:
-                    with open(segments_json_path, "r", encoding="utf-8") as f:
-                        data = json.load(f)
-                    
-                    changed = False
-                    for seg in data.get("segments", []):
-                        if seg.get("speaker_identity") == target_ident:
-                            seg["speaker_identity"] = enrolled_name
-                            seg["speaker"] = enrolled_name
-                            changed = True
-                            
-                    if changed:
-                        with open(segments_json_path, "w", encoding="utf-8") as f:
-                            json.dump(data, f, indent=2, sort_keys=True)
-                except Exception as e:
-                    logger.error("Failed to backfill %s: %s", segments_json_path, e)
+                logger.error("Failed to backfill %s: %s", json_path, e)
+    return changed_files
 
 
 def cascade_resolve_unenrolled(enrolled_id: int, enrolled_name: str, new_embedding, session_id: str, max_cascades: int = 5):

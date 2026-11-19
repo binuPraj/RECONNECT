@@ -26,6 +26,7 @@ from app.audio_stream.noise_profile import SessionNoiseProfile
 from app.audio_stream.speech_segment import FinalizedSpeechSegment
 from app.schemas.audio import AudioPerceptionResult, AudioSegment, StreamSegmentInfo
 from app.utils.storage import get_stream_session_folder
+from database.db import get_unenrolled_identity
 
 
 LOGGER = logging.getLogger(__name__)
@@ -44,11 +45,13 @@ class StreamingSegmentProcessor:
     def __init__(
         self,
         session_id: str,
+        patient_id: int | None = None,
         pipeline_runner: PipelineRunner = run_audio_pipeline,
         transcriber: Transcriber | None = None,
         identity_callback: IdentityCallback | None = None,
     ):
         self.session_id = session_id
+        self.patient_id = patient_id
         self.session_dir = get_stream_session_folder(session_id)
         self._pipeline_runner = pipeline_runner
         self._transcriber = transcriber if transcriber is not None else transcribe_wav
@@ -59,8 +62,13 @@ class StreamingSegmentProcessor:
         self._session_transcript_by_recording: dict[int, list[dict[str, object]]] = {}
         self._identity_resolution_barrier = SessionIdentityResolutionBarrier()
         self._last_video_trigger_ts = 0.0
+        self._last_video_trigger_by_id: dict[int, float] = {}
+        # One request per unknown identity per live microphone session. A new
+        # session can request again only if the previous visual binding failed.
+        self._capture_requested_ids: set[int] = set()
         self._video_cooldown_sec = float(os.getenv("VIDEO_TRIGGER_COOLDOWN_SEC", "0.0"))
         self._unknown_count = 0
+        self._process_lock = asyncio.Lock()
 
     def add_confirmed_idle_audio(self, data: bytes) -> None:
         """Learn current background sound from live VAD-confirmed silence."""
@@ -100,8 +108,22 @@ class StreamingSegmentProcessor:
         segment: FinalizedSpeechSegment,
         session_noise_profile: np.ndarray | None,
     ) -> None:
+        async with self._process_lock:
+            await self._process_locked(segment, session_noise_profile)
+
+    async def _process_locked(
+        self,
+        segment: FinalizedSpeechSegment,
+        session_noise_profile: np.ndarray | None,
+    ) -> None:
         started_at = time.perf_counter()
         recording_dir = self._recording_dir(segment)
+        LOGGER.info(
+            "[PIPELINE] starting session=%s recording=%s duration=%.3fs",
+            self.session_id,
+            segment.segment_id,
+            segment.duration_sec,
+        )
         try:
             original_path, cleaned_path, segments_dir = await asyncio.to_thread(
                 self._save_segment,
@@ -131,6 +153,7 @@ class StreamingSegmentProcessor:
                 progress_callback=self._pipeline_progress(segment, started_at),
                 identity_callback=self._identity_callback,
                 identity_resolution_barrier=self._identity_resolution_barrier,
+                patient_id=self.patient_id,
             )
 
             # Check for unknown speakers that need video capture (no face linked yet)
@@ -140,21 +163,49 @@ class StreamingSegmentProcessor:
             ]
             if unknown_needing_video:
                 self._unknown_count += len(unknown_needing_video)
-                target_ident = unknown_needing_video[0].speaker_identity
-                target_un_id = None
-                if target_ident and target_ident.startswith("unenrolled_"):
-                    try:
-                        target_un_id = int(target_ident.split("_")[1])
-                    except ValueError:
-                        pass
-
-                LOGGER.info(
-                    "[PIPELINE] session=%s recording=%s unknown=%s (needs face enrollment)",
-                    self.session_id,
-                    segment.segment_id,
-                    target_ident,
-                )
-                self._maybe_trigger_video_capture(target_unenrolled_id=target_un_id)
+                seen_un_ids: set[int] = set()
+                for unknown_segment in unknown_needing_video:
+                    target_ident = unknown_segment.speaker_identity
+                    target_un_id = None
+                    if target_ident and target_ident.startswith("unenrolled_"):
+                        try:
+                            target_un_id = int(target_ident.split("_")[1])
+                        except ValueError:
+                            pass
+                    if target_un_id is not None and target_un_id not in seen_un_ids:
+                        seen_un_ids.add(target_un_id)
+                        identity = get_unenrolled_identity(target_un_id)
+                        # A voice identity needs only one successful visual
+                        # binding. Reopening the camera for a row that already
+                        # has both values wastes a capture and can overwrite a
+                        # better existing face with a blurred one.
+                        if identity and identity.get("face_embedding") is not None and identity.get("face_image") is not None:
+                            LOGGER.info(
+                                "[PIPELINE] session=%s recording=%s unknown=%s already has a face binding; camera trigger skipped",
+                                self.session_id,
+                                segment.segment_id,
+                                target_ident,
+                            )
+                            continue
+                        if target_un_id in self._capture_requested_ids:
+                            LOGGER.info(
+                                "[PIPELINE] session=%s recording=%s unknown=%s already queued for camera; trigger skipped",
+                                self.session_id,
+                                segment.segment_id,
+                                target_ident,
+                            )
+                            continue
+                        self._capture_requested_ids.add(target_un_id)
+                        LOGGER.info(
+                            "[PIPELINE] session=%s recording=%s unknown=%s (needs face enrollment)",
+                            self.session_id,
+                            segment.segment_id,
+                            target_ident,
+                        )
+                        self._maybe_trigger_video_capture(
+                            target_unenrolled_id=target_un_id,
+                            recording_id=segment.segment_id,
+                        )
 
             # Recognition labels speakers first; transcription runs on those clips.
             transcript_rows = await asyncio.to_thread(
@@ -185,7 +236,8 @@ class StreamingSegmentProcessor:
                             speaker=seg["speaker"],
                             start=seg["start"],
                             end=seg["end"],
-                            text=seg.get("text", "")
+                        text=seg.get("text", ""),
+                        patient_id=self.patient_id,
                         )
                         process_segment(gs)
 
@@ -267,27 +319,42 @@ class StreamingSegmentProcessor:
                 self.session_id, segment.segment_id
             )
 
-    def _maybe_trigger_video_capture(self, target_unenrolled_id: int | None = None) -> None:
+    def _maybe_trigger_video_capture(
+        self,
+        target_unenrolled_id: int | None = None,
+        recording_id: int | None = None,
+    ) -> None:
         """Notify client phone to record unknown voice video capture."""
         now = time.time()
-        if self._video_cooldown_sec > 0 and (now - self._last_video_trigger_ts < self._video_cooldown_sec):
+        last_id_ts = (
+            self._last_video_trigger_by_id.get(target_unenrolled_id)
+            if target_unenrolled_id is not None
+            else self._last_video_trigger_ts
+        )
+        if self._video_cooldown_sec > 0 and (last_id_ts is not None and now - last_id_ts < self._video_cooldown_sec):
             LOGGER.debug(
-                "[PIPELINE] video_trigger=suppressed_cooldown remaining=%.1fs",
-                self._video_cooldown_sec - (now - self._last_video_trigger_ts),
+                "[PIPELINE] video_trigger=suppressed_cooldown unenrolled_id=%s remaining=%.1fs",
+                target_unenrolled_id,
+                self._video_cooldown_sec - (now - last_id_ts),
             )
             return
 
         self._last_video_trigger_ts = now
+        if target_unenrolled_id is not None:
+            self._last_video_trigger_by_id[target_unenrolled_id] = now
         LOGGER.info(
-            "[TRIGGER] Unknown speaker detected (session=%s, unenrolled_id=%s). Requesting phone camera capture...",
+            "[TRIGGER] Unknown speaker detected (session=%s, recording=%s, unenrolled_id=%s). Requesting phone camera capture...",
             self.session_id,
+            recording_id,
             target_unenrolled_id,
         )
-        print(f"\n📸 [TRIGGER] Unknown voice detected (unenrolled_id={target_unenrolled_id}) -> Requesting phone camera capture...\n")
+        print(f"\n📸 [TRIGGER] Unknown voice detected (recording={recording_id}, unenrolled_id={target_unenrolled_id}) -> Requesting phone camera capture...\n")
         if self._identity_callback is not None:
             self._identity_callback({
                 "event": "unknown_voice_capture_requested",
                 "unenrolled_id": target_unenrolled_id,
+                "recording_id": recording_id,
+                "capture_seconds": 3,
             })
 
     def _save_segment(

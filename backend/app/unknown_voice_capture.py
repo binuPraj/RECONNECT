@@ -128,12 +128,32 @@ def process_unknown_voice_video(
         pass
 
     vision_frames = _extract_first_second_frames(video_path)
-    vision_results = WhoIsThisPipeline().process_frames(
+    vision_pipeline = WhoIsThisPipeline()
+    vision_results = vision_pipeline.process_frames(
         vision_frames,
         capture_seconds=1.0,
+        save_unknowns=False,
     )
     save_results(vision_results)
     vision_people = vision_results.get("people", [])
+    unknown_people = [
+        person for person in vision_people
+        if person.get("status") in {"new_unknown", "existing_unknown"}
+    ]
+    fallback_face_embedding = fallback_face_image = None
+    fallback_face_id = None
+    if unknown_people:
+        # A single person can be split into temporary visual clusters by
+        # lighting or blur. Use the most-observed unknown face rather than
+        # rejecting the capture unless there is exactly one cluster.
+        primary_unknown = max(
+            unknown_people,
+            key=lambda person: person.get("observation_count", 0),
+        )
+        fallback_face_id = primary_unknown.get("entity_id")
+        fallback_face_embedding, fallback_face_image = vision_pipeline.best_unknown_face(
+            fallback_face_id
+        )
 
     enrolled_voices: dict[str, torch.Tensor] = {}
     for identity in get_all_identities():
@@ -145,6 +165,8 @@ def process_unknown_voice_video(
                     embeddings[-1], dtype=torch.float32
                 )
 
+    results = None
+    registry = None
     try:
         from activity.test_realtime import run_pipeline as run_activity_pipeline
         results = run_activity_pipeline(
@@ -154,21 +176,11 @@ def process_unknown_voice_video(
             output_path="asd_output.json",
         )
     except Exception as exc:
-        return {
-            "status": "no_face_link",
-            "unenrolled_id": target_unenrolled_id,
-            "reason": f"Activity pipeline error: {exc}",
-        }
+        print(f"[unknown-voice] ASD unavailable ({exc}); using visual capture fallback.")
+    else:
+        registry = getattr(results, "registry", None)
 
-    registry = getattr(results, "registry", None)
-    if not isinstance(results, list):
-        return {
-            "status": "no_face_link",
-            "unenrolled_id": target_unenrolled_id,
-            "reason": "No active speaker turn was available for voice-face binding.",
-        }
-
-    for turn in results:
+    for turn in results if isinstance(results, list) else []:
         raw_voice = turn.get("voice_embedding")
         if raw_voice is None:
             continue
@@ -196,7 +208,7 @@ def process_unknown_voice_video(
         )
         if face_embedding is None:
             continue
-        image = _best_face_image(vision_people, face_id)
+        image = _best_face_image(vision_people, face_id) or fallback_face_image
         update_unenrolled_face(target_unenrolled_id, face_embedding, face_image=image)
         return {
             "status": "bound",
@@ -205,8 +217,24 @@ def process_unknown_voice_video(
             "face_image_saved": image is not None,
         }
 
+    # The phone camera was opened for this exact voice profile. If ASD cannot
+    # confirm a speaking turn, bind the dominant detected unknown face.
+    if fallback_face_embedding is not None:
+        update_unenrolled_face(
+            target_unenrolled_id,
+            fallback_face_embedding,
+            face_image=fallback_face_image,
+        )
+        return {
+            "status": "bound",
+            "unenrolled_id": target_unenrolled_id,
+            "face_id": fallback_face_id,
+            "face_image_saved": fallback_face_image is not None,
+            "binding_method": "dominant_face_fallback",
+        }
+
     return {
         "status": "no_face_link",
         "unenrolled_id": target_unenrolled_id,
-        "reason": "No confirmed active face was linked to the target voice.",
+        "reason": "No confirmed active face was linked and no unknown face was available.",
     }

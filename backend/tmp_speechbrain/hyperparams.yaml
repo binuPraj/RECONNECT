@@ -6,7 +6,7 @@
 n_mels: 80
 
 # Pretrain folder (HuggingFace)
-pretrained_path: C:/Users/ASUS/OneDrive/Desktop/binu/reconnect/pretrained_models/spkrec-ecapa-voxceleb
+pretrained_path: /Users/ishworshrestha/Development/RECONNECT/pretrained_models/spkrec-ecapa-voxceleb
 
 # Output parameters
 out_n_neurons: 7205

@@ -3,10 +3,20 @@
 import json
 import logging
 import os
+import sys
+
+# Prevent multiprocessing & OpenMP crashes on macOS Apple Silicon
+os.environ.setdefault("LOKY_MAX_CPU_COUNT", "1")
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+os.environ.setdefault("MKL_NUM_THREADS", "1")
+os.environ.setdefault("VECLIB_MAXIMUM_THREADS", "1")
+
 import time
 import asyncio
 import html
 import sqlite3
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from contextlib import asynccontextmanager
 
 from fastapi import Body, FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect
@@ -22,7 +32,7 @@ from app.memory.graph_store import GraphStore, GraphVectorMemoryStore, VectorSto
 from app.memory.openrouter import OpenRouterError, OpenRouterMemoryClient
 from app.memory.store import SQLiteMemoryStore
 from app.utils.storage import allocate_stream_session_id
-from database.db import init_database
+from database.db import get_all_identities, get_all_patients, get_resolved_unenrolled_identities, init_database
 from app.routers import auth as auth_router
 from app.routers import enroll as enroll_router
 from app.routers import memories as memories_router
@@ -43,6 +53,54 @@ for _noisy in ("faster_whisper", "speechbrain", "pyannote", "urllib3", "httpx", 
     logging.getLogger(_noisy).setLevel(logging.WARNING)
 
 MEMORY_SCHEDULER_INTERVAL_SECONDS = 60
+TZ = ZoneInfo("Asia/Kathmandu")
+
+
+def _display_time(value: object) -> str:
+    """Present legacy UTC and current Kathmandu ISO timestamps consistently."""
+    if not value:
+        return "—"
+    try:
+        return datetime.fromisoformat(str(value)).astimezone(TZ).isoformat()
+    except ValueError:
+        return str(value)
+
+
+def _memory_time_refs_html(memory: dict) -> str:
+    refs = []
+    for ref in memory.get("time_refs", []):
+        refs.append({
+            "phrase": ref.get("phrase"),
+            "what_was_mentioned": ref.get("what_was_mentioned"),
+            "topic": ref.get("topic"),
+            "concerned_with": ref.get("concerned_with"),
+            "commitment_by": ref.get("commitment_by"),
+            "tense": ref.get("tense"),
+            "anchor": _display_time(ref.get("anchor")),
+            "start": _display_time(ref.get("start")),
+            "end": _display_time(ref.get("end")),
+            "status": ref.get("status"),
+            "created_at": _display_time(ref.get("created_at")),
+            "last_confirmed_at": _display_time(ref.get("last_confirmed_at")),
+            "superseded_at": _display_time(ref.get("superseded_at")),
+        })
+    return html.escape(json.dumps(refs, indent=2))
+
+
+def _memory_history_html(memory: dict) -> str:
+    history = [
+        {**entry, "at": _display_time(entry.get("at"))}
+        for entry in memory.get("update_history", [])
+    ]
+    return html.escape(json.dumps(history, indent=2))
+
+
+def _memory_updated_events_html(memory: dict) -> str:
+    updates = [
+        {**entry, "event_time": _display_time(entry.get("event_time"))}
+        for entry in memory.get("updated_events", [])
+    ]
+    return html.escape(json.dumps(updates, indent=2))
 
 
 async def _run_memory_batch(app: FastAPI, force: bool = False):
@@ -77,6 +135,7 @@ async def lifespan(app: FastAPI):
     try:
         client = OpenRouterMemoryClient()
         memory_store = SQLiteMemoryStore()
+        reconciled_concerns = memory_store.reconcile_concern_entities()
         
         # Check if Neo4j and FAISS graph projection should be enabled
         neo4j_uri = os.getenv("NEO4J_URI")
@@ -90,11 +149,44 @@ async def lifespan(app: FastAPI):
                 graph_store = GraphStore.from_environment()
                 if graph_store is None:
                     raise RuntimeError("Graph memory requires NEO4J_URI, NEO4J_USER, and NEO4J_PASSWORD")
+                graph_store.ensure_schema()
+                migrated_people = graph_store.migrate_person_entities()
+                removed_mentions = graph_store.remove_person_mentions()
+                restored_entity_mentions = graph_store.restore_entity_mentions()
+                for patient in get_all_patients():
+                    graph_store.upsert_patient(
+                        patient_id=patient["id"], patient_name=patient["full_name"],
+                    )
+                for identity in get_all_identities():
+                    graph_store.upsert_biometric_person(
+                        name=identity["name"],
+                        identity_table="enrolled_identities",
+                        identity_id=identity["id"],
+                        patient_id=identity["patient_id"],
+                    )
+                    if identity["patient_id"] is not None:
+                        graph_store.reconcile_enrolled_identity_entities(
+                            patient_id=identity["patient_id"],
+                            enrolled_identity_id=identity["id"],
+                            enrolled_name=identity["name"],
+                            relation=identity["relation"],
+                        )
+                # If Neo4j was unavailable during enrollment, use the durable
+                # SQLite resolution record to remove its stale unknown node on
+                # the next successful graph startup.
+                for resolution in get_resolved_unenrolled_identities():
+                    graph_store.retire_unenrolled_person(
+                        f"unenrolled_{resolution['unenrolled_id']}",
+                        resolution["enrolled_name"],
+                    )
                 projected_store = GraphVectorMemoryStore(memory_store, graph_store, VectorStore())
                 backfilled = projected_store.backfill()
+                split_non_person_entities = graph_store.split_shared_non_person_entities()
+                graph_store.backfill_display_names()
+                pruned_entities = graph_store.prune_orphan_entities()
                 memory_store = projected_store
                 app.state.graph_store, app.state.vector_store = graph_store, projected_store.vector
-                LOGGER.info("[memory] Neo4j + FAISS memory projection enabled; backfilled %s SQLite memories", backfilled)
+                LOGGER.info("[memory] Neo4j + FAISS memory projection enabled; migrated %s legacy person entities; removed %s person mentions; restored %s entity mentions; reconciled %s concern records; backfilled %s SQLite memories; split %s shared non-person entities; pruned %s orphan entities", migrated_people, removed_mentions, restored_entity_mentions, reconciled_concerns, backfilled, split_non_person_entities, pruned_entities)
             except Exception:
                 # Graph/vector retrieval is optional: retain normal SQLite consolidation.
                 LOGGER.exception("[memory] Neo4j + FAISS projection disabled; SQLite remains active")
@@ -184,11 +276,10 @@ async def set_event_llm_status(event_id: str, payload: dict = Body(...)):
 @app.post("/events/{event_id}/close")
 async def close_event_manually(event_id: str):
     """Manually close an open event and queue it as pending for LLM memory synthesis."""
-    from datetime import datetime, timezone
     event = get_event(event_id)
     if event is None:
         raise HTTPException(status_code=404, detail="Event not found")
-    now_str = datetime.now(timezone.utc).isoformat()
+    now_str = datetime.now(TZ).isoformat()
     with get_connection() as conn:
         conn.execute(
             "UPDATE events SET status='closed', closed_at=?, llm_status='pending' WHERE event_id=?",
@@ -326,7 +417,7 @@ async def dashboard():
         event_row_list.append(
             f"<details class='record'><summary><b>{html.escape(event['status'])}</b> · LLM: <b>{html.escape(event.get('llm_status', 'not_eligible'))}</b> · {html.escape(', '.join(event['participants']))} · <code>{html.escape(event['event_id'])}</code></summary>"
             f"<dl><dt>Start</dt><dd>{html.escape(event['start'])}</dd><dt>End</dt><dd>{html.escape(event['end'])}</dd>"
-            f"<dt>Closed at</dt><dd>{html.escape(str(event.get('closed_at')))}</dd><dt>Participants</dt><dd>{html.escape(json.dumps(event['participants']))}</dd>"
+            f"<dt>Closed at</dt><dd>{html.escape(_display_time(event.get('closed_at')))}</dd><dt>Participants</dt><dd>{html.escape(json.dumps(event['participants']))}</dd>"
             f"<dt>LLM processing</dt><dd><select onchange=\"setLlmStatus('{html.escape(event['event_id'])}',this.value)\"><option value='pending' {selected_pending}>pending — queue for LLM</option><option value='processed' {selected_processed}>processed — do not resend</option><option value='skipped' {selected_skipped}>skipped — ignore for now</option><option value='not_eligible' {selected_not_eligible}>not eligible</option></select>"
             f"{close_btn}</dd>"
             f"<dt>Transcript sent to LLM (flattened)</dt><dd><pre>{html.escape(render_transcript_text(event))}</pre></dd>"
@@ -339,11 +430,12 @@ async def dashboard():
         f"<dt>Memory ID</dt><dd><code>{html.escape(memory['memory_id'])}</code></dd><dt>Category</dt><dd>{html.escape(memory['category'])}</dd>"
         f"<dt>Summary</dt><dd>{html.escape(memory['summary'])}</dd><dt>Participants</dt><dd>{html.escape(json.dumps(memory['participants']))}</dd>"
         f"<dt>Absent third parties / provenance</dt><dd><pre>{html.escape(json.dumps(memory.get('about', []), indent=2))}</pre></dd>"
-        f"<dt>Source events</dt><dd>{html.escape(json.dumps(memory['source_events']))}</dd><dt>Earliest event time</dt><dd>{html.escape(memory['earliest_event_time'])}</dd>"
-        f"<dt>Latest event time</dt><dd>{html.escape(memory['latest_event_time'])}</dd><dt>Importance</dt><dd>{html.escape(memory['importance'])}</dd>"
+        f"<dt>Source events</dt><dd>{html.escape(json.dumps(memory['source_events']))}</dd><dt>Earliest event time</dt><dd>{html.escape(_display_time(memory['earliest_event_time']))}</dd>"
+        f"<dt>Latest event time</dt><dd>{html.escape(_display_time(memory['latest_event_time']))}</dd><dt>Importance</dt><dd>{html.escape(memory['importance'])}</dd>"
         f"<dt>Entities</dt><dd><pre>{html.escape(json.dumps(memory['entities'], indent=2))}</pre></dd><dt>Topic</dt><dd>{html.escape(str(memory.get('topic')))}</dd>"
-        f"<dt>Emotion</dt><dd>{html.escape(memory.get('emotion', 'neutral'))}</dd><dt>Created at</dt><dd>{html.escape(memory['created_at'])}</dd>"
-        f"<dt>Updated at</dt><dd>{html.escape(memory['updated_at'])}</dd></dl></details>"
+        f"<dt>Time references</dt><dd><pre>{_memory_time_refs_html(memory)}</pre></dd><dt>Updated events</dt><dd><pre>{_memory_updated_events_html(memory)}</pre></dd>"
+        f"<dt>Emotion</dt><dd>{html.escape(memory.get('emotion', 'neutral'))}</dd><dt>Created at</dt><dd>{html.escape(_display_time(memory['created_at']))}</dd>"
+        f"<dt>Updated at</dt><dd>{html.escape(_display_time(memory['updated_at']))}</dd></dl></details>"
         for memory in memories
     ) or "<p>No durable memories yet.</p>"
     return f'''<!doctype html><html><head><title>RECONNECT Dashboard</title><style>
@@ -364,7 +456,7 @@ async def consolidate_memories_now():
     return {"processed_memories": len(results), "results": results}
 
 
-async def _receive_stream_format(websocket: WebSocket) -> StreamAudioFormat:
+async def _receive_stream_format(websocket: WebSocket) -> tuple[StreamAudioFormat, int | None]:
     """Read and validate the required first JSON WebSocket message."""
 
     message = await websocket.receive()
@@ -377,7 +469,15 @@ async def _receive_stream_format(websocket: WebSocket) -> StreamAudioFormat:
         raise ValueError("Format metadata must be valid JSON") from error
     if not isinstance(metadata, dict):
         raise ValueError("Format metadata must be a JSON object")
-    return StreamAudioFormat.from_message(metadata)
+    patient_id = metadata.get("patient_id")
+    if patient_id is not None:
+        try:
+            patient_id = int(patient_id)
+        except (TypeError, ValueError) as error:
+            raise ValueError("patient_id must be an integer when provided") from error
+        if patient_id <= 0:
+            raise ValueError("patient_id must be greater than zero")
+    return StreamAudioFormat.from_message(metadata), patient_id
 
 
 @app.websocket("/ws/audio")
@@ -398,20 +498,13 @@ async def audio_stream(websocket: WebSocket):
 
         loop.call_soon_threadsafe(enqueue_result)
 
-    processor = StreamingSegmentProcessor(
-        session_id,
-        identity_callback=on_identity_result,
-    )
-    recorder = StreamingSpeechRecorder(
-        on_finalized=processor.submit,
-        on_confirmed_idle_audio=processor.add_confirmed_idle_audio,
-    )
     chunk_count = source_bytes = canonical_bytes = 0
     last_progress_at = time.monotonic()
+    flush_requested = False
 
     try:
         try:
-            source_format = await _receive_stream_format(websocket)
+            source_format, patient_id = await _receive_stream_format(websocket)
         except ValueError as error:
             LOGGER.warning(
                 "[STREAM] format=rejected session=%s error=%s",
@@ -421,6 +514,16 @@ async def audio_stream(websocket: WebSocket):
             await websocket.send_json({"received": False, "error": str(error)})
             await websocket.close(code=1003)
             return
+
+        processor = StreamingSegmentProcessor(
+            session_id,
+            patient_id=patient_id,
+            identity_callback=on_identity_result,
+        )
+        recorder = StreamingSpeechRecorder(
+            on_finalized=processor.submit,
+            on_confirmed_idle_audio=processor.add_confirmed_idle_audio,
+        )
 
         LOGGER.info(
             "[STREAM] format=accepted session=%s source=%sHz/%sch/%s normalization=%s",
@@ -435,6 +538,14 @@ async def audio_stream(websocket: WebSocket):
         while True:
             message = await websocket.receive()
             if message.get("text") is not None:
+                try:
+                    payload = json.loads(message["text"])
+                    if payload.get("action") == "flush_and_stop":
+                        LOGGER.info("[STREAM] flush_and_stop received session=%s; draining pipeline...", session_id)
+                        flush_requested = True
+                        break
+                except Exception:
+                    pass
                 await websocket.send_json(
                     {"received": False, "error": "Audio format cannot change after stream start"}
                 )
@@ -506,6 +617,36 @@ async def audio_stream(websocket: WebSocket):
     finally:
         recorder.finish()
         await processor.drain()
+        while not identity_events.empty():
+            try:
+                event = identity_events.get_nowait()
+                await websocket.send_json({"received": True, "identity_result": event})
+            except Exception:
+                break
+        # Do not close immediately after sending unknown-voice capture events.
+        # The phone must first drain its camera queue and acknowledge it. This
+        # keeps the same WebSocket session alive throughout the capture flow.
+        if flush_requested:
+            try:
+                await websocket.send_json({"received": True, "event": "capture_queue_ready"})
+                LOGGER.info("[STREAM] capture queue ready session=%s; waiting for phone acknowledgement", session_id)
+                while True:
+                    message = await asyncio.wait_for(websocket.receive(), timeout=180)
+                    if message.get("text") is None:
+                        continue
+                    payload = json.loads(message["text"])
+                    if payload.get("action") == "capture_queue_complete":
+                        LOGGER.info("[STREAM] capture queue complete session=%s", session_id)
+                        break
+            except asyncio.TimeoutError:
+                LOGGER.warning("[STREAM] capture queue acknowledgement timed out session=%s", session_id)
+            except (WebSocketDisconnect, json.JSONDecodeError):
+                LOGGER.info("[STREAM] capture queue disconnected session=%s", session_id)
+        try:
+            await websocket.send_json({"received": True, "event": "stream_closed"})
+            await websocket.close(code=1000)
+        except Exception:
+            pass
         LOGGER.info(
             "[STREAM] closed session=%s chunks=%s source_bytes=%s canonical_bytes=%s",
             session_id,

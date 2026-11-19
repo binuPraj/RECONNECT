@@ -8,6 +8,7 @@ import numpy as np
 import torch
 from pyannote.audio import Pipeline
 
+import threading
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -25,6 +26,7 @@ TARGET_SAMPLE_RATE = 16000
 # Cache the loaded pipeline so the model is not loaded
 # again for every audio request.
 _pipeline = None
+_PIPELINE_LOCK = threading.Lock()
 
 
 # ---------------------------------------------------------
@@ -312,13 +314,14 @@ def diarize_audio(
             "max_speakers"
         ] = max_speakers
 
-    output = pipeline(
-        {
-            "waveform": waveform,
-            "sample_rate": sample_rate,
-        },
-        **diarization_kwargs,
-    )
+    with _PIPELINE_LOCK:
+        output = pipeline(
+            {
+                "waveform": waveform,
+                "sample_rate": sample_rate,
+            },
+            **diarization_kwargs,
+        )
 
     turns: list[DiarizationTurn] = []
 

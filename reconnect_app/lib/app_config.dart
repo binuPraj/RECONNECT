@@ -5,9 +5,9 @@ class AppConfig {
   //
   // To find your current IP: run `ipconfig` and look for "Wireless LAN adapter Wi-Fi".
   // Update _deviceHost below whenever your router assigns a different IP.
-  static const bool useSimulator = true;
+  static const bool useSimulator = false;
 
-  static const String _deviceHost = '192.168.31.136'; // ← Windows Wi-Fi LAN IP
+  static const String _deviceHost = '192.168.1.95'; // ← Windows Wi-Fi LAN IP
 
   static String get serverHost => useSimulator ? '127.0.0.1' : _deviceHost;
 

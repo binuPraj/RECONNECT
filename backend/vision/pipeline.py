@@ -154,7 +154,8 @@ class WhoIsThisPipeline:
     def process_frames(
         self,
         frames,
-        capture_seconds=CAPTURE_SECONDS
+        capture_seconds=CAPTURE_SECONDS,
+        save_unknowns=True,
     ):
 
         observations = []
@@ -474,8 +475,8 @@ class WhoIsThisPipeline:
         # ==================================================
 
         unknown_results = (
-            self.unknown_manager
-            .save_unknowns()
+            self.unknown_manager.save_unknowns()
+            if save_unknowns else []
         )
 
         unknown_map = {
@@ -560,6 +561,10 @@ class WhoIsThisPipeline:
             "timestamp":
                 time.time()
         }
+
+    def best_unknown_face(self, entity_id):
+        """Get a transient face embedding/crop without writing an unknown row."""
+        return self.unknown_manager.best_face_for_entity(entity_id)
 
 
 # ==================================================

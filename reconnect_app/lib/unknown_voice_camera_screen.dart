@@ -8,9 +8,16 @@ import 'package:flutter/material.dart';
 /// This is intentionally separate from WhoIsThisCameraScreen: it records a
 /// 10-second video with audio for backend active-speaker detection.
 class UnknownVoiceCameraScreen extends StatefulWidget {
-  const UnknownVoiceCameraScreen({super.key, this.captureSeconds = 3});
+  const UnknownVoiceCameraScreen({
+    super.key,
+    this.captureSeconds = 3,
+    this.unenrolledId,
+    this.recordingId,
+  });
 
   final int captureSeconds;
+  final int? unenrolledId;
+  final int? recordingId;
 
   @override
   State<UnknownVoiceCameraScreen> createState() => _UnknownVoiceCameraScreenState();
@@ -100,13 +107,30 @@ class _UnknownVoiceCameraScreenState extends State<UnknownVoiceCameraScreen> {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(12),
-                        child: Text(
-                          'Capturing voice and video: $_secondsRemaining s remaining',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (widget.recordingId != null || widget.unenrolledId != null) ...[
+                              Text(
+                                'Recording #${widget.recordingId ?? '?'}: Unknown Voice (${widget.unenrolledId != null ? 'unenrolled_${widget.unenrolledId}' : 'Unknown'})',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Colors.amberAccent,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                            ],
+                            Text(
+                              'Capturing voice and video: $_secondsRemaining s remaining',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),

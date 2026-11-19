@@ -68,6 +68,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
   Future<void> _startEnrollPerson({
     List<File> initialPhotos = const [],
     int? pendingUnknownId,
+    int? unenrolledId,
   }) async {
     final result = await Navigator.push<_PersonEnrollmentResult>(
       context,
@@ -75,6 +76,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
         builder: (_) => _EnrollPersonForm(
           initialPhotos: initialPhotos,
           pendingUnknownId: pendingUnknownId,
+          unenrolledId: unenrolledId,
         ),
       ),
     );
@@ -92,6 +94,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
         photos: result.photos,
         voiceSamples: result.voiceSamples,
         pendingUnknownId: result.pendingUnknownId,
+        unenrolledId: result.unenrolledId,
       );
 
       if (!mounted) return;
@@ -146,12 +149,13 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                         ? FutureBuilder<String?>(
                             future: BackendApi.token,
                             builder: (context, snapshot) {
+                              if (!snapshot.hasData || snapshot.data == null) {
+                                return const CircleAvatar(child: Icon(Icons.person));
+                              }
                               return ClipOval(
                                 child: Image.network(
                                   '${AppConfig.httpBaseUrl}${person.photoUrl}',
-                                  headers: snapshot.data == null
-                                      ? null
-                                      : {'Authorization': 'Bearer ${snapshot.data}'},
+                                  headers: {'Authorization': 'Bearer ${snapshot.data}'},
                                   width: 48,
                                   height: 48,
                                   fit: BoxFit.cover,
@@ -217,24 +221,16 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
       ),
     );
     if (selected == null) return;
-    try {
-      final image = await BackendApi.downloadImage(
-        selected['image_url'] as String,
+    final isBoundUnknownVoice = selected['source'] == 'unenrolled_voice';
+    if (isBoundUnknownVoice) {
+      await _startEnrollPerson(
+        unenrolledId: selected['id'] as int,
       );
-      if (mounted) {
-        await _startEnrollPerson(
-          initialPhotos: [image],
-          pendingUnknownId: selected['id'] as int,
-        );
-      }
-    } catch (error) {
-      if (mounted){
-
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('$error')));
-      }
+      return;
     }
+    await _startEnrollPerson(
+      pendingUnknownId: selected['id'] as int,
+    );
   }
 }
 
@@ -245,6 +241,7 @@ class _PersonEnrollmentResult {
   final List<File> photos;
   final List<File> voiceSamples;
   final int? pendingUnknownId;
+  final int? unenrolledId;
   _PersonEnrollmentResult({
     required this.name,
     required this.relation,
@@ -252,15 +249,18 @@ class _PersonEnrollmentResult {
     required this.photos,
     required this.voiceSamples,
     this.pendingUnknownId,
+    this.unenrolledId,
   });
 }
 
 class _EnrollPersonForm extends StatefulWidget {
   final List<File> initialPhotos;
   final int? pendingUnknownId;
+  final int? unenrolledId;
   const _EnrollPersonForm({
     this.initialPhotos = const [],
     this.pendingUnknownId,
+    this.unenrolledId,
   });
 
   @override
@@ -327,13 +327,25 @@ class _EnrollPersonFormState extends State<_EnrollPersonForm> {
 
   void _done() {
     if (!_formKey.currentState!.validate()) return;
-    if (_photos.isEmpty) {
+    final canReuseCapturedProfile =
+        widget.unenrolledId != null || widget.pendingUnknownId != null;
+    if (_photos.isEmpty && !canReuseCapturedProfile) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please add at least one photo')),
       );
       return;
     }
-    if (_voiceSamples.length != 3) {
+    if (_voiceSamples.isNotEmpty && _voiceSamples.length != 3) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Please record all 3 voice samples, or leave empty to skip',
+          ),
+        ),
+      );
+      return;
+    }
+    if (_voiceSamples.isEmpty && !canReuseCapturedProfile) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please record three voice samples')),
       );
@@ -348,6 +360,7 @@ class _EnrollPersonFormState extends State<_EnrollPersonForm> {
         photos: _photos,
         voiceSamples: _voiceSamples,
         pendingUnknownId: widget.pendingUnknownId,
+        unenrolledId: widget.unenrolledId,
       ),
     );
   }
@@ -355,6 +368,8 @@ class _EnrollPersonFormState extends State<_EnrollPersonForm> {
   @override
   Widget build(BuildContext context) {
     const primaryColor = Color(0xFF4F6F8F);
+    final canReuseCapturedProfile =
+        widget.unenrolledId != null || widget.pendingUnknownId != null;
     return Scaffold(
       appBar: AppBar(title: const Text('Enroll a Person')),
       body: Padding(
@@ -369,6 +384,14 @@ class _EnrollPersonFormState extends State<_EnrollPersonForm> {
                 validator: (v) =>
                     (v == null || v.trim().isEmpty) ? 'Enter a name' : null,
               ),
+              if (canReuseCapturedProfile) ...[
+                const SizedBox(height: 8),
+                const Text(
+                  'A face and/or voice was already captured for this unknown person. '
+                  'Adding new photos and voice samples is optional.',
+                  style: TextStyle(color: Colors.black54, fontSize: 13),
+                ),
+              ],
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 initialValue: _relation,
@@ -412,12 +435,16 @@ class _EnrollPersonFormState extends State<_EnrollPersonForm> {
                   OutlinedButton.icon(
                     onPressed: _pickPhotos,
                     icon: const Icon(Icons.photo_library_outlined),
-                    label: const Text('Gallery'),
+                    label: Text(
+                      canReuseCapturedProfile ? 'Add photo (optional)' : 'Gallery',
+                    ),
                   ),
                   OutlinedButton.icon(
                     onPressed: _takePhoto,
                     icon: const Icon(Icons.camera_alt_outlined),
-                    label: const Text('Camera'),
+                    label: Text(
+                      canReuseCapturedProfile ? 'Take photo (optional)' : 'Camera',
+                    ),
                   ),
                   OutlinedButton.icon(
                     onPressed: _recordVoice,
@@ -427,7 +454,13 @@ class _EnrollPersonFormState extends State<_EnrollPersonForm> {
                           : Icons.mic_outlined,
                       color: _voiceSamples.length == 3 ? Colors.green : null,
                     ),
-                    label: Text('Record voice (${_voiceSamples.length}/3)'),
+                    label: Text(
+                      canReuseCapturedProfile
+                          ? (_voiceSamples.isEmpty
+                              ? 'Record voice (optional)'
+                              : 'Voice (${_voiceSamples.length}/3)')
+                          : 'Record voice (${_voiceSamples.length}/3)',
+                    ),
                   ),
                 ],
               ),

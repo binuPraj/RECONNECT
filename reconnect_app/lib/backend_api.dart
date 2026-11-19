@@ -119,6 +119,7 @@ class BackendApi {
     required List<File> photos,
     required List<File> voiceSamples,
     int? pendingUnknownId,
+    int? unenrolledId,
   }) async {
     final authToken = await token;
     if (authToken == null) throw Exception('Please sign in again.');
@@ -133,7 +134,10 @@ class BackendApi {
           ..fields['relation'] = relation;
     if (pendingUnknownId != null) {
       request.fields['pending_unknown_id'] = '$pendingUnknownId';
-      }
+    }
+    if (unenrolledId != null) {
+      request.fields['unenrolled_id'] = '$unenrolledId';
+    }
     for (final photo in photos) {
       request.files.add(
         await http.MultipartFile.fromPath('photos', photo.path),

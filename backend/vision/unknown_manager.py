@@ -326,6 +326,23 @@ class UnknownManager:
             * face_area
         )
 
+    def best_face_for_entity(self, entity_id):
+        """Return the highest-quality in-memory face for a just-captured entity.
+
+        This is used by the unknown-voice binding route, where the face must be
+        attached to an existing voice profile instead of persisted as a new
+        visual-only unknown profile.
+        """
+        cluster = self.clusters.get(entity_id)
+        if not cluster or not cluster["observations"]:
+            return None, None
+        best_index, best_observation = max(
+            enumerate(cluster["observations"]),
+            key=lambda item: self.get_face_quality(item[1]),
+        )
+        embedding = cluster["embeddings"][best_index]
+        return embedding, best_observation.get("face_crop")
+
     def save_unknowns(self):
 
         os.makedirs(

@@ -4,7 +4,8 @@ import secrets
 import sqlite3
 import threading
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from pathlib import Path
 from typing import Optional
 
@@ -15,6 +16,7 @@ _DB_INITIALISED = False
 
 DATABASE_PATH = Path(__file__).resolve().parents[1] / "uploads" / "database" / "reconnect.db"
 FACE_MATCH_THRESHOLD = 0.50
+TZ = ZoneInfo("Asia/Kathmandu")
 
 
 def _enable_wal_once():
@@ -87,6 +89,10 @@ def blob_to_image(blob_data):
 @contextmanager
 def _connect():
     """Open a thread-safe SQLite connection with automatic closing and busy timeout."""
+    # The runtime-data reset utility may remove/recreate upload directories
+    # while this long-running server still has worker threads.  Ensure the
+    # parent exists for every connection, not only once at module import.
+    DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(DATABASE_PATH, timeout=30.0, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA busy_timeout = 30000")
@@ -224,6 +230,10 @@ def init_database():
             connection.execute("ALTER TABLE unenrolled_identities ADD COLUMN resolved_to INTEGER REFERENCES enrolled_identities(id)")
         if "patient_id" not in unenrolled_cols:
             connection.execute("ALTER TABLE unenrolled_identities ADD COLUMN patient_id INTEGER REFERENCES patients(id)")
+        if "resolved_at" not in unenrolled_cols:
+            connection.execute("ALTER TABLE unenrolled_identities ADD COLUMN resolved_at TEXT")
+        if "resolution_source" not in unenrolled_cols:
+            connection.execute("ALTER TABLE unenrolled_identities ADD COLUMN resolution_source TEXT")
 
     _DB_INITIALISED = True
 
@@ -256,7 +266,7 @@ def create_caregiver(
                 caregiver_type.strip(),
                 family_relation.strip() if family_relation else None,
                 profession.strip() if profession else None,
-                datetime.now(timezone.utc).isoformat(),
+                datetime.now(TZ).isoformat(),
             ),
         )
         return cursor.lastrowid
@@ -298,7 +308,7 @@ def create_patient(
                 email.strip().lower(),
                 address.strip(),
                 medical_information.strip(),
-                datetime.now(timezone.utc).isoformat(),
+                datetime.now(TZ).isoformat(),
             ),
         )
         return cursor.lastrowid
@@ -349,7 +359,7 @@ def create_auth_session(actor_type: str, actor_id: int) -> str:
             INSERT INTO auth_sessions (token, actor_type, actor_id, created_at)
             VALUES (?, ?, ?, ?)
             """,
-            (token, actor_type, actor_id, datetime.now(timezone.utc).isoformat()),
+            (token, actor_type, actor_id, datetime.now(TZ).isoformat()),
         )
     return token
 
@@ -408,6 +418,24 @@ def get_caregiver_patients(caregiver_id: int) -> list[dict]:
             (caregiver_id,),
         ).fetchall()
         return [dict(r) for r in rows]
+
+
+def get_all_patients() -> list[dict]:
+    """Patient records used to seed canonical graph wearer nodes."""
+    init_database()
+    with _DB_LOCK, _connect() as connection:
+        rows = connection.execute("SELECT id, full_name FROM patients ORDER BY id").fetchall()
+    return [dict(row) for row in rows]
+
+
+def get_patient_name(patient_id: int) -> Optional[str]:
+    """Return the patient's display name for graph identity linking."""
+    init_database()
+    with _DB_LOCK, _connect() as connection:
+        row = connection.execute(
+            "SELECT full_name FROM patients WHERE id = ? LIMIT 1", (patient_id,)
+        ).fetchone()
+    return row["full_name"] if row else None
 
 
 def caregiver_owns_patient(caregiver_id: int, patient_id: int) -> bool:
@@ -503,7 +531,7 @@ def create_identity(name: str, relation: str, face_embedding, face_image=None, p
             VALUES (?, ?, ?, ?, NULL, ?, ?)
             """,
             (
-                datetime.now(timezone.utc).isoformat(),
+                datetime.now(TZ).isoformat(),
                 name,
                 relation,
                 embedding_to_blob(face_embedding),
@@ -551,13 +579,9 @@ def append_voice_embedding(identity_id: int, voice_embedding, max_templates=5):
         )
 
 
-def resolve_unenrolled_identity(unenrolled_id: int, enrolled_id: int):
+def resolve_unenrolled_identity(unenrolled_id: int, enrolled_id: int, source: str = "caregiver"):
     init_database()
     with _DB_LOCK, _connect() as connection:
-        connection.execute(
-            "UPDATE unenrolled_identities SET resolved_to = ? WHERE id = ?",
-            (int(enrolled_id), int(unenrolled_id)),
-        )
         row = connection.execute(
             "SELECT voice_embedding FROM unenrolled_identities WHERE id = ?",
             (int(unenrolled_id),),
@@ -567,6 +591,28 @@ def resolve_unenrolled_identity(unenrolled_id: int, enrolled_id: int):
     if voice_embedding:
         for emb in voice_blob_to_embeddings(voice_embedding):
             append_voice_embedding(enrolled_id, emb, max_templates=5)
+
+    with _DB_LOCK, _connect() as connection:
+        connection.execute(
+            """UPDATE unenrolled_identities
+               SET resolved_to=?, resolved_at=?, resolution_source=?
+               WHERE id=?""",
+            (int(enrolled_id), datetime.now(TZ).isoformat(), source, int(unenrolled_id)),
+        )
+
+
+def get_resolved_unenrolled_identities() -> list[dict]:
+    """Durable unknown→enrolled mappings used to repair graph projections."""
+    init_database()
+    with _DB_LOCK, _connect() as connection:
+        rows = connection.execute(
+            """SELECT u.id AS unenrolled_id, u.patient_id, u.resolved_to AS enrolled_id,
+                      e.name AS enrolled_name
+               FROM unenrolled_identities u
+               JOIN enrolled_identities e ON e.id=u.resolved_to
+               WHERE u.resolved_to IS NOT NULL"""
+        ).fetchall()
+    return [dict(row) for row in rows]
 
 
 def create_unenrolled_identity(face_embedding=None, voice_embedding=None, face_image=None, patient_id=None):
@@ -578,7 +624,7 @@ def create_unenrolled_identity(face_embedding=None, voice_embedding=None, face_i
             VALUES (?, ?, ?, ?, ?)
             """,
             (
-                datetime.now(timezone.utc).isoformat(),
+                datetime.now(TZ).isoformat(),
                 embedding_to_blob(face_embedding) if face_embedding is not None else None,
                 embedding_to_blob(voice_embedding) if voice_embedding is not None else None,
                 image_to_blob(face_image),
@@ -713,11 +759,11 @@ def find_matching_unenrolled_voice(embedding, threshold=0.42, patient_id: Option
     with _DB_LOCK, _connect() as connection:
         if patient_id is not None:
             rows = connection.execute(
-                "SELECT * FROM unenrolled_identities WHERE voice_embedding IS NOT NULL AND (patient_id = ? OR patient_id IS NULL)",
+                "SELECT * FROM unenrolled_identities WHERE voice_embedding IS NOT NULL AND resolved_to IS NULL AND (patient_id = ? OR patient_id IS NULL)",
                 (patient_id,),
             ).fetchall()
         else:
-            rows = connection.execute("SELECT * FROM unenrolled_identities WHERE voice_embedding IS NOT NULL").fetchall()
+            rows = connection.execute("SELECT * FROM unenrolled_identities WHERE voice_embedding IS NOT NULL AND resolved_to IS NULL").fetchall()
         for row in rows:
             voice_blob = row["voice_embedding"]
             if voice_blob is None:
@@ -751,7 +797,7 @@ def create_pending_unknown(patient_id: int, image_input) -> Optional[int]:
             INSERT INTO pending_unknowns (patient_id, image_blob, timestamp)
             VALUES (?, ?, ?)
             """,
-            (patient_id, blob, datetime.now(timezone.utc).isoformat()),
+            (patient_id, blob, datetime.now(TZ).isoformat()),
         )
         return cursor.lastrowid
 
@@ -762,17 +808,18 @@ def get_pending_unknowns(patient_id: int) -> list[dict]:
         # Fetch from unenrolled_identities (where vision pipeline saves faces)
         rows1 = connection.execute(
             """
-            SELECT id, timestamp, timestamp AS created_at
+            SELECT id, timestamp, timestamp AS created_at, 'unenrolled_voice' AS source
             FROM unenrolled_identities
             WHERE face_image IS NOT NULL AND resolved_to IS NULL
+              AND (patient_id = ? OR patient_id IS NULL)
             ORDER BY id DESC LIMIT 50
-            """
+            """, (patient_id,)
         ).fetchall()
 
         # Also fetch from pending_unknowns table
         rows2 = connection.execute(
             """
-            SELECT id, timestamp, timestamp AS created_at
+            SELECT id, timestamp, timestamp AS created_at, 'pending_face' AS source
             FROM pending_unknowns
             WHERE (patient_id = ? OR patient_id IS NULL) AND resolved_to IS NULL
             ORDER BY id DESC LIMIT 50
@@ -815,10 +862,10 @@ def resolve_pending_unknown(pending_id: int, patient_id: int, identity_id: int) 
     init_database()
     with _DB_LOCK, _connect() as connection:
         connection.execute(
-            "UPDATE unenrolled_identities SET resolved_to = ? WHERE id = ?",
-            (identity_id, pending_id),
+            "DELETE FROM unenrolled_identities WHERE id = ?",
+            (pending_id,),
         )
         connection.execute(
-            "UPDATE pending_unknowns SET resolved_to = ? WHERE id = ?",
-            (identity_id, pending_id),
+            "DELETE FROM pending_unknowns WHERE id = ?",
+            (pending_id,),
         )

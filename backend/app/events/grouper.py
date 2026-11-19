@@ -1,7 +1,8 @@
 import json
 import uuid
 import logging
-from datetime import datetime, timezone
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from dataclasses import dataclass
 from app.events.db import get_connection, init_db
 
@@ -11,6 +12,7 @@ LOGGER = logging.getLogger(__name__)
 init_db()
 
 GAP_THRESHOLD_SECONDS = 90.0
+TZ = ZoneInfo("Asia/Kathmandu")
 
 @dataclass
 class GrouperSegment:
@@ -20,14 +22,15 @@ class GrouperSegment:
     start: str
     end: str
     text: str
+    patient_id: int | None = None
 
 def parse_iso(iso: str) -> datetime:
     """Parse an ISO 8601 string safely into a datetime object."""
     return datetime.fromisoformat(iso)
 
 def now_iso() -> str:
-    """Return current UTC time in ISO 8601 format."""
-    return datetime.now(timezone.utc).isoformat()
+    """Return the system's canonical Kathmandu timestamp."""
+    return datetime.now(TZ).isoformat()
 
 def generate_event_id() -> str:
     return str(uuid.uuid4())
@@ -59,10 +62,10 @@ def create_new_event(conn, segment: GrouperSegment) -> None:
 
     conn.execute("""
         INSERT INTO events (
-            event_id, status, participants, start, end, location, recordings, segments, closed_at, llm_status
-        ) VALUES (?, 'open', ?, ?, ?, NULL, ?, ?, NULL, 'not_eligible')
+            event_id, patient_id, status, participants, start, end, location, recordings, segments, closed_at, llm_status
+        ) VALUES (?, ?, 'open', ?, ?, ?, NULL, ?, ?, NULL, 'not_eligible')
     """, (
-        event_id, participants_json, segment.start, segment.end,
+        event_id, segment.patient_id, participants_json, segment.start, segment.end,
         recordings_json, segments_json
     ))
     LOGGER.info("[grouper] Created new event %s starting with segment %s", event_id, segment.segment_id)
@@ -124,7 +127,12 @@ def process_segment(segment: GrouperSegment) -> None:
         # We start an exclusive transaction to prevent concurrent processes from modifying the open event.
         conn.execute("BEGIN EXCLUSIVE")
         try:
-            row = conn.execute("SELECT * FROM events WHERE status = 'open'").fetchone()
+            # An event is never allowed to bridge two patients merely because
+            # their recordings happened close together.
+            row = conn.execute(
+                "SELECT * FROM events WHERE status = 'open' AND patient_id IS ?",
+                (segment.patient_id,),
+            ).fetchone()
             
             if row is None:
                 create_new_event(conn, segment)

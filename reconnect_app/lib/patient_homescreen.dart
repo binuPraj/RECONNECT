@@ -43,6 +43,12 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
   String? _micErrorMessage;
   StreamSubscription<Map<String, dynamic>>? _streamEvents;
   bool _captureInProgress = false;
+  final List<Map<String, dynamic>> _unknownCaptureQueue = [];
+  final Set<int> _activeUnknownCaptureIds = <int>{};
+  bool _isProcessingCaptureQueue = false;
+  bool _pendingDisconnect = false;
+  bool _captureQueueReady = false;
+  bool _captureQueueAcknowledged = false;
   bool _unknownDetected = false;
   String? _authToken;
 
@@ -194,11 +200,13 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
     });
 
     try {
-      await _audioService.start(AppConfig.wsAudioUrl);
+      await _audioService.start(AppConfig.wsAudioUrl, patientId: widget.patientId);
       if (!mounted) return;
       setState(() {
         _isRecording = true;
         _isConnecting = false;
+        _captureQueueReady = false;
+        _captureQueueAcknowledged = false;
       });
     } catch (e) {
       if (!mounted) return;
@@ -210,12 +218,28 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
   }
 
   Future<void> _handleStopRecording() async {
-    await _audioService.stop();
-    if (!mounted) return;
     setState(() => _isRecording = false);
+    await _audioService.stop();
   }
 
   Future<void> _handleStreamEvent(Map<String, dynamic> event) async {
+    if (event['event'] == 'capture_queue_ready') {
+      debugPrint('[STREAM] Backend drain complete; releasing unknown-voice capture queue.');
+      _captureQueueReady = true;
+      await _processUnknownCaptureQueue();
+      await _acknowledgeCaptureQueueIfComplete();
+      return;
+    }
+    if (event['event'] == 'stream_closed') {
+      debugPrint('[STREAM] stream_closed received from server.');
+      _processUnknownCaptureQueue();
+      if (_isProcessingCaptureQueue || _unknownCaptureQueue.isNotEmpty) {
+        _pendingDisconnect = true;
+      } else {
+        await _audioService.disconnect();
+      }
+      return;
+    }
     if (event['event'] == 'unknown_voice_capture_requested') {
       await _handleUnknownVoiceCapture(event);
       return;
@@ -306,37 +330,79 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
   }
 
   Future<void> _handleUnknownVoiceCapture(Map<String, dynamic> event) async {
-    if (_captureInProgress || !mounted) return;
     final unenrolledId = event['unenrolled_id'];
     if (unenrolledId is! int) {
       debugPrint('Unknown voice capture request had no valid unenrolled ID: $event');
       return;
     }
+
+    // Deduplicate if this exact unenrolled_id is already waiting in queue
+    final alreadyQueued = _unknownCaptureQueue.any((e) => e['unenrolled_id'] == unenrolledId);
+    final alreadyCapturing = _activeUnknownCaptureIds.contains(unenrolledId);
+    if (!alreadyQueued && !alreadyCapturing) {
+      _unknownCaptureQueue.add(event);
+      debugPrint('[QUEUE] Added unenrolled_$unenrolledId to capture queue (total: ${_unknownCaptureQueue.length})');
+    } else {
+      debugPrint('[QUEUE] Ignored duplicate camera request for unenrolled_$unenrolledId.');
+    }
+
+    // Only launch camera if recording is already stopped/paused; otherwise wait for user to pause.
+    if (!_isRecording && _captureQueueReady) {
+      _processUnknownCaptureQueue();
+    } else {
+      debugPrint('[QUEUE] Deferring camera capture for unenrolled_$unenrolledId until backend drain is complete.');
+    }
+  }
+
+  Future<void> _processUnknownCaptureQueue() async {
+    if (!_captureQueueReady || _isProcessingCaptureQueue || _unknownCaptureQueue.isEmpty || !mounted) return;
+    _isProcessingCaptureQueue = true;
     _captureInProgress = true;
+
     try {
-      final seconds = event['capture_seconds'] is int
-          ? event['capture_seconds'] as int
-          : 10;
-      // The AudioStreamingService deliberately remains active here. Devices
-      // that do not permit concurrent microphone ownership report a camera
-      // capture error without disconnecting the live audio WebSocket.
-      final video = await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => UnknownVoiceCameraScreen(captureSeconds: seconds),
-        ),
-      );
-      if (video == null || !mounted) return;
-      final result = await BackendApi.submitUnknownVoiceVideo(
-        patientId: widget.patientId,
-        unenrolledId: unenrolledId,
-        video: File(video.path as String),
-      );
-      if (!mounted) return;
-      final status = result['status'];
-      final message = status == 'bound'
-          ? 'Face linked to unknown voice profile.'
-          : (result['reason'] ?? 'No face could be linked to this voice.');
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$message')));
+      while (_unknownCaptureQueue.isNotEmpty && mounted) {
+        final currentEvent = _unknownCaptureQueue.removeAt(0);
+        final unenrolledId = currentEvent['unenrolled_id'];
+        final recordingId = currentEvent['recording_id'];
+        if (unenrolledId is! int) continue;
+        _activeUnknownCaptureIds.add(unenrolledId);
+
+        final seconds = currentEvent['capture_seconds'] is int
+            ? currentEvent['capture_seconds'] as int
+            : 3;
+
+        debugPrint('[QUEUE] Processing camera capture for unenrolled_$unenrolledId (recording: $recordingId)...');
+
+        if (!mounted) break;
+
+        try {
+          final video = await Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => UnknownVoiceCameraScreen(
+                captureSeconds: seconds,
+                unenrolledId: unenrolledId,
+                recordingId: recordingId is int ? recordingId : null,
+              ),
+            ),
+          );
+          if (video != null && mounted) {
+            final result = await BackendApi.submitUnknownVoiceVideo(
+              patientId: widget.patientId,
+              unenrolledId: unenrolledId,
+              video: File(video.path as String),
+            );
+            if (mounted) {
+              final status = result['status'];
+              final message = status == 'bound'
+                  ? 'Face linked to unknown voice profile (ID: $unenrolledId).'
+                  : (result['reason'] ?? 'No face could be linked to voice ID: $unenrolledId.');
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$message')));
+            }
+          }
+        } finally {
+          _activeUnknownCaptureIds.remove(unenrolledId);
+        }
+      }
     } catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -344,8 +410,25 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
         );
       }
     } finally {
+      _isProcessingCaptureQueue = false;
       _captureInProgress = false;
+      await _acknowledgeCaptureQueueIfComplete();
+      if (_pendingDisconnect) {
+        _pendingDisconnect = false;
+        debugPrint('[STREAM] Queue finished after stream_closed; disconnecting.');
+        await _audioService.disconnect();
+      }
     }
+  }
+
+  Future<void> _acknowledgeCaptureQueueIfComplete() async {
+    if (!_captureQueueReady || _captureQueueAcknowledged ||
+        _isProcessingCaptureQueue || _unknownCaptureQueue.isNotEmpty) {
+      return;
+    }
+    _captureQueueAcknowledged = true;
+    debugPrint('[QUEUE] All unknown-voice camera captures finished; acknowledging backend.');
+    await _audioService.completeCaptureQueue();
   }
   Widget _buildKnownPersonPhoto(String? photoUrl) {
     if (photoUrl == null) {
@@ -372,7 +455,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
           fit: BoxFit.cover,
           width: 96,
           height: 96,
-          errorBuilder: (_, error, ___) {
+          errorBuilder: (_, error, _) {
             debugPrint('WHO_IS_THIS image decode failed: $error');
             return const Icon(Icons.person, color: _primaryColor, size: 44);
           },
@@ -787,7 +870,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                       CircleAvatar(
                         radius: 32,
                         backgroundColor: const Color(0xFFE3E8ED),
-                        child: person.photoUrl == null
+                        child: (person.photoUrl == null || _authToken == null)
                             ? const Icon(
                                 Icons.person,
                                 color: _primaryColor,
@@ -797,12 +880,10 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                                 child: SizedBox.expand(
                                   child: Image.network(
                                     '${AppConfig.httpBaseUrl}${person.photoUrl}',
-                                    headers: _authToken == null
-                                        ? null
-                                        : {
-                                            'Authorization':
-                                                'Bearer $_authToken',
-                                          },
+                                    headers: {
+                                      'Authorization':
+                                          'Bearer $_authToken',
+                                    },
                                     fit: BoxFit.cover,
                                     errorBuilder: (_, _, _) => const Icon(
                                       Icons.person,

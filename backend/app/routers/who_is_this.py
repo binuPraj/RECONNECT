@@ -5,8 +5,7 @@ import tempfile
 from pathlib import Path
 from typing import Optional
 
-import cv2
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.responses import Response
 
 from app.routers.auth import current_actor, require_caregiver
@@ -34,6 +33,8 @@ def _can_access_patient(actor: dict, patient_id: int) -> bool:
 
 
 def _extract_phone_frames(video_path: Path):
+    import cv2
+
     capture = cv2.VideoCapture(str(video_path))
     if not capture.isOpened():
         raise ValueError("Could not read the phone camera video.")
@@ -60,6 +61,7 @@ def _extract_phone_frames(video_path: Path):
 
 @router.post("/capture")
 async def process_phone_capture(
+    request: Request,
     patient_id: int = Form(...),
     video: UploadFile = File(...),
     actor=Depends(current_actor),
@@ -90,6 +92,15 @@ async def process_phone_capture(
     if known and known.get("identity"):
         identity = get_patient_identity_by_name(known["identity"], patient_id)
         if identity:
+            graph_context = None
+            graph_store = getattr(request.app.state, "graph_store", None)
+            if graph_store is not None:
+                person_id = f"patient:{patient_id}:enrolled:{identity['id']}"
+                try:
+                    graph_context = graph_store.get_person_by_id(person_id)
+                except Exception:
+                    # Recognition remains available when optional graph lookup fails.
+                    graph_context = None
             print(f"✅ [RECOGNITION] Identified: {identity['name']} ({identity['relation']})\n")
             return {
                 "status": "known",
@@ -97,6 +108,7 @@ async def process_phone_capture(
                 "name": identity["name"],
                 "relation": identity["relation"],
                 "photo_url": f"/who-is-this/people/{identity['id']}/photo?patient_id={patient_id}",
+                "graph_context": graph_context,
             }
 
     unknown = next((person for person in people if person.get("status") in {"new_unknown", "existing_unknown"}), None)
