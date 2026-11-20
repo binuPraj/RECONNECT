@@ -37,6 +37,7 @@ from app.routers import auth as auth_router
 from app.routers import enroll as enroll_router
 from app.routers import memories as memories_router
 from app.routers import who_is_this as wit_router
+from retrival import server as retrieval_server
 
 
 logging.basicConfig(
@@ -203,6 +204,28 @@ async def lifespan(app: FastAPI):
         app.state.memory_task = None
         LOGGER.warning("[memory] Scheduler disabled: %s", error)
     try:
+        # Retrieval shares the already-initialized primary stores and LLM
+        # client.  It is mounted below at /retrieval, so one uvicorn command
+        # runs audio, memory consolidation, and patient queries together.
+        memory_store = getattr(app.state, "memory_store", None)
+        retrieval_context = None
+        if memory_store is not None:
+            retrieval_context = {
+                "memory_store": memory_store,
+                "graph_store": getattr(app.state, "graph_store", None),
+                "vector_store": getattr(app.state, "vector_store", None),
+                "llm": retrieval_server.RetrievalLLM(
+                    client=getattr(app.state, "memory_client", None),
+                ),
+            }
+        retrieval_server.initialize_for_host(retrieval_context)
+        LOGGER.info("[retrieval] Available at /retrieval")
+    except Exception:
+        # Do not let an optional query UI prevent the existing live-audio
+        # server from starting.  The endpoint can still build its own context
+        # on its first request if necessary.
+        LOGGER.exception("[retrieval] Initialization failed; using lazy context")
+    try:
         yield
     finally:
         task = app.state.memory_task
@@ -234,6 +257,7 @@ app.include_router(enroll_router.router)
 app.include_router(memories_router.router)
 app.include_router(wit_router.router)
 app.include_router(wit_router.unknown_voice_router)
+app.mount("/retrieval", retrieval_server.app)
 
 
 @app.get("/")

@@ -53,12 +53,14 @@ android/app/profile/
 android/app/release/
 
 # SQLite WAL & temporary files
+*.db
 *.db-shm
 *.db-wal
 *.db-journal
 
 # ── Backend runtime data (recordings, streams, audio, databases) ──
 # These are large runtime artifacts that should not be in version control.
+uploads/
 backend/uploads/
 backend copy 2/
 

@@ -9,6 +9,7 @@ import 'audio_streaming_service.dart';
 import 'app_config.dart';
 import 'who_is_this_camera_screen.dart';
 import 'unknown_voice_camera_screen.dart';
+import 'retrival/query_of_patient_screen.dart';
 
 class PatientHomeScreen extends StatefulWidget {
   final int patientId;
@@ -542,6 +543,8 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
               const SizedBox(height: 20),
             ],
             _buildHeader(),
+            const SizedBox(height: 16),
+            _buildQueryOfPatientButton(),
             const SizedBox(height: 20),
             _buildDateTimeCard(),
             const SizedBox(height: 20),
@@ -641,6 +644,34 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildQueryOfPatientButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => QueryOfPatientScreen(
+                patientId: widget.patientId,
+                patientName: widget.patientName,
+              ),
+            ),
+          );
+        },
+        icon: const Icon(Icons.record_voice_over_outlined),
+        label: const Text('Query by Patient'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _primaryColor,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
       ),
     );
   }

@@ -12,7 +12,7 @@ class WhoIsThisCameraScreen extends StatefulWidget {
 
 class _WhoIsThisCameraScreenState extends State<WhoIsThisCameraScreen> {
   CameraController? _controller;
-  int _tenthsRemaining = 15;
+  int _tenthsRemaining = 50;
   String? _error;
 
   @override
@@ -40,7 +40,7 @@ class _WhoIsThisCameraScreenState extends State<WhoIsThisCameraScreen> {
       }
       setState(() => _controller = controller);
       await controller.startVideoRecording();
-      for (var value = 14; value >= 0; value--) {
+      for (var value = 49; value >= 0; value--) {
         await Future<void>.delayed(const Duration(milliseconds: 100));
         if (mounted) setState(() => _tenthsRemaining = value);
       }
@@ -93,14 +93,30 @@ class _WhoIsThisCameraScreenState extends State<WhoIsThisCameraScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Text(
-                          'Hold the phone steady — capturing ${(_tenthsRemaining / 10).toStringAsFixed(1)}s',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Hold the phone steady — capturing ${(_tenthsRemaining / 10).toStringAsFixed(1)}s',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: LinearProgressIndicator(
+                                value: (50 - _tenthsRemaining) / 50.0,
+                                backgroundColor: Colors.white24,
+                                valueColor: const AlwaysStoppedAnimation<Color>(Colors.greenAccent),
+                                minHeight: 4,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),

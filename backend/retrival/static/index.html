@@ -1,0 +1,796 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>RECONNECT Retrieval Dashboard</title>
+  <style>
+    body {
+      font: 15px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 32px;
+      background: #f6f8fb;
+      color: #172033;
+    }
+    header {
+      margin-bottom: 24px;
+    }
+    h1, h2, h3 {
+      margin: 0 0 8px;
+      color: #172033;
+    }
+    p {
+      margin: 0 0 12px;
+      color: #556275;
+      font-size: 14px;
+    }
+    a {
+      color: #2455bb;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .header-links {
+      font-size: 14px;
+      margin-top: 6px;
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 2px solid #e1e6ed;
+      margin-bottom: 20px;
+    }
+    .tab-btn {
+      background: transparent;
+      border: 0;
+      border-bottom: 3px solid transparent;
+      padding: 10px 18px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #556275;
+      cursor: pointer;
+      border-radius: 6px 6px 0 0;
+      transition: all 0.15s ease;
+    }
+    .tab-btn.active {
+      color: #2455bb;
+      border-bottom-color: #2455bb;
+      background: white;
+    }
+    .stats {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .card, .record {
+      background: white;
+      padding: 16px;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+      margin: 12px 0;
+    }
+    .stat-card {
+      min-width: 140px;
+    }
+    .stat-card strong {
+      font-size: 22px;
+      color: #172033;
+    }
+    .stat-card span {
+      font-size: 13px;
+      color: #64748b;
+    }
+    .ask-panel {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+      margin-bottom: 24px;
+    }
+    .form-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .field-group label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #334155;
+    }
+    input[type="number"], textarea, input[type="text"] {
+      font: inherit;
+      padding: 8px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      background: #fff;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 40px;
+      font-size: 14px;
+    }
+    button {
+      background: #2455bb;
+      color: white;
+      border: 0;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-weight: 500;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.15s ease;
+    }
+    button:hover {
+      background: #1d4699;
+    }
+    button.secondary {
+      background: #0f766e;
+    }
+    button.secondary:hover {
+      background: #0d5f58;
+    }
+    button.ghost {
+      background: #e2e8f0;
+      color: #1e293b;
+    }
+    button.ghost:hover {
+      background: #cbd5e1;
+    }
+    button.danger, .close-btn {
+      background: #b42318;
+      color: white;
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+    button.danger:hover, .close-btn:hover {
+      background: #911c13;
+    }
+    .delete-all-btn {
+      background: #b42318;
+      color: white;
+      border: 0;
+      border-radius: 6px;
+      padding: 9px 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background 0.15s ease;
+    }
+    .delete-all-btn:hover {
+      background: #8e1b12;
+    }
+    .status-bar {
+      font-size: 13px;
+      color: #475569;
+      margin-top: 8px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .badge-recall { background: #dbeafe; color: #1e40af; }
+    .badge-happening { background: #fef3c7; color: #92400e; }
+    .badge-whois { background: #e0e7ff; color: #3730a3; }
+    .badge-clarify { background: #fae8ff; color: #86198f; }
+    .badge-vague { background: #f3f4f6; color: #4b5563; }
+    .badge-active { background: #dcfce7; color: #166534; }
+    .badge-closed { background: #f1f5f9; color: #64748b; }
+    .badge-followup { background: #ffedd5; color: #9a3412; font-size: 11px; margin-left: 6px; }
+
+    .record summary {
+      cursor: pointer;
+      font-size: 15px;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .record summary:hover {
+      color: #2455bb;
+    }
+    .record summary .q-text {
+      font-weight: 600;
+      color: #0f172a;
+    }
+    .record summary .time {
+      font-size: 12px;
+      color: #64748b;
+      margin-left: auto;
+    }
+    dl {
+      display: grid;
+      grid-template-columns: 190px 1fr;
+      gap: 8px 16px;
+      margin-top: 16px;
+      font-size: 14px;
+    }
+    dt {
+      font-weight: 650;
+      color: #334155;
+    }
+    dd {
+      margin: 0;
+      overflow-wrap: anywhere;
+    }
+    .answer-highlight {
+      background: #f0fdf4;
+      border-left: 4px solid #16a34a;
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-size: 15px;
+      color: #14532d;
+      margin: 12px 0;
+      line-height: 1.5;
+    }
+    .sub-record {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+    .sub-record summary {
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: #334155;
+    }
+    .sub-record summary:hover {
+      color: #2455bb;
+    }
+    pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 12px;
+      border-radius: 6px;
+      margin: 8px 0 0;
+      font-size: 13px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      border: 1px solid #e2e8f0;
+    }
+    code {
+      font-size: 12px;
+      background: #e2e8f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    .turns-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    .turns-table th, .turns-table td {
+      border: 1px solid #e2e8f0;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    .turns-table th {
+      background: #f8fafc;
+      font-weight: 650;
+      color: #334155;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .muted {
+      color: #64748b;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+      <div>
+        <h1>RECONNECT Retrieval Dashboard</h1>
+        <div class="header-links">
+          <a href="/dashboard">Memory Dashboard</a> · 
+          <a href="/debug">Debug JSON</a> · 
+          <a href="/sessions">Sessions JSON</a> · 
+          <a href="/health">Health API</a>
+        </div>
+      </div>
+      <div>
+        <button class="delete-all-btn" onclick="clearAllData()">🗑️ Delete All Queries & Sessions</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="ask-panel">
+    <h2>Ask a Question</h2>
+    <div class="form-row">
+      <div class="field-group" style="width: 120px;">
+        <label for="patientId">Patient ID</label>
+        <input id="patientId" type="number" value="1" min="1" />
+      </div>
+      <div class="field-group" style="flex: 1; min-width: 300px;">
+        <label for="question">Question</label>
+        <textarea id="question" rows="2" placeholder="e.g. How is Sam related to me? / Who is my daughter? / What happened when I met my daughter?"></textarea>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button id="ask" class="secondary">Send Question</button>
+        <button id="capture">🎤 Voice Capture</button>
+        <button id="stop" class="ghost" style="display: none;">Stop</button>
+        <button id="refresh" class="ghost">Refresh</button>
+      </div>
+    </div>
+    <div class="status-bar" id="statusBar">Loading system status…</div>
+  </div>
+
+  <nav class="tabs">
+    <button class="tab-btn active" id="tabQuestionsBtn" onclick="switchTab('questions')">Questions & Answers</button>
+    <button class="tab-btn" id="tabAuditBtn" onclick="switchTab('audit')">LLM Request & Response Audit</button>
+    <button class="tab-btn" id="tabSessionsBtn" onclick="switchTab('sessions')">Sessions Management</button>
+  </nav>
+
+  <!-- TAB 1: Questions & Answers -->
+  <section id="tabQuestions" class="tab-content active">
+    <div class="stats" id="auditStats">
+      <div class="card stat-card"><strong id="statTotalQueries">0</strong><br><span>Total Queries</span></div>
+      <div class="card stat-card"><strong id="statRecall">0</strong><br><span>Recall</span></div>
+      <div class="card stat-card"><strong id="statHappening">0</strong><br><span>Happening</span></div>
+      <div class="card stat-card"><strong id="statWhoIs">0</strong><br><span>Who Is</span></div>
+      <div class="card stat-card"><strong id="statFollowups">0</strong><br><span>Follow-ups</span></div>
+    </div>
+    <h2>Questions History</h2>
+    <p>All recorded queries with resolved search plan, authoritative profile, and final answer.</p>
+    <div id="questionsList">Loading questions…</div>
+  </section>
+
+  <!-- TAB 2: LLM Request & Response Audit -->
+  <section id="tabAudit" class="tab-content">
+    <h2>LLM Diagnostics & Prompts Audit</h2>
+    <p>Detailed view of every question showing full Parser prompt/response, retrieved memory records, and Answer prompt/response.</p>
+    <div id="auditList">Loading LLM traces…</div>
+  </section>
+
+  <!-- TAB 3: Sessions Management -->
+  <section id="tabSessions" class="tab-content">
+    <div class="stats" id="sessionsStats">
+      <div class="card stat-card"><strong id="statTotalSessions">0</strong><br><span>Total Sessions</span></div>
+      <div class="card stat-card"><strong id="statActiveSessions">0</strong><br><span>Active Sessions</span></div>
+      <div class="card stat-card"><strong id="statClosedSessions">0</strong><br><span>Closed Sessions</span></div>
+    </div>
+
+    <h2>Active Sessions</h2>
+    <p>Open sessions receiving consecutive conversational turns. Closes automatically after gap timeout (3 min) or manually.</p>
+    <div id="activeSessionsList">No active sessions.</div>
+
+    <h2 style="margin-top: 32px;">Closed / Past Sessions</h2>
+    <p>Archived conversational sessions with preserved turns and focus context.</p>
+    <div id="closedSessionsList">No closed sessions.</div>
+  </section>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let recognition = null;
+    let cachedDebug = null;
+    let cachedPayloadStr = "";
+    const userOpenStates = new Set();
+
+    // Listen to user toggle events globally and remember state
+    document.addEventListener("toggle", (e) => {
+      if (e.target && e.target.matches("details[data-id]")) {
+        const id = e.target.getAttribute("data-id");
+        if (e.target.open) {
+          userOpenStates.add(id);
+        } else {
+          userOpenStates.delete(id);
+        }
+      }
+    }, true);
+
+    function syncOpenStatesFromDOM() {
+      document.querySelectorAll("details[data-id]").forEach((el) => {
+        const id = el.getAttribute("data-id");
+        if (el.open) {
+          userOpenStates.add(id);
+        } else {
+          userOpenStates.delete(id);
+        }
+      });
+    }
+
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function formatTime(isoStr) {
+      if (!isoStr) return "—";
+      try {
+        const d = new Date(isoStr);
+        return isNaN(d.getTime()) ? isoStr : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + " (" + d.toLocaleDateString() + ")";
+      } catch (e) {
+        return isoStr;
+      }
+    }
+
+    function badgeForIntent(intent) {
+      switch (intent) {
+        case "recall": return `<span class="badge badge-recall">recall</span>`;
+        case "what_happening": return `<span class="badge badge-happening">what's happening</span>`;
+        case "who_is": return `<span class="badge badge-whois">who is</span>`;
+        case "clarify": return `<span class="badge badge-clarify">clarify</span>`;
+        case "vague": return `<span class="badge badge-vague">vague</span>`;
+        default: return `<span class="badge badge-vague">${escapeHtml(intent || "unknown")}</span>`;
+      }
+    }
+
+    function switchTab(tabName) {
+      $("tabQuestionsBtn").classList.toggle("active", tabName === "questions");
+      $("tabAuditBtn").classList.toggle("active", tabName === "audit");
+      $("tabSessionsBtn").classList.toggle("active", tabName === "sessions");
+      $("tabQuestions").classList.toggle("active", tabName === "questions");
+      $("tabAudit").classList.toggle("active", tabName === "audit");
+      $("tabSessions").classList.toggle("active", tabName === "sessions");
+      window.location.hash = tabName;
+    }
+
+    async function clearAllData() {
+      if (!confirm("Are you sure you want to delete ALL queries, LLM calls, and sessions in the database? This cannot be undone.")) return;
+      try {
+        const res = await fetch("./clear-all", { method: "POST" });
+        if (!res.ok) throw new Error("Failed to clear data");
+        userOpenStates.clear();
+        await refreshData(true);
+        alert("All queries, audits, and sessions have been cleared from the database.");
+      } catch (err) {
+        alert("Error clearing data: " + err.message);
+      }
+    }
+
+    async function closeSession(sessionId) {
+      if (!confirm(`Close session ${sessionId}? Future questions will start a fresh session.`)) return;
+      try {
+        const res = await fetch(`./sessions/${encodeURIComponent(sessionId)}/close`, { method: "POST" });
+        if (!res.ok) throw new Error("Failed to close session");
+        await refreshData(true);
+      } catch (err) {
+        alert("Error closing session: " + err.message);
+      }
+    }
+
+    function renderQuestionsTab(queries) {
+      if (!queries || queries.length === 0) {
+        $("questionsList").innerHTML = "<p class='muted'>No queries recorded yet.</p>";
+        return;
+      }
+
+      // Default the latest query to open only on very first page load
+      if (userOpenStates.size === 0 && queries[0]) {
+        userOpenStates.add(`q-${queries[0].id}`);
+      }
+
+      const html = queries.map((q) => {
+        let parsed = {};
+        let resolved = {};
+        let focusMemos = [];
+        try { parsed = typeof q.parsed_json === "string" ? JSON.parse(q.parsed_json) : (q.parsed_json || {}); } catch(e){}
+        try { resolved = typeof q.resolved_json === "string" ? JSON.parse(q.resolved_json) : (q.resolved_json || {}); } catch(e){}
+        try { focusMemos = typeof q.focus_memory_ids === "string" ? JSON.parse(q.focus_memory_ids) : (q.focus_memory_ids || []); } catch(e){}
+
+        const followupBadge = q.is_followup ? `<span class="badge badge-followup">follow-up</span>` : "";
+        const qKey = `q-${q.id}`;
+
+        return `
+          <details class="record" data-id="${qKey}" ${userOpenStates.has(qKey) ? "open" : ""}>
+            <summary>
+              ${badgeForIntent(q.intent)}
+              ${followupBadge}
+              <span class="q-text">"${escapeHtml(q.question)}"</span>
+              <span class="time">${formatTime(q.created_at)}</span>
+            </summary>
+            
+            <div class="answer-highlight">
+              <b>Answer:</b> ${escapeHtml(q.answer || "No answer provided")}
+            </div>
+
+            <dl>
+              <dt>Session ID</dt><dd><code>${escapeHtml(q.session_id)}</code></dd>
+              <dt>Patient ID</dt><dd>${escapeHtml(q.patient_id)}</dd>
+              <dt>Intent & Slots</dt><dd><pre>${escapeHtml(JSON.stringify(parsed, null, 2))}</pre></dd>
+              <dt>Resolved Search Plan</dt><dd><pre>${escapeHtml(JSON.stringify(resolved, null, 2))}</pre></dd>
+              <dt>Focus Memories</dt><dd>${focusMemos.length > 0 ? focusMemos.map(m => `<code>${escapeHtml(m)}</code>`).join(" ") : "<span class='muted'>None</span>"}</dd>
+            </dl>
+          </details>
+        `;
+      }).join("");
+
+      $("questionsList").innerHTML = html;
+    }
+
+    function renderAuditTab(queries, llmCalls) {
+      if (!queries || queries.length === 0) {
+        $("auditList").innerHTML = "<p class='muted'>No LLM traces recorded yet.</p>";
+        return;
+      }
+
+      const html = queries.map((q) => {
+        let records = null;
+        try { records = typeof q.records_json === "string" ? JSON.parse(q.records_json) : q.records_json; } catch(e){}
+
+        const relatedCalls = (llmCalls || []).filter(
+          (c) => c.session_id === q.session_id && (c.question === q.question || c.created_at?.slice(0,16) === q.created_at?.slice(0,16))
+        );
+        const parserCall = relatedCalls.find((c) => c.kind === "parser");
+        const answerCall = relatedCalls.find((c) => c.kind === "answer");
+
+        const auditKey = `audit-q-${q.id}`;
+        const parserKey = `audit-q-${q.id}-parser`;
+        const recordsKey = `audit-q-${q.id}-records`;
+        const answerKey = `audit-q-${q.id}-answer`;
+
+        return `
+          <details class="record" data-id="${auditKey}" ${userOpenStates.has(auditKey) ? "open" : ""}>
+            <summary>
+              ${badgeForIntent(q.intent)}
+              <b>Q:</b> <span class="q-text">"${escapeHtml(q.question)}"</span>
+              <span class="time">${formatTime(q.created_at)}</span>
+            </summary>
+
+            <details class="sub-record" data-id="${parserKey}" ${userOpenStates.has(parserKey) ? "open" : ""}>
+              <summary>1. Parser LLM Call (Question → Slots) ${parserCall ? "✓" : "(Heuristic)"}</summary>
+              <dl>
+                <dt>Prompt Input</dt>
+                <dd><pre>${escapeHtml(parserCall?.prompt || "No LLM parser call (used heuristic parser or follow-up inheritance)")}</pre></dd>
+                <dt>Model Output</dt>
+                <dd><pre>${escapeHtml(parserCall?.response || q.parsed_json || "None")}</pre></dd>
+              </dl>
+            </details>
+
+            <details class="sub-record" data-id="${recordsKey}" ${userOpenStates.has(recordsKey) ? "open" : ""}>
+              <summary>2. Retrieved Records & Authoritative Profile Payload</summary>
+              <pre>${escapeHtml(records ? JSON.stringify(records, null, 2) : "No records retrieved.")}</pre>
+            </details>
+
+            <details class="sub-record" data-id="${answerKey}" ${userOpenStates.has(answerKey) ? "open" : ""}>
+              <summary>3. Answer LLM Call (Records → Answer) ${answerCall ? "✓" : "(Fixed Refusal)"}</summary>
+              <dl>
+                <dt>Prompt Input</dt>
+                <dd><pre>${escapeHtml(answerCall?.prompt || "No second LLM call (returned fixed response due to empty records or camera request)")}</pre></dd>
+                <dt>Model Output</dt>
+                <dd><pre>${escapeHtml(answerCall?.response || q.answer || "None")}</pre></dd>
+              </dl>
+            </details>
+          </details>
+        `;
+      }).join("");
+
+      $("auditList").innerHTML = html;
+    }
+
+    function renderSessionsTab(sessions) {
+      if (!sessions || sessions.length === 0) {
+        $("activeSessionsList").innerHTML = "<p class='muted'>No active sessions.</p>";
+        $("closedSessionsList").innerHTML = "<p class='muted'>No closed sessions.</p>";
+        return;
+      }
+
+      const active = sessions.filter(s => s.is_active);
+      const closed = sessions.filter(s => !s.is_active);
+
+      $("statTotalSessions").textContent = sessions.length;
+      $("statActiveSessions").textContent = active.length;
+      $("statClosedSessions").textContent = closed.length;
+
+      function renderSessionList(list, isActiveSection) {
+        if (list.length === 0) {
+          return `<p class='muted'>No ${isActiveSection ? "active" : "closed"} sessions.</p>`;
+        }
+        return list.map(s => {
+          let turns = [];
+          try {
+            turns = Array.isArray(s.turns) ? s.turns : (typeof s.turns === "string" ? JSON.parse(s.turns) : []);
+          } catch(e) {}
+
+          const statusBadge = s.is_active
+            ? `<span class="badge badge-active">🟢 Open</span>`
+            : `<span class="badge badge-closed">⚪ Closed</span>`;
+
+          const closeBtn = s.is_active
+            ? `<button class="close-btn" onclick="closeSession('${escapeHtml(s.session_id)}')">Close Session</button>`
+            : "";
+
+          const turnsRows = turns.map((t, idx) => `
+            <tr>
+              <td>#${idx + 1}</td>
+              <td><b>${escapeHtml(t.question)}</b></td>
+              <td>${badgeForIntent(t.intent)}</td>
+              <td>${escapeHtml(t.answer || "—")}</td>
+            </tr>
+          `).join("");
+
+          const sKey = `s-${s.session_id}`;
+
+          return `
+            <details class="record" data-id="${sKey}" ${userOpenStates.has(sKey) ? "open" : ""}>
+              <summary>
+                ${statusBadge}
+                <b>Session:</b> <code>${escapeHtml(s.session_id)}</code>
+                <span>· Patient ${escapeHtml(s.patient_id)}</span>
+                <span>· <b>${s.turn_count || turns.length}</b> turns</span>
+                <span class="time">${s.is_active ? "Last active: " + formatTime(s.last_question_at) : "Closed at: " + formatTime(s.closed_at)}</span>
+              </summary>
+              <dl>
+                <dt>Session ID</dt><dd><code>${escapeHtml(s.session_id)}</code> ${closeBtn}</dd>
+                <dt>Patient ID</dt><dd>${escapeHtml(s.patient_id)}</dd>
+                <dt>Started At</dt><dd>${formatTime(s.started_at)}</dd>
+                <dt>Last Question At</dt><dd>${formatTime(s.last_question_at)}</dd>
+                <dt>Status</dt><dd>${s.is_active ? "<strong style='color:#166534'>Active / Open</strong> (will close automatically if idle)" : "<strong style='color:#64748b'>Closed</strong> at " + formatTime(s.closed_at)}</dd>
+                <dt>Focus Memories</dt><dd>${(s.focus_memory_ids || []).length > 0 ? (s.focus_memory_ids).map(m => `<code>${escapeHtml(m)}</code>`).join(" ") : "<span class='muted'>None</span>"}</dd>
+                <dt>Last Resolved Plan</dt><dd><pre>${escapeHtml(JSON.stringify(s.last_query || {}, null, 2))}</pre></dd>
+              </dl>
+
+              <h4 style="margin: 16px 0 8px;">Session Turn History (${turns.length})</h4>
+              ${turns.length > 0 ? `
+                <table class="turns-table">
+                  <thead>
+                    <tr><th>Turn</th><th>Question</th><th>Intent</th><th>Answer</th></tr>
+                  </thead>
+                  <tbody>${turnsRows}</tbody>
+                </table>
+              ` : "<p class='muted'>No turns recorded in this session yet.</p>"}
+            </details>
+          `;
+        }).join("");
+      }
+
+      $("activeSessionsList").innerHTML = renderSessionList(active, true);
+      $("closedSessionsList").innerHTML = renderSessionList(closed, false);
+    }
+
+    async function refreshData(force = false) {
+      try {
+        const debug = await fetch("./debug").then(r => r.json());
+        cachedDebug = debug;
+
+        // Health & Status
+        const h = debug.health || {};
+        $("statusBar").innerHTML = `
+          Status: <b>Healthy</b> · Session gap timeout: <b>${debug.session_gap_seconds}s</b> · 
+          Neo4j Graph: <b>${h.graph ? "Connected" : "Disconnected"}</b> · 
+          Vector Store: <b>${h.vector_mode || (h.vector ? "Ready" : "Offline")}</b> · 
+          LLM: <b>${h.llm ? "Connected (OpenRouter)" : "Offline"}</b>
+        `;
+
+        // Update stats
+        const queries = debug.queries || [];
+        $("statTotalQueries").textContent = queries.length;
+        $("statRecall").textContent = queries.filter(q => q.intent === "recall").length;
+        $("statHappening").textContent = queries.filter(q => q.intent === "what_happening").length;
+        $("statWhoIs").textContent = queries.filter(q => q.intent === "who_is").length;
+        $("statFollowups").textContent = queries.filter(q => q.is_followup).length;
+
+        // Check if data actually changed
+        const newPayloadStr = JSON.stringify({
+          qCount: queries.length,
+          lastQId: queries[0]?.id,
+          sCount: (debug.sessions || []).length,
+          callsCount: (debug.llm_calls || []).length
+        });
+
+        if (!force && cachedPayloadStr && newPayloadStr === cachedPayloadStr) {
+          return;
+        }
+        cachedPayloadStr = newPayloadStr;
+
+        // Sync currently open details from DOM so user's manual toggles are preserved
+        syncOpenStatesFromDOM();
+
+        // Render Tabs
+        renderQuestionsTab(queries);
+        renderAuditTab(queries, debug.llm_calls || []);
+        renderSessionsTab(debug.sessions || []);
+
+      } catch (err) {
+        $("statusBar").textContent = "Failed to fetch debug data: " + err.message;
+      }
+    }
+
+    async function sendQuestion(text) {
+      if (!text) return;
+      $("statusBar").innerHTML = "<b>Running retrieval pipeline…</b>";
+      try {
+        const patientId = Number($("patientId").value) || 1;
+        const res = await fetch("./query", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ patient_id: patientId, question: text }),
+        });
+        const data = await res.json();
+        $("statusBar").innerHTML = `<b>Completed:</b> ${escapeHtml(data.answer || data.action || "Done")}`;
+        $("question").value = "";
+        await refreshData(true);
+      } catch (err) {
+        $("statusBar").innerHTML = `<span style="color:#b42318"><b>Error:</b> ${escapeHtml(err.message)}</span>`;
+      }
+    }
+
+    $("ask").onclick = () => {
+      const q = $("question").value.trim();
+      if (!q) {
+        alert("Please enter a question.");
+        return;
+      }
+      sendQuestion(q);
+    };
+
+    $("question").addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        $("ask").click();
+      }
+    });
+
+    $("capture").onclick = () => {
+      const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!Speech) {
+        alert("Your browser does not support Web Speech Recognition. Please type the question.");
+        return;
+      }
+      recognition = new Speech();
+      recognition.lang = "en-US";
+      recognition.onstart = () => {
+        $("capture").style.display = "none";
+        $("stop").style.display = "inline-block";
+        $("statusBar").innerHTML = "<b>Listening for speech…</b>";
+      };
+      recognition.onresult = (e) => {
+        const transcript = e.results[0][0].transcript;
+        $("question").value = transcript;
+        sendQuestion(transcript);
+      };
+      recognition.onerror = (e) => {
+        $("statusBar").textContent = "Speech error: " + e.error;
+      };
+      recognition.onend = () => {
+        $("capture").style.display = "inline-block";
+        $("stop").style.display = "none";
+      };
+      recognition.start();
+    };
+
+    $("stop").onclick = () => {
+      if (recognition) recognition.stop();
+    };
+
+    $("refresh").onclick = () => refreshData(true);
+
+    // Check URL hash for initial tab
+    if (window.location.hash === "#audit") {
+      switchTab("audit");
+    } else if (window.location.hash === "#sessions") {
+      switchTab("sessions");
+    }
+
+    refreshData();
+    setInterval(refreshData, 5000);
+  </script>
+</body>
+</html>
